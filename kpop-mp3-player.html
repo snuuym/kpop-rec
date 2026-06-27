@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-Pop MP3 Player</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --body-pink: #F2BFBF;
+    --body-pink-light: #FAD8D8;
+    --body-pink-shadow: #D49090;
+    --screen-bg: #2A1530;
+    --screen-bright: #F9C8F4;
+    --text-lcd: #F0B8EC;
+    --text-lcd-dim: #9B5A98;
+    --wheel-bg: #F7D0D0;
+    --wheel-center: #FAEAEA;
+    --wheel-border: #DBA0A0;
+    --wheel-btn: #C88888;
+    --progress-fill: #F472B6;
+    --progress-bg: #5C2A5C;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f9f0f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: sans-serif; }
+
+  .player-wrap { display: flex; justify-content: center; align-items: center; padding: 24px 12px 32px; }
+
+  .player-body {
+    background: var(--body-pink);
+    border-radius: 32px;
+    border: 2.5px solid var(--body-pink-shadow);
+    padding: 18px 22px 22px;
+    display: flex; flex-direction: row; gap: 20px; align-items: center;
+    width: 570px; position: relative;
+  }
+  .player-body::before {
+    content: ''; position: absolute; inset: 3px;
+    border-radius: 30px; border: 1.5px solid var(--body-pink-light); pointer-events: none;
+  }
+
+  .screen-section { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; position: relative; }
+
+  .screen {
+    background: var(--screen-bg); border-radius: 10px; border: 2px solid #1A0D22;
+    padding: 10px; position: relative; overflow: hidden;
+  }
+  .screen::after {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.018) 3px, rgba(255,255,255,0.018) 4px);
+    pointer-events: none; border-radius: 8px;
+  }
+
+  .screen-top { display: flex; gap: 8px; margin-bottom: 8px; }
+
+  .album-art {
+    width: 58px; height: 58px; border-radius: 6px;
+    border: 1px solid #4A1A5A; background: #3D1A4D;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .disc {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 6px solid #8B3A8B; border-top-color: #C060C0; border-left-color: #C060C0;
+    display: flex; align-items: center; justify-content: center;
+    animation: spin 4s linear infinite;
+  }
+  .disc::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #2A1530; border: 1.5px solid #C060C0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .disc.paused { animation-play-state: paused; }
+
+  .track-info { flex: 1; min-width: 0; }
+  .track-title { font-family: 'VT323', monospace; font-size: 19px; color: var(--screen-bright); line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .track-artist { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-lcd); margin-top: 3px; }
+  .track-tag { display: inline-block; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: #C060C0; background: #3D1040; border-radius: 3px; padding: 1px 5px; margin-top: 4px; }
+
+  .progress-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+  .time-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-lcd-dim); min-width: 28px; }
+  .progress-bar-wrap { flex: 1; height: 5px; background: var(--progress-bg); border-radius: 3px; cursor: pointer; position: relative; }
+  .progress-bar-fill { height: 100%; background: var(--progress-fill); border-radius: 3px; width: 0%; transition: width 0.5s linear; position: relative; }
+  .progress-bar-fill::after { content: ''; position: absolute; right: -3px; top: -3px; width: 11px; height: 11px; border-radius: 50%; background: #F9A8D4; border: 2px solid var(--screen-bg); }
+
+  .screen-status { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--progress-fill); display: inline-block; margin-right: 4px; animation: blink 1.2s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  .status-dot.paused-dot { animation: none; opacity: 0.3; background: var(--text-lcd-dim); }
+  .status-text { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-lcd-dim); display: flex; align-items: center; }
+  .pl-count-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-lcd-dim); }
+
+  .search-row { display: flex; gap: 5px; }
+  .search-input {
+    flex: 1; background: #1A0D22; border: 1px solid #4A1A5A; border-radius: 5px;
+    color: var(--text-lcd); font-family: 'Share Tech Mono', monospace; font-size: 11px;
+    padding: 4px 8px; outline: none; height: 26px;
+  }
+  .search-input::placeholder { color: var(--text-lcd-dim); }
+  .search-btn {
+    background: #4A1A5A; border: 1px solid #7A2A8A; border-radius: 5px;
+    color: var(--screen-bright); font-family: 'Share Tech Mono', monospace; font-size: 10px;
+    padding: 0 8px; cursor: pointer; height: 26px; white-space: nowrap;
+  }
+  .search-btn:hover { background: #5A2070; }
+  .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .playlist-mini {
+    background: var(--screen-bg); border-radius: 8px; border: 2px solid #1A0D22;
+    padding: 6px 8px; max-height: 110px; overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: #4A1A5A transparent;
+  }
+  .playlist-item { display: flex; gap: 6px; align-items: center; padding: 3px 0; cursor: pointer; border-bottom: 1px solid #3A1A4A; }
+  .playlist-item:last-child { border-bottom: none; }
+  .pl-num { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-lcd-dim); min-width: 18px; }
+  .pl-title { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-lcd); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pl-dur { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-lcd-dim); }
+  .playlist-item.active .pl-title { color: var(--screen-bright); }
+  .playlist-item.active .pl-num { color: var(--progress-fill); }
+  .playlist-item.seed .pl-title { color: #F9C86C; }
+  .playlist-item.seed .pl-num  { color: #F9C86C; }
+
+  .wheel-section { display: flex; flex-direction: column; align-items: center; gap: 10px; flex-shrink: 0; width: 160px; }
+  .menu-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--body-pink-shadow); letter-spacing: 2px; text-align: center; width: 100%; cursor: pointer; }
+  .menu-label:hover { color: var(--body-pink-shadow); text-decoration: underline; }
+
+  .click-wheel {
+    width: 148px; height: 148px; border-radius: 50%;
+    background: var(--wheel-bg); border: 2.5px solid var(--wheel-border);
+    position: relative; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .click-wheel::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; border: 1px solid var(--body-pink-light); }
+
+  .wheel-btn {
+    position: absolute; display: flex; align-items: center; justify-content: center;
+    color: var(--wheel-btn); cursor: pointer; transition: color 0.1s; user-select: none;
+  }
+  .wheel-btn:active { color: #A06060; }
+  .wheel-top    { top: 9px;    left: 50%; transform: translateX(-50%); }
+  .wheel-bottom { bottom: 9px; left: 50%; transform: translateX(-50%); }
+  .wheel-left   { left: 10px;  top: 50%; transform: translateY(-50%); flex-direction: column; gap: 2px; }
+  .wheel-right  { right: 10px; top: 50%; transform: translateY(-50%); flex-direction: column; gap: 2px; }
+  .vol-side-label { font-family: 'Share Tech Mono', monospace; font-size: 8px; color: var(--body-pink-shadow); letter-spacing: 0.5px; line-height: 1; }
+
+  .wheel-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .wheel-left svg, .wheel-right svg { width: 15px; height: 15px; }
+
+  .wheel-center-btn {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--wheel-center); border: 2px solid var(--wheel-border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 2; transition: background 0.1s;
+  }
+  .wheel-center-btn:active { background: #F0C8C8; }
+
+  .play-icon  { width: 0; height: 0; border-top: 9px solid transparent; border-bottom: 9px solid transparent; border-left: 14px solid var(--wheel-btn); margin-left: 3px; }
+  .pause-icon { display: flex; gap: 4px; }
+  .pause-bar  { width: 5px; height: 16px; background: var(--wheel-btn); border-radius: 1px; }
+
+  .action-btns { display: flex; gap: 6px; width: 100%; }
+  .action-btn {
+    flex: 1; background: #E8ACAC; border: 1.5px solid var(--body-pink-shadow);
+    border-radius: 8px; color: #8B3030; font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; padding: 5px 3px; cursor: pointer; text-align: center; line-height: 1.3;
+    transition: background 0.1s;
+  }
+  .action-btn:hover { background: #D8989A; }
+  .action-btn:active { transform: scale(0.97); }
+  .action-btn svg { display: block; margin: 0 auto 3px; width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Name-entry overlay (save / rename) */
+  .name-panel {
+    display: none; position: absolute; inset: 0; z-index: 11;
+    background: var(--screen-bg); border-radius: 8px; border: 2px solid #1A0D22;
+    flex-direction: column;
+  }
+  .name-panel.open { display: flex; }
+  .name-panel-body { padding: 14px 10px; display: flex; flex-direction: column; gap: 10px; }
+  .name-panel-confirm {
+    background: #4A1A5A; border: 1px solid #7A2A8A; border-radius: 5px;
+    color: var(--screen-bright); font-family: 'Share Tech Mono', monospace; font-size: 10px;
+    padding: 5px 0; cursor: pointer; width: 100%;
+  }
+  .name-panel-confirm:hover { background: #5A2070; }
+
+  /* Saved playlists overlay panel */
+  .saved-panel {
+    display: none; position: absolute; inset: 0; z-index: 10;
+    background: var(--screen-bg); border-radius: 8px; border: 2px solid #1A0D22;
+    flex-direction: column;
+  }
+  .saved-panel.open { display: flex; }
+  .saved-panel-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 10px; border-bottom: 1px solid #3A1A4A; flex-shrink: 0;
+  }
+  .saved-panel-title { font-family: 'VT323', monospace; font-size: 16px; color: var(--screen-bright); }
+  .saved-panel-close {
+    font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-lcd-dim);
+    background: none; border: none; cursor: pointer; padding: 2px 4px;
+  }
+  .saved-panel-close:hover { color: var(--screen-bright); }
+  .saved-panel-list {
+    flex: 1; overflow-y: auto; padding: 4px 10px;
+    scrollbar-width: thin; scrollbar-color: #4A1A5A transparent;
+  }
+  .saved-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 0; border-bottom: 1px solid #3A1A4A; cursor: pointer;
+  }
+  .saved-item:last-child { border-bottom: none; }
+  .saved-item-info { flex: 1; }
+  .saved-item-name { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-lcd); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+  .saved-item:hover .saved-item-name { color: var(--screen-bright); }
+  .saved-item-meta { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-lcd-dim); margin-top: 1px; }
+  .saved-item-del { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: #7A2A5A; cursor: pointer; padding: 0 4px; flex-shrink: 0; }
+  .saved-item-del:hover { color: #C060C0; }
+  .saved-item-ren { color: #5A3A7A; cursor: pointer; padding: 0 4px; flex-shrink: 0; display: flex; align-items: center; }
+  .saved-item-ren:hover { color: #C060C0; }
+  .saved-item-ren svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .saved-empty { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-lcd-dim); padding: 14px 2px; line-height: 1.6; }
+
+  /* Toast notification */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #3D1040; color: var(--screen-bright);
+    font-family: 'Share Tech Mono', monospace; font-size: 11px;
+    padding: 8px 18px; border-radius: 20px; border: 1px solid #7A2A8A;
+    opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="player-wrap">
+  <div class="player-body">
+    <div class="screen-section">
+      <div class="screen">
+        <div class="screen-top">
+          <div class="album-art">
+            <div class="disc" id="disc"></div>
+          </div>
+          <div class="track-info">
+            <div class="track-title" id="track-title">K-Pop Player</div>
+            <div class="track-artist" id="track-artist">Connect Spotify to start</div>
+            <span class="track-tag" id="track-tag">K-pop</span>
+            <button class="search-btn" id="connect-spotify-btn" style="display:none;margin-top:5px;" onclick="loginSpotify()">Connect Spotify</button>
+          </div>
+        </div>
+        <div class="progress-row">
+          <span class="time-label" id="time-cur">0:00</span>
+          <div class="progress-bar-wrap" id="prog-wrap">
+            <div class="progress-bar-fill" id="prog-fill"></div>
+          </div>
+          <span class="time-label" style="text-align:right" id="time-tot">0:00</span>
+        </div>
+        <div class="screen-status">
+          <span class="status-text">
+            <span class="status-dot paused-dot" id="status-dot"></span>
+            <span id="status-label">READY</span>
+          </span>
+          <span class="pl-count-label" id="pl-count">0 / 0</span>
+        </div>
+      </div>
+
+      <div class="search-row">
+        <input class="search-input" type="text" id="search-input" placeholder="Search a K-pop song..." />
+        <button class="search-btn" id="search-btn" onclick="handleSearch()">Generate</button>
+      </div>
+
+      <div class="playlist-mini" id="playlist-mini">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#9B5A98;padding:6px 2px;">
+          ── songs.json not loaded ──<br>
+          Run build_library.py first,<br>
+          then place songs.json here.
+        </div>
+      </div>
+
+      <div class="saved-panel" id="saved-panel">
+        <div class="saved-panel-header">
+          <span class="saved-panel-title">Saved Playlists</span>
+          <button class="saved-panel-close" onclick="closeSavedPanel()">← Back</button>
+        </div>
+        <div class="saved-panel-list" id="saved-panel-list"></div>
+      </div>
+
+      <div class="name-panel" id="name-panel">
+        <div class="saved-panel-header">
+          <span class="saved-panel-title" id="name-panel-title">Name Playlist</span>
+          <button class="saved-panel-close" onclick="closeNamePanel()">✕</button>
+        </div>
+        <div class="name-panel-body">
+          <input class="search-input" id="name-panel-input" style="height:28px;" placeholder="Playlist name..." />
+          <button class="name-panel-confirm" onclick="confirmSaveName()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="wheel-section">
+      <span class="menu-label" onclick="openSavedPanel()" title="Saved playlists">MENU</span>
+      <div class="click-wheel">
+        <div class="wheel-btn wheel-top" onclick="prevTrack()" title="Previous">
+          <svg viewBox="0 0 24 24"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+        </div>
+        <div class="wheel-btn wheel-left" onclick="volDown()" title="Volume down">
+          <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="15" y1="9" x2="19" y2="15"/><line x1="19" y1="9" x2="15" y2="15"/></svg>
+          <span class="vol-side-label">VOL−</span>
+        </div>
+        <div class="wheel-btn wheel-right" onclick="volUp()" title="Volume up">
+          <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          <span class="vol-side-label">VOL+</span>
+        </div>
+        <div class="wheel-btn wheel-bottom" onclick="nextTrack()" title="Next">
+          <svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+        </div>
+        <div class="wheel-center-btn" onclick="togglePlay()" title="Play / Pause">
+          <div class="pause-icon" id="center-icon">
+            <div class="pause-bar"></div><div class="pause-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-btns">
+        <button class="action-btn" onclick="savePlaylist()">
+          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save
+        </button>
+        <button class="action-btn" onclick="shufflePlaylist()">
+          <svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+          Shuffle
+        </button>
+        <button class="action-btn" onclick="exportToSpotify()">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 11.973c2.5-1.473 5.5-.973 7.5.527"/><path d="M9 15c1.5-1 4-1 5 .5"/><path d="M7 9c2-1 6-2 9 .5"/></svg>
+          Export
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── Config ── */
+const LASTFM_KEY = "7f2d0885886279a622e2a0384c807f85";
+const LASTFM_BASE = "https://ws.audioscrobbler.com/2.0/";
+const PLAYLIST_SIZE = 50;
+
+/* ── Spotify config ── */
+const SPOTIFY_CLIENT_ID = "3b83bb835d39465aaa7e2e857981d7ba";
+const SPOTIFY_REDIRECT_URI = "https://snuuym.github.io/kpop-rec/kpop-mp3-player.html";
+const SPOTIFY_SCOPES = "streaming user-read-email user-read-private user-modify-playback-state user-read-playback-state playlist-modify-public playlist-modify-private";
+
+/* ── State ── */
+let LIBRARY   = [];   // loaded from songs.json
+let playlist  = [];   // current 50-track playlist
+let currentIdx = 0;
+let isPlaying  = false;
+let elapsedSec = 0;
+let volume     = 70;
+
+/* ── Phase 4/5 state ── */
+let lastSearchTags  = [];
+let lastSearchQuery = '';
+let seedTrackData   = null;
+
+/* ── Spotify state ── */
+let accessToken  = null;
+let player       = null;   // Spotify.Player instance
+let deviceId     = null;
+let spotifyReady = false;
+let sdkLoaded    = false;
+let lastState    = { paused: true, position: 0 };
+
+/* ── Helpers ── */
+function fmtTime(s) {
+  const m = Math.floor(s / 60), sec = s % 60;
+  return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+function showToast(msg, ms = 2200) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), ms);
+}
+
+function randomSample(arr, n) {
+  return [...arr].sort(() => Math.random() - 0.5).slice(0, n);
+}
+
+function setSearchingState(query) {
+  document.getElementById('track-title').textContent  = 'Searching...';
+  document.getElementById('track-artist').textContent = query;
+  document.getElementById('track-tag').textContent    = '...';
+  document.getElementById('status-label').textContent = 'SEARCHING';
+  document.getElementById('status-dot').classList.remove('paused-dot');
+}
+
+/* ── Load songs.json ── */
+async function loadLibrary() {
+  try {
+    const r = await fetch('songs.json');
+    if (!r.ok) throw new Error('not found');
+    LIBRARY = await r.json();
+    document.getElementById('playlist-mini').innerHTML =
+      `<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#9B5A98;padding:4px 2px;">
+        Library loaded: ${LIBRARY.length} tracks.<br>Search a song to generate a playlist.
+       </div>`;
+    showToast(`Library: ${LIBRARY.length} tracks ready`);
+  } catch (e) {
+    /* songs.json not present — keep the placeholder message */
+  }
+}
+
+/* ── Last.fm: get top tags for a track ── */
+async function getTrackTags(artist, title) {
+  const url = `${LASTFM_BASE}?method=track.getTopTags&artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(title)}&api_key=${LASTFM_KEY}&format=json`;
+  try {
+    const r    = await fetch(url);
+    const data = await r.json();
+    const tags = data?.toptags?.tag || [];
+    return tags.map(t => t.name.toLowerCase());
+  } catch (e) {
+    return [];
+  }
+}
+
+/* ── Last.fm: search for a track ── */
+async function searchTrack(query) {
+  const url = `${LASTFM_BASE}?method=track.search&track=${encodeURIComponent(query)}&api_key=${LASTFM_KEY}&format=json&limit=5`;
+  try {
+    const r    = await fetch(url);
+    const data = await r.json();
+    const matches = data?.results?.trackmatches?.track || [];
+    return matches[0] || null;   // best match
+  } catch (e) {
+    return null;
+  }
+}
+
+/* ── Recommendation: tag → playlist ── */
+const TAG_MAP = {
+  "k-pop":         "K-pop",
+  "kpop":          "K-pop",
+  "korean pop":    "K-pop",
+  "k-indie":       "K-indie",
+  "k-ballad":      "K-ballad",
+  "k-hip-hop":     "K-hip-hop",
+  "hip hop":       "K-hip-hop",
+  "k-r&b":         "K-R&B",
+  "r&b":           "K-R&B",
+  "k-rock":        "K-rock",
+  "korean ost":    "K-OST",
+  "ost":           "K-OST",
+  "girl group":    "Girl group",
+  "boy band":      "Boy band",
+  "bubblegum pop": "Bubblegum pop",
+  "dance pop":     "Dance pop",
+  "dream pop":     "Dream pop",
+};
+
+function buildPlaylist(tags) {
+  // 1. Map raw Last.fm tags → our genre labels
+  const matchedGenres = new Set();
+  for (const t of tags) {
+    for (const [key, label] of Object.entries(TAG_MAP)) {
+      if (t.includes(key) || key.includes(t)) matchedGenres.add(label);
+    }
+  }
+
+  // 2. Always include generic K-pop as fallback
+  matchedGenres.add("K-pop");
+
+  // 3. Score every library track by how many matched genres it has
+  const scored = LIBRARY.map(song => ({
+    ...song,
+    score: matchedGenres.has(song.tag) ? 2 : 1
+  }));
+
+  // 4. Weighted shuffle: higher score = higher probability
+  const shuffled = scored.sort(() => Math.random() - 0.5)
+                         .sort((a, b) => b.score - a.score);
+
+  // 5. Take top PLAYLIST_SIZE, ensure variety (not all same tag)
+  const result = [];
+  const tagCounts = {};
+  const maxPerTag = Math.ceil(PLAYLIST_SIZE / Math.max(matchedGenres.size, 3));
+
+  for (const song of shuffled) {
+    if (result.length >= PLAYLIST_SIZE) break;
+    tagCounts[song.tag] = (tagCounts[song.tag] || 0) + 1;
+    if (tagCounts[song.tag] <= maxPerTag || result.length < 10) {
+      result.push(song);
+    }
+  }
+
+  // pad if needed
+  for (const song of shuffled) {
+    if (result.length >= PLAYLIST_SIZE) break;
+    if (!result.includes(song)) result.push(song);
+  }
+
+  return result.slice(0, PLAYLIST_SIZE);
+}
+
+/* ── Search handler ── */
+async function handleSearch() {
+  const query = document.getElementById('search-input').value.trim();
+  if (!query) return;
+
+  lastSearchQuery = query;
+  const btn = document.getElementById('search-btn');
+  btn.textContent = '...';
+  btn.disabled = true;
+  setSearchingState(query);
+
+  try {
+    if (LIBRARY.length === 0) {
+      showToast('songs.json not loaded — run build_library.py first', 3500);
+      return;
+    }
+
+    // 1. Find the track on Last.fm
+    const track = await searchTrack(query);
+    if (!track) { showToast('Track not found on Last.fm'); return; }
+
+    // 2. Get its tags
+    const tags = await getTrackTags(track.artist, track.name);
+
+    // 3. Build playlist; fallback to random sample if no usable tags
+    let tracks;
+    if (tags.length === 0) {
+      showToast('No tags found — random playlist');
+      tracks = randomSample(LIBRARY, PLAYLIST_SIZE - 1);
+      lastSearchTags = [];
+    } else {
+      showToast(`Tags: ${tags.slice(0,3).join(' · ')}`);
+      lastSearchTags = tags;
+      tracks = buildPlaylist(tags).slice(0, PLAYLIST_SIZE - 1);
+    }
+
+    // 4. Prepend seed track at index 0
+    seedTrackData = { title: track.name, artist: track.artist, tag: 'SEED', tags: [], dur: 0, durStr: '--:--', isSeed: true };
+    playlist   = [seedTrackData, ...tracks];
+    currentIdx = 0;
+    elapsedSec = 0;
+
+    setPlayState(true);
+    updateScreen();
+    renderPlaylist();
+    if (spotifyReady) playCurrent();
+    showToast(`Playlist: ${playlist.length} tracks`);
+
+  } finally {
+    btn.textContent = 'Generate';
+    btn.disabled = false;
+  }
+}
+
+/* ── Player UI ── */
+function renderPlaylist() {
+  document.getElementById('playlist-mini').innerHTML = playlist.map((t, i) => {
+    const cls = ['playlist-item', i === currentIdx ? 'active' : '', t.isSeed ? 'seed' : ''].filter(Boolean).join(' ');
+    const num = t.isSeed ? '★' : String(i).padStart(2, '0');
+    return `<div class="${cls}" onclick="jumpTo(${i})">
+      <span class="pl-num">${num}</span>
+      <span class="pl-title">${t.title} — ${t.artist}</span>
+      <span class="pl-dur">${t.durStr}</span>
+    </div>`;
+  }).join('');
+  const active = document.querySelector('.playlist-item.active');
+  if (active) active.scrollIntoView({ block: 'nearest' });
+}
+
+function updateScreen() {
+  if (playlist.length === 0) return;
+  const t = playlist[currentIdx];
+  document.getElementById('track-title').textContent  = t.title;
+  document.getElementById('track-artist').textContent = t.artist;
+  document.getElementById('track-tag').textContent    = t.tag || 'K-pop';
+  document.getElementById('time-tot').textContent     = t.durStr || '--:--';
+  document.getElementById('pl-count').textContent     = (currentIdx + 1) + ' / ' + playlist.length;
+  updateProgress();
+}
+
+function updateProgress() {
+  if (playlist.length === 0) return;
+  const dur = playlist[currentIdx].dur;
+  const pct = Math.min(100, Math.round((elapsedSec / dur) * 100));
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('time-cur').textContent  = fmtTime(elapsedSec);
+}
+
+function setPlayState(playing) {
+  isPlaying = playing;
+  document.getElementById('disc').classList.toggle('paused', !playing);
+  document.getElementById('status-dot').classList.toggle('paused-dot', !playing);
+  document.getElementById('status-label').textContent = playing ? 'PLAYING' : 'PAUSED';
+  const icon = document.getElementById('center-icon');
+  if (playing) {
+    icon.innerHTML = '<div class="pause-bar"></div><div class="pause-bar"></div>';
+    icon.className = 'pause-icon';
+    icon.style.marginLeft = '';
+  } else {
+    icon.innerHTML = '';
+    icon.className = 'play-icon';
+    icon.style.marginLeft = '3px';
+  }
+}
+
+function togglePlay() {
+  if (playlist.length === 0) return;
+  if (spotifyReady) { player.togglePlay(); return; }   // state listener updates UI
+  setPlayState(!isPlaying);
+}
+
+function jumpTo(idx) {
+  currentIdx = idx; elapsedSec = 0;
+  setPlayState(true); updateScreen(); renderPlaylist();
+  if (spotifyReady) playCurrent();
+}
+function prevTrack() {
+  if (playlist.length === 0) return;
+  currentIdx = (currentIdx - 1 + playlist.length) % playlist.length;
+  elapsedSec = 0; setPlayState(true); updateScreen(); renderPlaylist();
+  if (spotifyReady) playCurrent();
+}
+function nextTrack() {
+  if (playlist.length === 0) return;
+  currentIdx = (currentIdx + 1) % playlist.length;
+  elapsedSec = 0; setPlayState(true); updateScreen(); renderPlaylist();
+  if (spotifyReady) playCurrent();
+}
+function volUp()   { volume = Math.min(100, volume + 10); if (spotifyReady) player.setVolume(volume / 100); showToast('Volume: ' + volume + '%'); }
+function volDown() { volume = Math.max(0,   volume - 10); if (spotifyReady) player.setVolume(volume / 100); showToast('Volume: ' + volume + '%'); }
+
+/* ── Save playlist (localStorage) ── */
+function savePlaylist() {
+  if (playlist.length === 0) { showToast('Nothing to save yet'); return; }
+  const saved = JSON.parse(localStorage.getItem('kpop_saved_playlists') || '[]');
+  const defaultName = lastSearchQuery
+    ? `${lastSearchQuery} (${new Date().toLocaleDateString()})`
+    : `Playlist ${saved.length + 1} (${new Date().toLocaleDateString()})`;
+  openNamePanel('Name Playlist', defaultName, name => {
+    saved.push({ name, tracks: playlist, savedAt: Date.now() });
+    localStorage.setItem('kpop_saved_playlists', JSON.stringify(saved));
+    showToast(`Saved: ${name}`);
+  });
+}
+
+/* ── Name-entry panel (shared by Save and Rename) ── */
+let _nameConfirmCb = null;
+
+function openNamePanel(title, defaultValue, callback) {
+  _nameConfirmCb = callback;
+  document.getElementById('name-panel-title').textContent = title;
+  const input = document.getElementById('name-panel-input');
+  input.value = defaultValue;
+  document.getElementById('name-panel').classList.add('open');
+  setTimeout(() => { input.focus(); input.select(); }, 40);
+}
+
+function closeNamePanel() {
+  document.getElementById('name-panel').classList.remove('open');
+  _nameConfirmCb = null;
+}
+
+function confirmSaveName() {
+  const name = document.getElementById('name-panel-input').value.trim();
+  if (!name) return;
+  const cb = _nameConfirmCb;
+  closeNamePanel();
+  if (cb) cb(name);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('name-panel').classList.contains('open')) {
+    confirmSaveName();
+  }
+});
+
+/* ── Progress bar click ── */
+document.getElementById('prog-wrap').addEventListener('click', async function(e) {
+  if (playlist.length === 0) return;
+  const rect = this.getBoundingClientRect();
+  const frac = (e.clientX - rect.left) / rect.width;
+  if (spotifyReady && player) {
+    const state = await player.getCurrentState();
+    if (state) player.seek(Math.floor(frac * state.duration));
+    return;
+  }
+  elapsedSec = Math.floor(frac * playlist[currentIdx].dur);
+  updateProgress();
+});
+
+/* ── Search on Enter ── */
+document.getElementById('search-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleSearch();
+});
+
+/* ── Playback tick (simulation only — Spotify drives its own progress) ── */
+setInterval(() => {
+  if (spotifyReady || !isPlaying || playlist.length === 0) return;
+  elapsedSec++;
+  if (elapsedSec >= playlist[currentIdx].dur) { nextTrack(); } else { updateProgress(); }
+}, 1000);
+
+/* ── Shuffle current playlist without re-searching ── */
+function shufflePlaylist() {
+  if (!seedTrackData) { showToast('Generate a playlist first'); return; }
+  const tracks = lastSearchTags.length > 0
+    ? buildPlaylist(lastSearchTags).slice(0, PLAYLIST_SIZE - 1)
+    : randomSample(LIBRARY, PLAYLIST_SIZE - 1);
+  playlist   = [seedTrackData, ...tracks];
+  currentIdx = 0;
+  elapsedSec = 0;
+  setPlayState(false);
+  updateScreen();
+  renderPlaylist();
+  showToast('Shuffled!');
+}
+
+/* ─────────────────────────────────────────────
+   Phase 5 — Saved Playlists panel + Spotify export
+   ───────────────────────────────────────────── */
+
+function openSavedPanel() {
+  renderSavedPanel();
+  document.getElementById('saved-panel').classList.add('open');
+}
+
+function closeSavedPanel() {
+  document.getElementById('saved-panel').classList.remove('open');
+}
+
+function renderSavedPanel() {
+  const saved = JSON.parse(localStorage.getItem('kpop_saved_playlists') || '[]');
+  const list  = document.getElementById('saved-panel-list');
+  if (saved.length === 0) {
+    list.innerHTML = '<div class="saved-empty">No saved playlists yet.<br>Generate one and press Save.</div>';
+    return;
+  }
+  list.innerHTML = saved.map((pl, i) => {
+    const date = new Date(pl.savedAt).toLocaleDateString();
+    return `<div class="saved-item">
+      <div class="saved-item-info" onclick="loadSavedPlaylist(${i})">
+        <div class="saved-item-name">${pl.name}</div>
+        <div class="saved-item-meta">${pl.tracks.length} tracks · ${date}</div>
+      </div>
+      <span class="saved-item-ren" onclick="renameSavedPlaylist(${i})" title="Rename">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </span>
+      <span class="saved-item-del" onclick="deleteSavedPlaylist(${i})" title="Delete">✕</span>
+    </div>`;
+  }).join('');
+}
+
+function renameSavedPlaylist(idx) {
+  const saved = JSON.parse(localStorage.getItem('kpop_saved_playlists') || '[]');
+  if (!saved[idx]) return;
+  openNamePanel('Rename Playlist', saved[idx].name, name => {
+    saved[idx].name = name;
+    localStorage.setItem('kpop_saved_playlists', JSON.stringify(saved));
+    renderSavedPanel();
+    showToast('Renamed');
+  });
+}
+
+function loadSavedPlaylist(idx) {
+  const saved = JSON.parse(localStorage.getItem('kpop_saved_playlists') || '[]');
+  if (!saved[idx]) return;
+  playlist      = saved[idx].tracks;
+  currentIdx    = 0;
+  elapsedSec    = 0;
+  seedTrackData = playlist[0]?.isSeed ? playlist[0] : null;
+  lastSearchTags = [];
+  closeSavedPanel();
+  setPlayState(false);
+  updateScreen();
+  renderPlaylist();
+  showToast(`Loaded: ${saved[idx].name}`);
+}
+
+function deleteSavedPlaylist(idx) {
+  const saved = JSON.parse(localStorage.getItem('kpop_saved_playlists') || '[]');
+  saved.splice(idx, 1);
+  localStorage.setItem('kpop_saved_playlists', JSON.stringify(saved));
+  renderSavedPanel();
+}
+
+function showToastLink(msg, url) {
+  const t = document.getElementById('toast');
+  t.innerHTML = `${msg} <a href="${url}" target="_blank" style="color:#F9C86C;text-decoration:none;">Open →</a>`;
+  t.style.pointerEvents = 'auto';
+  t.classList.add('show');
+  setTimeout(() => {
+    t.classList.remove('show');
+    t.style.pointerEvents = '';
+    t.innerHTML = '';
+  }, 7000);
+}
+
+async function exportToSpotify() {
+  if (!spotifyReady) { showToast('Connect Spotify first'); return; }
+  if (playlist.length === 0) { showToast('Nothing to export'); return; }
+
+  showToast('Resolving tracks…', 8000);
+
+  // 1. Get Spotify user ID
+  let userId;
+  try {
+    const r  = await spotifyFetch('https://api.spotify.com/v1/me');
+    const me = await r.json();
+    userId   = me.id;
+    if (!userId) throw new Error();
+  } catch (e) { showToast('Export failed: auth error'); return; }
+
+  // 2. Resolve Spotify URIs for all non-seed tracks
+  const uris = [];
+  for (const t of playlist) {
+    if (t.isSeed) continue;
+    const uri = await findSpotifyUri(t);
+    if (uri) uris.push(uri);
+  }
+  if (uris.length === 0) { showToast('No tracks found on Spotify'); return; }
+
+  // 3. Create playlist
+  const plName = lastSearchQuery ? `K-Pop: ${lastSearchQuery}` : 'K-Pop Mix';
+  let plId;
+  try {
+    const r  = await spotifyFetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ name: plName, public: false }),
+    });
+    const pl = await r.json();
+    plId     = pl.id;
+    if (!plId) throw new Error();
+  } catch (e) { showToast('Export failed: could not create playlist'); return; }
+
+  // 4. Add tracks in batches of 100
+  for (let i = 0; i < uris.length; i += 100) {
+    await spotifyFetch(`https://api.spotify.com/v1/playlists/${plId}/tracks`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ uris: uris.slice(i, i + 100) }),
+    });
+  }
+
+  // 5. Toast with link
+  showToastLink(`Exported ${uris.length} tracks!`, `https://open.spotify.com/playlist/${plId}`);
+}
+
+/* ─────────────────────────────────────────────
+   Spotify Web Playback SDK integration (Phase 3)
+   ───────────────────────────────────────────── */
+
+/* ── PKCE helpers ── */
+function genRandomString(len) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const arr = crypto.getRandomValues(new Uint8Array(len));
+  let out = '';
+  for (let i = 0; i < len; i++) out += chars[arr[i] % chars.length];
+  return out;
+}
+async function sha256(plain) {
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(plain));
+}
+function base64url(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)))
+    .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
+
+/* ── Auth: start PKCE login ── */
+async function loginSpotify() {
+  const verifier  = genRandomString(64);
+  const challenge = base64url(await sha256(verifier));
+  sessionStorage.setItem('spotify_verifier', verifier);
+  const params = new URLSearchParams({
+    client_id:             SPOTIFY_CLIENT_ID,
+    response_type:         'code',
+    redirect_uri:          SPOTIFY_REDIRECT_URI,
+    scope:                 SPOTIFY_SCOPES,
+    code_challenge_method: 'S256',
+    code_challenge:        challenge,
+  });
+  window.location = 'https://accounts.spotify.com/authorize?' + params.toString();
+}
+
+/* ── Auth: handle ?code= redirect ── */
+async function handleAuthCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (!code) return false;
+  const verifier = sessionStorage.getItem('spotify_verifier');
+  const body = new URLSearchParams({
+    client_id:     SPOTIFY_CLIENT_ID,
+    grant_type:    'authorization_code',
+    code,
+    redirect_uri:  SPOTIFY_REDIRECT_URI,
+    code_verifier: verifier,
+  });
+  try {
+    const r = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+    });
+    const data = await r.json();
+    if (data.access_token) {
+      storeToken(data);
+      // strip ?code= from the URL so a refresh doesn't re-trigger
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return true;
+    }
+  } catch (e) { /* fall through */ }
+  showToast('Spotify auth failed');
+  return false;
+}
+
+function storeToken(data) {
+  accessToken = data.access_token;
+  sessionStorage.setItem('spotify_token', data.access_token);
+  if (data.refresh_token) sessionStorage.setItem('spotify_refresh', data.refresh_token);
+  sessionStorage.setItem('spotify_expiry', String(Date.now() + data.expires_in * 1000));
+}
+
+/* ── Auth: silent refresh ── */
+async function refreshToken() {
+  const refresh = sessionStorage.getItem('spotify_refresh');
+  if (!refresh) { loginSpotify(); return null; }
+  try {
+    const body = new URLSearchParams({
+      client_id:     SPOTIFY_CLIENT_ID,
+      grant_type:    'refresh_token',
+      refresh_token: refresh,
+    });
+    const r = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+    });
+    const data = await r.json();
+    if (data.access_token) { storeToken(data); return data.access_token; }
+  } catch (e) { /* fall through */ }
+  loginSpotify();
+  return null;
+}
+
+async function getValidToken() {
+  const expiry = parseInt(sessionStorage.getItem('spotify_expiry') || '0', 10);
+  if (Date.now() > expiry - 60000) return refreshToken();   // refresh 1 min before expiry
+  return accessToken || sessionStorage.getItem('spotify_token');
+}
+
+/* ── Authenticated Spotify API call (retries once on 401) ── */
+async function spotifyFetch(url, options = {}) {
+  let token = await getValidToken();
+  options.headers = Object.assign({}, options.headers, { Authorization: 'Bearer ' + token });
+  let r = await fetch(url, options);
+  if (r.status === 401) {
+    token = await refreshToken();
+    if (!token) return r;
+    options.headers.Authorization = 'Bearer ' + token;
+    r = await fetch(url, options);
+  }
+  return r;
+}
+
+/* ── SDK init ── */
+window.onSpotifyWebPlaybackSDKReady = () => {
+  sdkLoaded = true;
+  maybeInitPlayer();
+};
+
+function maybeInitPlayer() {
+  if (sdkLoaded && !player && (accessToken || sessionStorage.getItem('spotify_token'))) {
+    initSpotifyPlayer();
+  }
+}
+
+function initSpotifyPlayer() {
+  player = new Spotify.Player({
+    name: 'K-Pop MP3 Player',
+    getOAuthToken: cb => { getValidToken().then(t => cb(t)); },
+    volume: volume / 100,
+  });
+
+  player.addListener('ready', ({ device_id }) => {
+    deviceId = device_id;
+    spotifyReady = true;
+    showToast('Connected');
+    updateAuthUI();
+  });
+
+  player.addListener('not_ready', () => {
+    spotifyReady = false;
+    showToast('Spotify disconnected');
+  });
+
+  player.addListener('player_state_changed', onSpotifyState);
+
+  player.addListener('initialization_error', ({ message }) => showToast('Init error: ' + message, 3500));
+  player.addListener('authentication_error', () => { showToast('Auth expired — reconnecting'); refreshToken(); });
+  player.addListener('account_error', () => showToast('Spotify Premium required', 3500));
+
+  player.connect();
+}
+
+/* ── Sync UI with what Spotify is actually playing ── */
+function onSpotifyState(state) {
+  if (!state) return;
+  const cur = state.track_window && state.track_window.current_track;
+  if (cur) {
+    document.getElementById('track-title').textContent  = cur.name;
+    document.getElementById('track-artist').textContent = cur.artists.map(a => a.name).join(', ');
+  }
+  setPlayState(!state.paused);
+  elapsedSec = Math.floor(state.position / 1000);
+  updateProgressSpotify(state.position, state.duration);
+
+  // End-of-track detection → advance our own playlist
+  if (state.paused && state.position === 0 && !lastState.paused && lastState.position > 0) {
+    nextTrack();
+  }
+  lastState = { paused: state.paused, position: state.position };
+}
+
+function updateProgressSpotify(posMs, durMs) {
+  const pos = Math.floor(posMs / 1000);
+  const dur = Math.floor(durMs / 1000) || 1;
+  document.getElementById('prog-fill').style.width = Math.min(100, Math.round((pos / dur) * 100)) + '%';
+  document.getElementById('time-cur').textContent  = fmtTime(pos);
+  document.getElementById('time-tot').textContent  = fmtTime(dur);
+}
+
+/* ── Resolve a library track to a Spotify URI (cached on the track) ── */
+async function findSpotifyUri(track) {
+  if (track.uri) return track.uri;
+  const q = encodeURIComponent(`${track.title} ${track.artist}`);
+  try {
+    const r = await spotifyFetch(`https://api.spotify.com/v1/search?q=${q}&type=track&limit=1`);
+    const data = await r.json();
+    const item = data && data.tracks && data.tracks.items && data.tracks.items[0];
+    if (item) { track.uri = item.uri; return item.uri; }
+  } catch (e) { /* not found */ }
+  return null;
+}
+
+/* ── Play the current playlist track on Spotify ── */
+async function playCurrent() {
+  if (!spotifyReady || playlist.length === 0) return;
+  const track = playlist[currentIdx];
+  const uri = await findSpotifyUri(track);
+  if (!uri) { showToast('Not on Spotify: ' + track.title); return; }
+  try {
+    await spotifyFetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uris: [uri] }),
+    });
+  } catch (e) {
+    showToast('Playback failed');
+  }
+}
+
+/* ── Show/hide the Connect button based on auth state ── */
+function updateAuthUI() {
+  const authed = !!(accessToken || sessionStorage.getItem('spotify_token'));
+  document.getElementById('connect-spotify-btn').style.display = authed ? 'none' : '';
+  if (!authed) {
+    document.getElementById('track-artist').textContent = 'Connect Spotify to start';
+  } else if (playlist.length === 0) {
+    document.getElementById('track-artist').textContent =
+      spotifyReady ? 'Search a song to start' : 'Connecting to Spotify…';
+  }
+}
+
+/* ── Poll Spotify for smooth progress while playing ── */
+setInterval(async () => {
+  if (!spotifyReady || !player) return;
+  const state = await player.getCurrentState();
+  if (!state) return;
+  isPlaying  = !state.paused;
+  elapsedSec = Math.floor(state.position / 1000);
+  updateProgressSpotify(state.position, state.duration);
+}, 500);
+
+/* ── Boot ── */
+async function boot() {
+  loadLibrary();
+  accessToken = sessionStorage.getItem('spotify_token');
+  await handleAuthCallback();   // exchange ?code= if returning from Spotify
+  updateAuthUI();
+  maybeInitPlayer();            // in case the SDK loaded before auth finished
+}
+boot();
+</script>
+<script src="https://sdk.scdn.co/spotify-player.js"></script>
+</body>
+</html>
