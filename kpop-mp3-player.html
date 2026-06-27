@@ -439,20 +439,35 @@ const TAG_MAP = {
   "k-pop":         "K-pop",
   "kpop":          "K-pop",
   "korean pop":    "K-pop",
-  "k-indie":       "K-indie",
-  "k-ballad":      "K-ballad",
-  "k-hip-hop":     "K-hip-hop",
-  "hip hop":       "K-hip-hop",
-  "k-r&b":         "K-R&B",
-  "r&b":           "K-R&B",
-  "k-rock":        "K-rock",
-  "korean ost":    "K-OST",
-  "ost":           "K-OST",
+  "k-indie":       "Indie",
+  "indie":         "Indie",
+  "ballad":        "Ballad",
+  "k-ballad":      "Ballad",
+  "hip hop":       "Hip-hop",
+  "hip-hop":       "Hip-hop",
+  "k-hip-hop":     "Hip-hop",
+  "rap":           "Hip-hop",
+  "r&b":           "R&B",
+  "k-r&b":         "R&B",
+  "soul":          "R&B",
+  "rock":          "Rock",
+  "k-rock":        "Rock",
+  "korean ost":    "OST",
+  "ost":           "OST",
+  "soundtrack":    "OST",
+  "electronic":    "Electronic",
+  "electropop":    "Electronic",
+  "synth-pop":     "Electronic",
+  "dance":         "Dance",
   "girl group":    "Girl group",
-  "boy band":      "Boy band",
+  "girl band":     "Girl group",
+  "boy band":      "Boy group",
+  "boy group":     "Boy group",
   "bubblegum pop": "Bubblegum pop",
+  "bubblegum":     "Bubblegum pop",
   "dance pop":     "Dance pop",
   "dream pop":     "Dream pop",
+  "j-pop":         "K-pop",
 };
 
 function buildPlaylist(tags) {
@@ -464,14 +479,19 @@ function buildPlaylist(tags) {
     }
   }
 
-  // 2. Always include generic K-pop as fallback
-  matchedGenres.add("K-pop");
+  // 2. Fallback: if nothing matched, seed with the generic K-pop pool
+  if (matchedGenres.size === 0) matchedGenres.add("K-pop");
 
-  // 3. Score every library track by how many matched genres it has
-  const scored = LIBRARY.map(song => ({
-    ...song,
-    score: matchedGenres.has(song.tag) ? 2 : 1
-  }));
+  // 3. Score every library track:
+  //    - classified score: how many of its sub-genre tags hit the matched genres
+  //    - raw score: overlap between the seed's raw Last.fm tags and the song's all_tags
+  //      (finer-grained, bypasses classifier error; weighted at 0.5)
+  const seedRawTags = new Set(tags);
+  const scored = LIBRARY.map(song => {
+    const classifiedScore = (song.tags || []).filter(t => matchedGenres.has(t)).length;
+    const rawScore = (song.all_tags || []).filter(t => seedRawTags.has(t)).length;
+    return { ...song, score: classifiedScore + rawScore * 0.5 + 1 };
+  });
 
   // 4. Weighted shuffle: higher score = higher probability
   const shuffled = scored.sort(() => Math.random() - 0.5)
@@ -484,8 +504,9 @@ function buildPlaylist(tags) {
 
   for (const song of shuffled) {
     if (result.length >= PLAYLIST_SIZE) break;
-    tagCounts[song.tag] = (tagCounts[song.tag] || 0) + 1;
-    if (tagCounts[song.tag] <= maxPerTag || result.length < 10) {
+    const primaryTag = (song.tags && song.tags[0]) || 'K-pop';
+    tagCounts[primaryTag] = (tagCounts[primaryTag] || 0) + 1;
+    if (tagCounts[primaryTag] <= maxPerTag || result.length < 10) {
       result.push(song);
     }
   }
@@ -573,7 +594,7 @@ function updateScreen() {
   const t = playlist[currentIdx];
   document.getElementById('track-title').textContent  = t.title;
   document.getElementById('track-artist').textContent = t.artist;
-  document.getElementById('track-tag').textContent    = t.tag || 'K-pop';
+  document.getElementById('track-tag').textContent    = t.tag || (t.tags && t.tags[0]) || 'K-pop';
   document.getElementById('time-tot').textContent     = t.durStr || '--:--';
   document.getElementById('pl-count').textContent     = (currentIdx + 1) + ' / ' + playlist.length;
   updateProgress();

@@ -85,19 +85,33 @@ def get_tag_top_tracks(tag, pages=5, limit=100):
     return tracks
 
 
+# Tags below this count are too weak to keep as raw signal at all.
+RAW_TAG_MIN   = 1
+# Tags at/above this count are trusted for sub-genre classification.
+CLASSIFY_MIN  = 5
+
+
 def get_track_tags(artist, title):
-    """Return lowercased tag names with count >= 10."""
+    """
+    Return (classify_tags, all_tags):
+      classify_tags – lowercased names with count >= CLASSIFY_MIN (high-confidence)
+      all_tags      – up to 15 lowercased names with count >= RAW_TAG_MIN (full signal)
+    """
     data = api_get({"method": "track.getTopTags", "artist": artist, "track": title})
     if not data:
-        return []
+        return [], []
     raw = data.get("toptags", {}).get("tag", [])
-    return [t["name"].lower() for t in raw if int(t.get("count", 0)) >= 10]
+    classify_tags = [t["name"].lower() for t in raw if int(t.get("count", 0)) >= CLASSIFY_MIN]
+    all_tags      = [t["name"].lower() for t in raw if int(t.get("count", 0)) >= RAW_TAG_MIN][:15]
+    return classify_tags, all_tags
 
 
 def classify_subgenres(track_tags):
     """
     Return up to MAX_SUBGENRES style sub-genre labels.
-    Skips any label whose keywords are purely root/origin keywords.
+    Unclassified tracks fall back to the generic "K-pop" pool (NOT Ballad),
+    so the recommender treats them as neutral K-pop rather than mislabeling
+    every untagged song as a ballad.
     """
     blob    = " ".join(track_tags)
     matched = []
@@ -108,7 +122,7 @@ def classify_subgenres(track_tags):
         if len(matched) >= MAX_SUBGENRES:
             break
 
-    return matched if matched else ["Ballad"]   # safe fallback
+    return matched if matched else ["K-pop"]   # generic fallback pool
 
 
 def build_library():
@@ -158,10 +172,10 @@ def build_library():
 
     label_counter = Counter()
     for i, song in enumerate(songs_list, 1):
-        raw_tags        = get_track_tags(song["artist"], song["title"])
-        subgenres       = classify_subgenres(raw_tags)
+        classify_tags, all_tags = get_track_tags(song["artist"], song["title"])
+        subgenres               = classify_subgenres(classify_tags)
 
-        song["all_tags"] = raw_tags
+        song["all_tags"] = all_tags
         song["tags"]     = subgenres
 
         for sg in subgenres:
