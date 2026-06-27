@@ -358,6 +358,7 @@ let volume     = 70;
 let lastSearchTags  = [];
 let lastSearchQuery = '';
 let seedTrackData   = null;
+let seedLibrarySong = null;   // in-library match of the seed (carries baked features)
 
 /* ── Spotify state ── */
 let accessToken  = null;
@@ -470,7 +471,49 @@ const TAG_MAP = {
   "j-pop":         "K-pop",
 };
 
-function buildPlaylist(tags) {
+/* ── Audio-feature similarity (ReccoBeats-sourced; replaces Spotify audio-features) ──
+   Perceptual weights: mood/energy dominate, production traits matter less.   */
+const FEATURE_WEIGHTS = {
+  energy: 1.0, valence: 1.0, danceability: 1.0,
+  acousticness: 0.7, tempo: 0.6, instrumentalness: 0.5,
+  speechiness: 0.4, liveness: 0.3, loudness: 0.3,
+};
+
+/* Normalize raw features to 0..1 so euclidean distance is comparable. */
+function featureVec(f) {
+  return {
+    danceability:     f.danceability     ?? 0.5,
+    energy:           f.energy           ?? 0.5,
+    valence:          f.valence          ?? 0.5,
+    acousticness:     f.acousticness     ?? 0.5,
+    instrumentalness: f.instrumentalness ?? 0.0,
+    speechiness:      f.speechiness      ?? 0.1,
+    liveness:         f.liveness         ?? 0.2,
+    tempo:    Math.min(1, (f.tempo ?? 120) / 250),
+    loudness: Math.min(1, Math.max(0, ((f.loudness ?? -10) + 60) / 60)),
+  };
+}
+
+function featureDist(a, b) {
+  let sum = 0;
+  for (const k in FEATURE_WEIGHTS) {
+    const d = a[k] - b[k];
+    sum += FEATURE_WEIGHTS[k] * d * d;
+  }
+  return Math.sqrt(sum);
+}
+
+/* Locate a Last.fm seed inside our library so we can reuse its baked features. */
+function findInLibrary(title, artist) {
+  const norm = s => (s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const nt = norm(title), na = norm(artist);
+  let hit = LIBRARY.find(s => norm(s.title) === nt && norm(s.artist) === na);
+  if (hit) return hit;
+  return LIBRARY.find(s => norm(s.artist) === na &&
+    (norm(s.title).includes(nt) || nt.includes(norm(s.title)))) || null;
+}
+
+function buildPlaylist(tags, seedSong) {
   // 1. Map raw Last.fm tags → our genre labels
   const matchedGenres = new Set();
   for (const t of tags) {
@@ -482,16 +525,39 @@ function buildPlaylist(tags) {
   // 2. Fallback: if nothing matched, seed with the generic K-pop pool
   if (matchedGenres.size === 0) matchedGenres.add("K-pop");
 
-  // 3. Score every library track:
-  //    - classified score: how many of its sub-genre tags hit the matched genres
-  //    - raw score: overlap between the seed's raw Last.fm tags and the song's all_tags
-  //      (finer-grained, bypasses classifier error; weighted at 0.5)
   const seedRawTags = new Set(tags);
-  const scored = LIBRARY.map(song => {
-    const classifiedScore = (song.tags || []).filter(t => matchedGenres.has(t)).length;
-    const rawScore = (song.all_tags || []).filter(t => seedRawTags.has(t)).length;
-    return { ...song, score: classifiedScore + rawScore * 0.5 + 1 };
-  });
+  const seedVec = (seedSong && seedSong.features) ? featureVec(seedSong.features) : null;
+
+  // 3. Score every library track.
+  let scored;
+  if (seedVec) {
+    // ── Feature mode: rank by audio-feature distance to the seed ──
+    const withFeat = [], withoutFeat = [];
+    for (const song of LIBRARY) {
+      if (song === seedSong) continue;
+      if (song.features) withFeat.push({ song, dist: featureDist(seedVec, featureVec(song.features)) });
+      else               withoutFeat.push(song);
+    }
+    withFeat.sort((a, b) => a.dist - b.dist);
+    // Keep the 150 nearest neighbours; small jitter so re-generating varies.
+    scored = withFeat.slice(0, 150).map(({ song, dist }) => {
+      const tagBonus = (song.tags || []).filter(t => matchedGenres.has(t)).length * 0.02;
+      return { ...song, score: 1 / (1 + dist) + tagBonus + Math.random() * 0.05 };
+    });
+    // Tag-matched featureless songs sit in a low tier as backfill.
+    for (const song of withoutFeat) {
+      const cls = (song.tags || []).filter(t => matchedGenres.has(t)).length;
+      const raw = (song.all_tags || []).filter(t => seedRawTags.has(t)).length;
+      scored.push({ ...song, score: (cls + raw * 0.5) * 0.1 });
+    }
+  } else {
+    // ── Tag mode (seed not in library / no features): classified + raw overlap ──
+    scored = LIBRARY.map(song => {
+      const classifiedScore = (song.tags || []).filter(t => matchedGenres.has(t)).length;
+      const rawScore = (song.all_tags || []).filter(t => seedRawTags.has(t)).length;
+      return { ...song, score: classifiedScore + rawScore * 0.5 + 1 };
+    });
+  }
 
   // 4. Weighted shuffle: higher score = higher probability
   const shuffled = scored.sort(() => Math.random() - 0.5)
@@ -541,19 +607,24 @@ async function handleSearch() {
     const track = await searchTrack(query);
     if (!track) { showToast('Track not found on Last.fm'); return; }
 
-    // 2. Get its tags
-    const tags = await getTrackTags(track.artist, track.name);
+    // 2. Get its tags + try to locate the seed in our library (for baked features)
+    const tags     = await getTrackTags(track.artist, track.name);
+    const seedSong = findInLibrary(track.name, track.artist);
+    lastSearchTags  = tags;
+    seedLibrarySong = seedSong;
 
-    // 3. Build playlist; fallback to random sample if no usable tags
+    // 3. Build playlist. Feature mode if the seed is in-library with features;
+    //    otherwise tag mode; last resort random.
     let tracks;
-    if (tags.length === 0) {
+    if (seedSong && seedSong.features) {
+      showToast('Matching by audio features ♪');
+      tracks = buildPlaylist(tags, seedSong).slice(0, PLAYLIST_SIZE - 1);
+    } else if (tags.length > 0) {
+      showToast(`Tags: ${tags.slice(0,3).join(' · ')}`);
+      tracks = buildPlaylist(tags, null).slice(0, PLAYLIST_SIZE - 1);
+    } else {
       showToast('No tags found — random playlist');
       tracks = randomSample(LIBRARY, PLAYLIST_SIZE - 1);
-      lastSearchTags = [];
-    } else {
-      showToast(`Tags: ${tags.slice(0,3).join(' · ')}`);
-      lastSearchTags = tags;
-      tracks = buildPlaylist(tags).slice(0, PLAYLIST_SIZE - 1);
     }
 
     // 4. Prepend seed track at index 0
@@ -725,9 +796,11 @@ setInterval(() => {
 /* ── Shuffle current playlist without re-searching ── */
 function shufflePlaylist() {
   if (!seedTrackData) { showToast('Generate a playlist first'); return; }
-  const tracks = lastSearchTags.length > 0
-    ? buildPlaylist(lastSearchTags).slice(0, PLAYLIST_SIZE - 1)
-    : randomSample(LIBRARY, PLAYLIST_SIZE - 1);
+  const tracks = (seedLibrarySong && seedLibrarySong.features)
+    ? buildPlaylist(lastSearchTags, seedLibrarySong).slice(0, PLAYLIST_SIZE - 1)
+    : lastSearchTags.length > 0
+      ? buildPlaylist(lastSearchTags, null).slice(0, PLAYLIST_SIZE - 1)
+      : randomSample(LIBRARY, PLAYLIST_SIZE - 1);
   playlist   = [seedTrackData, ...tracks];
   currentIdx = 0;
   elapsedSec = 0;
