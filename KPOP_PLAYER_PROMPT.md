@@ -95,19 +95,27 @@ SPOTIFY_CLIENT_SECRET=<secret> python3 build_features.py
 
 ## Known Issues / Open Items
 
-### 1. Export to Spotify fails ⚠️ (reported during P4 testing)
-`exportToSpotify()` (creates a private playlist, then adds resolved track URIs).
-The code and OAuth scopes look correct, so the failure is most likely runtime.
-Diagnose by **which toast appears**:
+### 1. Export to Spotify fails ⚠️ — ROOT CAUSE CONFIRMED (2026-06-27)
+`exportToSpotify()` creates a private playlist, then adds resolved track URIs.
+Console during a failed export showed `POST /v1/users/{id}/playlists → 403` (x5):
+the create-playlist call returns **403 insufficient scope**. The
+`playlist-modify-*` scopes ARE in the code (`kpop-mp3-player.html:377`), but the
+active token was granted *before* they were added, and `spotifyFetch` only
+retries on **401**, not 403 — `refreshToken()` keeps the original scopes.
 
-| Toast shown | Cause | Fix |
-|---|---|---|
-| `Export failed: could not create playlist` | **Most likely.** Token was granted *before* the `playlist-modify-*` scopes were added; `spotifyFetch` only retries on 401, not the **403** a missing scope returns. `refreshToken()` keeps the original scopes. | **Disconnect & fully re-authorize Spotify** so the new consent includes playlist scopes. (Optionally: handle 403 by forcing a fresh PKCE auth.) |
-| `Export failed: auth error` | `GET /v1/me` failed — token invalid/expired. | Reconnect Spotify. |
-| `No tracks found on Spotify` | URI resolution returned nothing — likely 429 rate-limiting during the per-track `findSpotifyUri` loop, or tracks genuinely unmatched. | Re-run after the library has `spotify_id`s baked in (build_features.py), so resolution uses exact IDs instead of fuzzy search. |
+- **Immediate workaround (no code change):** revoke app access at
+  spotify.com/account/apps, hard-refresh, reconnect Spotify → the new consent
+  includes the playlist scopes.
+- **Real fix (planned):** handle **403 insufficient-scope** in `spotifyFetch` by
+  forcing a fresh PKCE auth, so users don't have to manually re-consent.
 
-Next step when fixing: confirm the exact toast, then most likely add **403
-handling** in `spotifyFetch` (force re-auth) and/or document the reconnect step.
+Secondary (not the export blocker): the per-track `findSpotifyUri` resolve loop
+hit **429** for songs without a baked `spotify_id` (fuzzy search). Goes away once
+`build_features.py` fills in IDs so resolution uses exact lookups.
+
+Other export toasts and their meaning, for reference:
+`Export failed: auth error` → `/v1/me` token bad (reconnect);
+`No tracks found on Spotify` → URI resolution returned nothing (429 or unmatched).
 
 ### 2. Audio-feature coverage is incomplete (ongoing maintenance)
 1107/1264 songs have features. Songs added via auto-extend (and ~23 with no
