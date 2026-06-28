@@ -95,10 +95,20 @@ def write_songs(songs):
 # ── The one write endpoint ──────────────────────────────────────────────────
 @app.route("/library/add", methods=["POST"])
 def library_add():
+    data = request.get_json(force=True, silent=True)
     try:
-        song = clean_song(request.get_json(force=True, silent=True))
+        song = clean_song(data)
     except ValueError as e:
         return jsonify(added=False, reason=str(e)), 400
+
+    # Quality guard (A): refuse tag-less songs by default — an empty all_tags is
+    # the signature of a mislabeled Last.fm match (the old "Hype Boy - NewJeans" /
+    # "Sky" junk had none). The front-end may set force=true when the user has
+    # manually approved a tag-less but correctly-identified song (e.g. an obscure
+    # release with no Last.fm tags), which bypasses this guard.
+    force = bool(isinstance(data, dict) and data.get("force"))
+    if not song["all_tags"] and not force:
+        return jsonify(added=False, reason="no tags — skipped to avoid junk entries")
 
     with open(SONGS_FILE, encoding="utf-8") as f:
         songs = json.load(f)
