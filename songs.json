@@ -30678,5 +30678,50 @@
       "speechiness": 0.127,
       "liveness": 0.0741
     }
+  },
+  {
+    "title": "LOUD",
+    "artist": "NMIXX",
+    "tags": [
+      "K-pop"
+    ],
+    "all_tags": [
+      "english",
+      "queer",
+      "art pop",
+      "k-pop",
+      "alt-pop",
+      "baltimore club",
+      "2-step",
+      "jersey club",
+      "chillwave",
+      "atlanta bass"
+    ],
+    "dur": 0,
+    "durStr": "0:00",
+    "url": "https://www.last.fm/music/NMIXX/_/LOUD"
+  },
+  {
+    "title": "Heavy Serenade",
+    "artist": "NMIXX",
+    "tags": [
+      "K-pop",
+      "OST"
+    ],
+    "all_tags": [
+      "art pop",
+      "k-pop",
+      "breakbeat",
+      "alt-pop",
+      "post-dubstep",
+      "julia mofada",
+      "uk bass",
+      "chillwave",
+      "atlanta bass",
+      "jos owns this song"
+    ],
+    "dur": 0,
+    "durStr": "0:00",
+    "url": "https://www.last.fm/music/NMIXX/_/Heavy+Serenade"
   }
 ]
