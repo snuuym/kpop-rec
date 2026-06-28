@@ -95,23 +95,41 @@ SPOTIFY_CLIENT_SECRET=<secret> python3 build_features.py
 
 ## Known Issues / Open Items
 
-### 1. Export to Spotify fails ⚠️ — ROOT CAUSE CONFIRMED (2026-06-27)
-`exportToSpotify()` creates a private playlist, then adds resolved track URIs.
-Console during a failed export showed `POST /v1/users/{id}/playlists → 403` (x5):
-the create-playlist call returns **403 insufficient scope**. The
-`playlist-modify-*` scopes ARE in the code (`kpop-mp3-player.html:377`), but the
-active token was granted *before* they were added, and `spotifyFetch` only
-retries on **401**, not 403 — `refreshToken()` keeps the original scopes.
+### 1. Export to Spotify ✅ FIXED (2026-06-28) — Spotify Feb-2026 API migration
+**Real root cause** (after a long misdiagnosis chain — it was NOT scopes,
+Premium, or Development-Mode allowlisting; the token always had `playlist-modify-*`
+and the account was allowlisted Premium): Spotify's **February 2026 Web API
+migration** (deadline 2026-03-09) **renamed the two playlist write endpoints**, and
+the old ones now return a generic `403 Forbidden` for *every* caller:
+- create playlist: `POST /v1/users/{id}/playlists` → **`POST /v1/me/playlists`**
+- add tracks:      `POST /v1/playlists/{id}/tracks` → **`POST /v1/playlists/{id}/items`**
+  (request body unchanged: `{ "uris": [...] }`).
 
-- **Immediate workaround (no code change):** revoke app access at
-  spotify.com/account/apps, hard-refresh, reconnect Spotify → the new consent
-  includes the playlist scopes.
-- **Real fix (planned):** handle **403 insufficient-scope** in `spotifyFetch` by
-  forcing a fresh PKCE auth, so users don't have to manually re-consent.
+The misleading symptom: create kept 403'ing; once create was moved to `/me/playlists`
+it succeeded but the playlist came out **empty**, because add-tracks still hit the
+dead `/tracks` endpoint and silently 403'd.
+
+**Fixes in `exportToSpotify()`:**
+- Both write calls use the new endpoints.
+- The add-items step now checks `r.ok` and reports failure
+  (`Playlist created but adding tracks failed (NNN)`) instead of falsely toasting success.
+- The **seed song is included** in the export (kept at the top) — the old
+  `if (t.isSeed) continue;` skip was removed.
+- Defensive extras kept from the misdiagnosis: `loginSpotify()` sends
+  `show_dialog=true` (forces real re-consent so newly-added scopes actually take
+  effect — without it Spotify silently reuses old scopes), and a *genuine*
+  missing-scope 403 (token lacks `playlist-modify-*`) still routes to
+  `promptReconnectForScope()`. Granted scopes are logged + stored in
+  `sessionStorage['spotify_scope']`.
+
+Note: apps in **Extended Quota Mode** are exempt from the Feb-2026 endpoint
+changes; this app is in Development Mode so it must use the new `/me` + `/items`
+endpoints.
 
 Secondary (not the export blocker): the per-track `findSpotifyUri` resolve loop
-hit **429** for songs without a baked `spotify_id` (fuzzy search). Goes away once
-`build_features.py` fills in IDs so resolution uses exact lookups.
+hit **429** for songs without a baked `spotify_id` (fuzzy search) — those tracks
+just don't get added. Goes away once `build_features.py` fills in IDs so
+resolution uses exact lookups.
 
 Other export toasts and their meaning, for reference:
 `Export failed: auth error` → `/v1/me` token bad (reconnect);

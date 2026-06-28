@@ -735,11 +735,11 @@ async function manualAddSeed(song) {
    #confirm-bar element so transient toasts (playback, "Playlist: N tracks")
    can't clobber it. Stays up 15s or until the user acts / starts a new search. */
 let _confirmTimer = null;
-function showToastConfirm(msg, onConfirm) {
+function showToastConfirm(msg, onConfirm, yesLabel = 'Add to library ✓') {
   const bar = document.getElementById('confirm-bar');
   bar.innerHTML =
     `<span>${msg}</span>` +
-    `<button class="yes" id="confirm-yes">Add to library ✓</button>` +
+    `<button class="yes" id="confirm-yes">${yesLabel}</button>` +
     `<button class="no" id="confirm-no">✕</button>`;
   bar.classList.add('show');
   clearTimeout(_confirmTimer);
@@ -1083,20 +1083,17 @@ async function exportToSpotify() {
 
   showToast('Resolving tracks…', 8000);
 
-  // 1. Get Spotify user ID
-  let userId;
+  // 1. Validate the token (the /me call also surfaces a clean "auth error").
   try {
     const r  = await spotifyFetch('https://api.spotify.com/v1/me');
     const me = await r.json();
-    userId   = me.id;
-    if (!userId) throw new Error();
+    if (!me.id) throw new Error();
   } catch (e) { showToast('Export failed: auth error'); return; }
 
-  // 2. Resolve Spotify URIs for all non-seed tracks
+  // 2. Resolve Spotify URIs for all tracks (seed included, kept at the top)
   const uris = [];
   for (const t of playlist) {
-    if (t.isSeed) continue;
-    const uri = await findSpotifyUri(t);
+    const uri = await findSpotifyUri(t);   // includes the seed (kept at the top)
     if (uri) uris.push(uri);
   }
   if (uris.length === 0) { showToast('No tracks found on Spotify'); return; }
@@ -1105,27 +1102,65 @@ async function exportToSpotify() {
   const plName = lastSearchQuery ? `K-Pop: ${lastSearchQuery}` : 'K-Pop Mix';
   let plId;
   try {
-    const r  = await spotifyFetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {
+    // Use POST /v1/me/playlists. The older POST /v1/users/{id}/playlists was
+    // removed in Spotify's Feb 2026 Web API migration (deadline 2026-03-09) and
+    // now returns 403 "Forbidden" for every caller — that was the real cause of
+    // the export failures, not scopes or Development-Mode allowlisting.
+    const r  = await spotifyFetch('https://api.spotify.com/v1/me/playlists', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ name: plName, public: false }),
     });
+    // A lingering 403 here almost certainly means a missing playlist-modify-*
+    // scope (token granted before the scopes were added) — a fresh consent fixes
+    // it. Only prompt reconnect when the scope is actually absent, so a 403 from
+    // any other cause can't trigger an endless reconnect loop.
+    if (r.status === 403) {
+      let body = null;
+      try { body = await r.clone().json(); } catch (e) {}
+      const scopes = sessionStorage.getItem('spotify_scope') || '';
+      const hasScope = scopes.includes('playlist-modify-private') || scopes.includes('playlist-modify-public');
+      console.warn('[export] create-playlist 403:', JSON.stringify(body), '| token scopes:', scopes);
+      if (!hasScope) promptReconnectForScope();
+      else showToast('Spotify rejected playlist creation (403). See console for details.', 6000);
+      return;
+    }
     const pl = await r.json();
     plId     = pl.id;
     if (!plId) throw new Error();
   } catch (e) { showToast('Export failed: could not create playlist'); return; }
 
-  // 4. Add tracks in batches of 100
+  // 4. Add tracks in batches of 100. Endpoint is /items, not /tracks: the older
+  //    POST /playlists/{id}/tracks was removed in Spotify's Feb 2026 migration
+  //    and 403s (which silently produced an empty playlist). Body is unchanged.
   for (let i = 0; i < uris.length; i += 100) {
-    await spotifyFetch(`https://api.spotify.com/v1/playlists/${plId}/tracks`, {
+    const r = await spotifyFetch(`https://api.spotify.com/v1/playlists/${plId}/items`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ uris: uris.slice(i, i + 100) }),
     });
+    if (!r.ok) {
+      const body = await r.text().catch(() => '');
+      console.warn('[export] add-items failed:', r.status, body);
+      showToastLink(`Playlist created but adding tracks failed (${r.status}).`, `https://open.spotify.com/playlist/${plId}`);
+      return;
+    }
   }
 
   // 5. Toast with link
   showToastLink(`Exported ${uris.length} tracks!`, `https://open.spotify.com/playlist/${plId}`);
+}
+
+/* Re-consent flow for 403 insufficient-scope: clear the stale token and start a
+   fresh PKCE login so the new consent includes the current scopes. */
+function promptReconnectForScope() {
+  showToastConfirm('Spotify needs new permissions to export. Reconnect?', () => {
+    sessionStorage.removeItem('spotify_token');
+    sessionStorage.removeItem('spotify_refresh');
+    sessionStorage.removeItem('spotify_expiry');
+    accessToken = null;
+    loginSpotify();   // full PKCE redirect → consent includes playlist-modify-*
+  }, 'Reconnect ✓');
 }
 
 /* ─────────────────────────────────────────────
@@ -1160,6 +1195,10 @@ async function loginSpotify() {
     scope:                 SPOTIFY_SCOPES,
     code_challenge_method: 'S256',
     code_challenge:        challenge,
+    // Force the consent screen. Without this, Spotify silently reuses a prior
+    // authorization and issues a token with the OLD scopes — so newly-added
+    // scopes (playlist-modify-*) never take effect and export keeps 403'ing.
+    show_dialog:           'true',
   });
   window.location = 'https://accounts.spotify.com/authorize?' + params.toString();
 }
@@ -1196,8 +1235,10 @@ async function handleAuthCallback() {
 }
 
 function storeToken(data) {
+  console.log('[auth] granted scopes:', data.scope);
   accessToken = data.access_token;
   sessionStorage.setItem('spotify_token', data.access_token);
+  if (data.scope) sessionStorage.setItem('spotify_scope', data.scope);
   if (data.refresh_token) sessionStorage.setItem('spotify_refresh', data.refresh_token);
   sessionStorage.setItem('spotify_expiry', String(Date.now() + data.expires_in * 1000));
 }
