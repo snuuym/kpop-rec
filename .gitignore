@@ -1,7 +1,9 @@
 .Rhistory
 .claude/
+.DS_Store
 
 songs.json.bak
 features_cache.json
 .spotify_secret
 __pycache__/
+demo-vedio.mov
