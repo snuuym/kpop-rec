@@ -1,0 +1,58 @@
+# ── Secrets ─────────────────────────────────────────────────────────────────
+.env
+.env.local
+.spotify_secret
+*.pem
+*.key
+
+# ── Data: derived, large, and third-party ───────────────────────────────────
+# The full library and ground truth are rebuilt from the pipeline (`make all`).
+# They are Last.fm-derived, so this repository ships only a small sample rather
+# than redistributing the dataset. See data/README.md.
+data/songs.json
+data/songs.json.*
+data/ground_truth.json
+data/ground_truth_no_same_artist.json
+
+# Resumable-run caches — purely derived, tens of MB
+data/*_cache.json
+data/*.bak
+data/*.tmp
+
+# The sample IS tracked; keep it out of the wildcards above.
+!data/songs.sample.json
+
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ── Notebooks ───────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── Editors & OS ────────────────────────────────────────────────────────────
+.DS_Store
+.Rhistory
+.vscode/
+.idea/
+.claude/
+*.swp
+
+# ── Local build artifacts ───────────────────────────────────────────────────
+KpopPlayer.app/
+*.mov
+
+# Output of `make eval` on the bundled sample — the committed reports/ and
+# figures/ are the full-corpus results and must not be overwritten by a demo run.
+reports/sample/
+figures/sample/

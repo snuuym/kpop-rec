@@ -1,0 +1,1268 @@
+key,artist,title,n_raw,n_eff,bucket,has_feats,year,listeners
+bts::epiphany,BTS,Epiphany,9,6,has tags,True,,465971
+xlov::1&only,XLOV,1&Only,10,7,has tags,False,,246846
+saja boys::your idol,Saja Boys,Your Idol,10,6,has tags,True,,646633
+red velvet::day 1,Red Velvet,Day 1,10,7,has tags,True,,340207
+aespa::savage,aespa,Savage,10,9,has tags,True,,557180
+itzy::wannabe,ITZY,WANNABE,10,6,has tags,True,,615968
+bts::21st century girl,BTS,21st Century Girl,10,9,has tags,True,,446554
+miss a::bad girl good girl,miss A,Bad Girl Good Girl,10,5,has tags,True,,280301
+momoland::bboom bboom,MOMOLAND,BBoom BBoom,10,6,has tags,True,,406226
+fifty fifty::cupid,Fifty Fifty,Cupid,10,7,has tags,True,,553556
+nmixx::dice,NMIXX,DICE,10,7,has tags,True,,420939
+le sserafim::fearless,LE SSERAFIM,FEARLESS,10,6,has tags,True,,563395
+blackpink::forever young,BLACKPINK,Forever Young,10,7,has tags,False,,514632
+seventeen::hot,Seventeen,HOT,10,6,has tags,True,,362800
+2ne1::i am the best,2NE1,I Am the Best,10,6,has tags,False,,469088
+illit::jellyous,ILLIT,jellyous,10,7,has tags,True,,380111
+nmixx::love me like this,NMIXX,Love Me Like This,10,7,has tags,True,,369084
+aoa::miniskirt,AOA,Miniskirt,10,6,has tags,True,,580061
+twice::moonlight sunrise,TWICE,MOONLIGHT SUNRISE,10,8,has tags,True,,490704
+bts::not today,BTS,Not Today,10,6,has tags,True,,535134
+kai::rover,Kai,Rover,10,7,has tags,True,,416077
+shinee::sherlock (clue + note),SHINee,Sherlock (Clue + Note),10,6,has tags,True,,216
+twice::signal,TWICE,SIGNAL,10,7,has tags,True,,449255
+jennie::solo,Jennie,SOLO,10,6,has tags,False,,613105
+hearts2hearts::style,Hearts2Hearts,STYLE,10,7,has tags,False,,225243
+twice::talk that talk,TWICE,Talk that Talk,10,8,has tags,True,,565766
+twice::the feels,TWICE,The Feels,10,7,has tags,True,,850124
+aespa::'til we die,aespa,'Til We Die,10,9,has tags,False,,68228
+ive::attitude,IVE,ATTITUDE,10,7,has tags,True,,214095
+aespa::black mamba,aespa,Black Mamba,10,7,has tags,True,,543860
+blackpink::boombayah,BLACKPINK,BOOMBAYAH,10,7,has tags,True,,705465
+enhypen::drunk-dazed,ENHYPEN,Drunk-Dazed,10,6,has tags,True,,621359
+twice::fancy,TWICE,FANCY,10,6,has tags,True,,944966
+twice::feel special,TWICE,Feel Special,10,7,has tags,True,,735854
+psy::gentleman,Psy,Gentleman,10,6,has tags,True,,403993
+loona::hi high,Loona,Hi High,10,7,has tags,True,,355142
+ive::i am,IVE,I AM,10,8,has tags,True,,556998
+twice::i can't stop me,TWICE,I CAN'T STOP ME,10,7,has tags,True,,753307
+blackpink::kill this love,BLACKPINK,Kill This Love,10,6,has tags,False,,875873
+dua lipa::kiss and make up,Dua Lipa,Kiss and Make Up,10,8,has tags,True,,611334
+everglow::la di da,Everglow,LA DI DA,10,6,has tags,True,,380313
+aespa::lemonade,aespa,Lemonade,10,7,has tags,False,,276043
+twice::likey,TWICE,LIKEY,10,7,has tags,True,,579606
+ive::love dive,IVE,LOVE DIVE,10,8,has tags,True,,628114
+blackpink::lovesick girls,BLACKPINK,Lovesick Girls,10,7,has tags,False,,646626
+stray kids::maniac,Stray Kids,MANIAC,10,8,has tags,True,,489947
+twice::mars,TWICE,MARS,8,5,has tags,True,,196731
+aespa::next level,aespa,Next Level,10,8,has tags,True,,552668
+iz*one::panorama,IZ*ONE,Panorama,10,9,has tags,True,,300171
+aespa::roll,aespa,Roll,7,6,has tags,False,,66317
+stayc::run2u,STAYC,RUN2U,10,7,has tags,True,,417225
+aespa::shakin',aespa,SHAKIN',10,9,has tags,False,,107021
+lady gaga::sour candy (with blackpink),Lady Gaga,Sour Candy (with BLACKPINK),10,8,has tags,True,,647081
+aespa::spicy,aespa,Spicy,10,8,has tags,True,,493573
+twice::strategy (feat. megan thee stallion),TWICE,Strategy (feat. Megan Thee Stallion),10,8,has tags,False,,520073
+aespa::supernova,aespa,Supernova,10,7,has tags,False,,676639
+enhypen::tamed-dashed,ENHYPEN,Tamed-Dashed,10,8,has tags,True,,305032
+twice::tt,TWICE,TT,10,8,has tags,True,,594946
+loossemble::ttyl,Loossemble,TTYL,10,8,has tags,True,,239263
+artms::virtual angel,ARTMS,Virtual Angel,10,8,has tags,True,,184438
+aespa::whiplash,aespa,Whiplash,10,7,has tags,False,,658726
+red velvet::러시안 룰렛 russian roulette,Red Velvet,러시안 룰렛 Russian Roulette,10,8,has tags,True,,781218
+wonder girls::rewind,Wonder Girls,Rewind,10,8,has tags,True,,453692
+hearts2hearts::the chase,Hearts2Hearts,The Chase,10,6,has tags,True,,286983
+f(x)::4 walls,f(x),4 Walls,10,7,has tags,True,,348405
+kiiikiii::404 (new era),KiiiKiii,404 (New Era),10,7,has tags,True,,277948
+le sserafim::celebration,LE SSERAFIM,CELEBRATION,10,7,has tags,False,,198814
+stray kids::ceremony,Stray Kids,Ceremony,10,7,has tags,True,,176339
+le sserafim::crazy,LE SSERAFIM,CRAZY,10,7,has tags,True,,961964
+bts::dna,BTS,DNA,10,6,has tags,True,,851571
+newjeans::eta,NewJeans,ETA,10,6,has tags,True,,944035
+bts::euphoria,BTS,Euphoria,10,8,has tags,True,,673621
+hearts2hearts::focus,Hearts2Hearts,FOCUS,10,7,has tags,True,,272317
+enhypen::go big or go home,ENHYPEN,Go Big or Go Home,10,9,has tags,True,,253759
+stayc::gpt,STAYC,GPT,10,7,has tags,True,,161276
+bts::idol,BTS,IDOL,10,6,has tags,True,,730268
+stray kids::megaverse,Stray Kids,MEGAVERSE,10,7,has tags,True,,215871
+stray kids::miroh,Stray Kids,MIROH,10,7,has tags,True,,347438
+lisa::money,Lisa,MONEY,10,7,has tags,False,,763578
+enhypen::moonstruck,ENHYPEN,Moonstruck,10,8,has tags,True,,280377
+newjeans::new jeans,NewJeans,New Jeans,10,7,has tags,True,,1062629
+red velvet::peek-a-boo,Red Velvet,Peek-A-Boo,10,7,has tags,True,,561769
+blackpink::playing with fire,BLACKPINK,PLAYING WITH FIRE,10,7,has tags,True,,606004
+ifeye::r u ok?,ifeye,r u ok?,10,7,has tags,False,,134379
+lisa::rockstar,Lisa,Rockstar,10,7,has tags,True,,658233
+nmixx::roller coaster,NMIXX,Roller Coaster,10,7,has tags,True,,240753
+bts::so what,BTS,So What,10,7,has tags,True,,446741
+newjeans::super shy,NewJeans,Super Shy,10,8,has tags,True,,1259191
+aespa::switchblade (feat. ty dolla $ign),aespa,Switchblade (feat. Ty Dolla $ign),10,7,has tags,False,,113266
+bts::telepathy,BTS,Telepathy,10,8,has tags,True,,389459
+shinee::view,SHINee,View,10,7,has tags,True,,277295
+cortis::youngcreatorcrew,CORTIS,YOUNGCREATORCREW,10,7,has tags,False,,119931
+brown eyed girls::abracadabra,Brown Eyed Girls,Abracadabra,10,5,has tags,True,,251685
+wonder girls::so hot,Wonder Girls,So Hot,10,5,has tags,True,,277511
+wonder girls::tell me,Wonder Girls,Tell Me,10,5,has tags,True,,664961
+bts::2.0,BTS,2.0,10,7,has tags,False,,381127
+bts::airplane pt.2,BTS,Airplane pt.2,10,7,has tags,True,,604466
+agust d::amygdala,Agust D,AMYGDALA,10,7,has tags,False,,294536
+bts::anpanman,BTS,Anpanman,10,6,has tags,True,,542380
+stray kids::back door,Stray Kids,Back Door,10,8,has tags,True,,380000
+ive::bang bang,IVE,BANG BANG,10,7,has tags,False,,205168
+bts::black swan,BTS,Black Swan,10,7,has tags,True,,712213
+bts::blood sweat & tears,BTS,Blood Sweat & Tears,10,6,has tags,True,,845176
+bts::boy in luv,BTS,Boy In Luv,10,9,has tags,True,,613817
+bts::bts cypher 4,BTS,BTS Cypher 4,10,7,has tags,True,,458075
+bts::come back home,BTS,Come Back Home,10,6,has tags,True,,261485
+bts::converse high,BTS,Converse High,10,7,has tags,True,,398491
+twice::cry for me,TWICE,CRY FOR ME,10,9,has tags,True,,525801
+bts::danger,BTS,Danger,10,6,has tags,True,,554697
+bts::dionysus,BTS,Dionysus,10,7,has tags,True,,538322
+stray kids::do it,Stray Kids,DO IT,10,6,has tags,True,,166528
+red velvet::dumb dumb,Red Velvet,Dumb Dumb,10,8,has tags,True,,367350
+bts::fake love,BTS,FAKE LOVE,10,6,has tags,True,,891520
+cortis::fashion,CORTIS,FaSHioN,10,7,has tags,True,,393037
+cortis::go!,CORTIS,GO!,10,7,has tags,True,,445572
+bts::house of cards (full length edition),BTS,House Of Cards (Full Length Edition),10,9,has tags,True,,493316
+blackpink::how you like that,BLACKPINK,How You Like That,10,6,has tags,False,,912693
+bts::i need u,BTS,I NEED U,10,9,has tags,True,,737551
+ateez::ice on my teeth,ATEEZ,Ice on My Teeth,10,7,has tags,True,,216994
+bts::intro: boy meets evil,BTS,Intro: Boy Meets Evil,10,8,has tags,True,,398802
+bts::jump,BTS,JUMP,10,7,has tags,True,,391184
+lisa::lalisa,Lisa,LALISA,10,7,has tags,False,,507307
+twice::like ooh-ahh,TWICE,Like OOH-AHH,10,7,has tags,True,,431998
+bts::love maze,BTS,Love Maze,10,7,has tags,True,,540391
+exo::love shot,Exo,Love Shot,10,7,has tags,True,,599942
+bts::ma city,BTS,Ma City,9,6,has tags,True,,406216
+bts::magic shop,BTS,Magic Shop,10,7,has tags,True,,540235
+bts::mic drop,BTS,MIC Drop,10,7,has tags,True,,510521
+bts::n.o,BTS,N.O,10,6,has tags,False,,440556
+blackpink::pink venom,BLACKPINK,Pink Venom,10,7,has tags,False,,801239
+blackpink::pretty savage,BLACKPINK,Pretty Savage,10,8,has tags,False,,615372
+bts::rain,BTS,Rain,10,6,has tags,True,,372522
+bts::run bts,BTS,Run BTS,10,9,has tags,True,,651545
+rm::seoul (prod. honne),RM,seoul (prod. HONNE),9,7,has tags,True,,430418
+blackpink::shut down,BLACKPINK,Shut Down,10,6,has tags,False,,745533
+exo::tempo,Exo,Tempo,10,7,has tags,True,,388915
+stray kids::thunderous,Stray Kids,Thunderous,10,8,has tags,True,,373829
+blackpink::typa girl,BLACKPINK,Typa Girl,10,6,has tags,False,,503287
+aespa::wda (whole different animal) (feat. g-dragon),aespa,WDA (Whole Different Animal) (feat. G-DRAGON),10,7,has tags,False,,173455
+bts::we are bulletproof pt.2,BTS,We Are Bulletproof PT.2,10,7,has tags,True,,425511
+babymonster::we go up,BABYMONSTER,WE GO UP,6,4,has tags,True,,111241
+cortis::what you want,CORTIS,What You Want,10,7,has tags,False,,216251
+ateez::work,ATEEZ,WORK,10,7,has tags,False,,244530
+apink::%%(eung eung),Apink,%%(Eung Eung),0,0,no tags,True,,160097
+nct 127::0 mile,NCT 127,0 Mile,0,0,no tags,True,,102657
+bts::00:00 (zero o'clock),BTS,00:00 (Zero O'Clock),0,0,no tags,True,,167459
+bts::00:00 (zero o’clock),BTS,00:00 (Zero O’Clock),10,7,has tags,True,,457806
+b.i.g::1.2.3,B.I.G,1.2.3,0,0,no tags,True,,8602
+enhypen::10 months,ENHYPEN,10 Months,0,0,no tags,True,,215301
+shinee::1분만 (one minute back),SHINee,1분만 (One Minute Back),0,0,no tags,True,,17634
+seulgi::28 reasons,SEULGI,28 Reasons,10,7,has tags,True,,340499
+triple h::365 fresh,Triple H,365 FRESH,0,0,no tags,True,,120833
+nicole::5!6!7!8!,Nicole,5!6!7!8!,0,0,no tags,True,,3401
+itzy::8-bit heart,ITZY,8-BIT HEART,0,0,no tags,False,,34597
+tomorrow x together::9 and three quarters (run away),TOMORROW X TOGETHER,9 and Three Quarters (Run Away),10,6,has tags,True,,382739
+got7::a,GOT7,A,0,0,no tags,True,,96645
+rainbow::a,Rainbow,A,0,0,no tags,True,,54486
+g-dragon::a boy,G-DRAGON,A Boy,0,0,no tags,True,,34825
+gugudan::a girl like me,gugudan,A Girl Like Me,0,0,no tags,True,,47621
+shinee::a-yo,SHINee,A-Yo,0,0,no tags,True,,50867
+nayeon::abcd,NAYEON,ABCD,10,7,has tags,True,,410986
+ive::accendio,IVE,Accendio,10,7,has tags,True,,210326
+sunmi::addict,SUNMI,ADDICT,0,0,no tags,False,,62703
+seventeen::adore u,Seventeen,Adore U,0,0,no tags,True,,186384
+boa::adrenaline,Boa,ADRENALINE,0,0,no tags,True,,15374
+aespa::aenergy,aespa,aenergy,0,0,no tags,True,,295293
+ive::after like,IVE,After LIKE,10,7,has tags,True,,689369
+2pm::again & again,2PM,Again & Again,0,0,no tags,True,,89384
+oh my girl::agit,OH MY GIRL,Agit,0,0,no tags,True,,7375
+after school::ah,After School,AH,0,0,no tags,True,,58256
+exid::ah yeah,EXID,Ah Yeah,0,0,no tags,True,,110704
+f(x)::airplane,f(x),Airplane,0,0,no tags,True,,74231
+twice::alcohol-free,TWICE,Alcohol-Free,10,7,has tags,True,,532221
+lightsum::alive,LIGHTSUM,Alive,0,0,no tags,True,,42493
+shinee::all day all night,SHINee,All Day All Night,0,0,no tags,True,,36797
+jisoo::all eyes on me,JISOO,All Eyes on Me,0,0,no tags,False,,213132
+stray kids::all in,Stray Kids,ALL IN,0,0,no tags,True,,130857
+f(x)::all night,f(x),All Night,0,0,no tags,True,,74870
+wei::all or nothing (prod. jang dae hyeon),WEi,All Or Nothing (Prod. JANG DAE HYEON),0,0,no tags,True,,10220
+sistar::alone,SISTAR,Alone,0,0,no tags,True,,118547
+heize::and july,Heize,And July,0,0,no tags,True,,139014
+ateez::answer,ATEEZ,Answer,0,0,no tags,False,,209167
+bts::answer : love myself,BTS,Answer : Love Myself,10,6,has tags,True,,379494
+tomorrow x together::anti-romantic,TOMORROW X TOGETHER,ANTI-ROMANTIC,0,0,no tags,True,,408496
+le sserafim::antifragile,LE SSERAFIM,ANTIFRAGILE,10,7,has tags,True,,947865
+gfriend::apple,GFRIEND,Apple,0,0,no tags,True,,180054
+blackpink::as if it's your last,BLACKPINK,AS IF IT'S YOUR LAST,10,5,has tags,True,,729867
+stayc::asap,STAYC,ASAP,10,7,has tags,True,,470677
+young posse::ate that,YOUNG POSSE,ATE THAT,0,0,no tags,True,,71395
+bts::awake,BTS,Awake,10,8,has tags,True,,383662
+stray kids::awaken,Stray Kids,Awaken,0,0,no tags,True,,83504
+lovelyz::aya,Lovelyz,Aya,0,0,no tags,True,,9372
+ily:1::azalea,ILY:1,Azalea,0,0,no tags,True,,9712
+wjsn::b.b.b.boo,WJSN,B.B.B.BOO,0,0,no tags,True,,14673
+itzy::b[oo]m-boxx,ITZY,B[OO]M-BOXX,0,0,no tags,True,,69531
+소녀시대::baby baby,소녀시대,Baby Baby,0,0,no tags,True,,17177
+daesung::baby don't cry,Daesung,Baby Don't Cry,0,0,no tags,True,,7801
+nct 127::baby don’t like it 나쁜 짓,NCT 127,Baby Don’t Like It 나쁜 짓,0,0,no tags,True,,158649
+nct::baby don’t stop,NCT,Baby Don’t Stop,0,0,no tags,True,,309521
+gd&top::baby good night,GD&TOP,BABY GOOD NIGHT,0,0,no tags,True,,42136
+se7en::baby i like you like that,SE7EN,Baby I Like You Like That,0,0,no tags,True,,4396
+wjsn::babyface,WJSN,Babyface,0,0,no tags,True,,40131
+nct 127::back 2 u (am 01:27),NCT 127,Back 2 U (AM 01:27),0,0,no tags,True,,143430
+bigbang::bad boy,Bigbang,BAD BOY,0,0,no tags,True,,109472
+enhypen::bad desire (with or without you),ENHYPEN,Bad Desire (With or Without You),10,9,has tags,True,,230575
+ladies' code::bad girl,LADIES' CODE,Bad Girl,0,0,no tags,True,,23464
+이효리::bad girls,이효리,Bad Girls,0,0,no tags,True,,4660
+ive::baddie,IVE,Baddie,10,6,has tags,True,,324272
+hyolyn::bae,HYOLYN,BAE,0,0,no tags,True,,19889
+clc::bae,CLC,BAE,0,0,no tags,True,,13556
+the deep::bappi,The Deep,BAPPI,0,0,no tags,False,,48068
+crayon pop::bar bar bar,Crayon Pop,Bar Bar Bar,0,0,no tags,True,,57362
+twice::basics,TWICE,Basics,0,0,no tags,True,,253021
+nu'est::bass,NU'EST,BASS,0,0,no tags,True,,8784
+"twice::battitude (nayeon, jeongyeon, momo, mina)",TWICE,"BATTITUDE (NAYEON, JEONGYEON, MOMO, MINA)",0,0,no tags,True,,118825
+iu::bbibbi,IU,BBIBBI,0,0,no tags,True,,313644
+wonder girls::be my baby,Wonder Girls,Be My Baby,0,0,no tags,True,,90419
+pristin::be the star,PRISTIN,Be the Star,0,0,no tags,True,,15342
+monsta x::beautiful,MONSTA X,Beautiful,0,0,no tags,True,,100867
+monsta x::beautiful - japanese ver.,MONSTA X,Beautiful - Japanese ver.,0,0,no tags,True,,4553
+bigbang::beautiful hangover,Bigbang,BEAUTIFUL HANGOVER,0,0,no tags,True,,16915
+stayc::bebe,STAYC,BEBE,0,0,no tags,True,,115895
+bts::begin,BTS,Begin,10,6,has tags,True,,415131
+bts::best of me,BTS,Best of Me,10,6,has tags,True,,530513
+nu'est::bet bet,NU'EST,BET BET,0,0,no tags,True,,35117
+blackpink::bet you wanna (feat. cardi b),BLACKPINK,Bet You Wanna (feat. Cardi B),0,0,no tags,False,,230760
+aespa::better things,aespa,Better Things,10,8,has tags,True,,316407
+noir::between,Noir,Between,0,0,no tags,False,,1753
+aoa::bing bing,AOA,Bing Bing,0,0,no tags,True,,48039
+artms::birth,ARTMS,Birth,0,0,no tags,True,,119640
+clc::black dress,CLC,BLACK DRESS,0,0,no tags,True,,155282
+nct::black on black,NCT,Black on Black,0,0,no tags,True,,108171
+cross gene::black or white,CROSS GENE,Black or White,0,0,no tags,True,,3544
+iu::black out,IU,Black Out,0,0,no tags,True,,52568
+super junior::black suit,SUPER JUNIOR,Black Suit,0,0,no tags,True,,85169
+rainbow::black swan,Rainbow,Black Swan,0,0,no tags,True,,17959
+pristin::black widow,PRISTIN,Black Widow,0,0,no tags,True,,43328
+pristin::black widow (remix ver.),PRISTIN,Black Widow (Remix Ver.),0,0,no tags,True,,5907
+ikon::bling bling,Ikon,BLING BLING,0,0,no tags,True,,87529
+bigbang::blue,Bigbang,BLUE,0,0,no tags,True,,128588
+le sserafim::blue flame,LE SSERAFIM,Blue Flame,10,6,has tags,True,,426814
+tomorrow x together::blue hour,TOMORROW X TOGETHER,Blue Hour,10,7,has tags,True,,488004
+gyeongree::blue moon,GYEONGREE,blue moon,0,0,no tags,True,,12089
+t-ara::bo peep bo peep,T-ARA,Bo Peep Bo Peep,0,0,no tags,False,,107623
+everglow::bon bon chocolat,Everglow,Bon Bon Chocolat,10,7,has tags,True,,357137
+wjsn::boogie up,WJSN,Boogie Up,0,0,no tags,True,,65911
+nct dream::boom,NCT DREAM,BOOM,0,0,no tags,True,,298484
+f(x)::boom bang boom,f(x),Boom Bang Boom,0,0,no tags,True,,35152
+viviz::bop bop!,VIVIZ,BOP BOP!,0,0,no tags,True,,156285
+jj project::bounce,JJ Project,Bounce,0,0,no tags,True,,28441
+exid::boy,EXID,Boy,0,0,no tags,True,,40031
+bts::boy with luv (feat. halsey),BTS,Boy With Luv (feat. Halsey),10,6,has tags,True,,970368
+cravity::break all the rules,CRAVITY,Break All The Rules,0,0,no tags,True,,41515
+miss a::breathe,miss A,Breathe,0,0,no tags,True,,93013
+wei::breathing,WEi,Breathing,0,0,no tags,False,,7057
+nct dream::broken melodies,NCT DREAM,Broken Melodies,0,0,no tags,False,,146239
+enhypen::brought the heat back,ENHYPEN,Brought the Heat Back,10,7,has tags,True,,267393
+enhypen::brought the heat back (feat. ava max),ENHYPEN,BROUGHT THE HEAT BACK (feat. Ava Max),0,0,no tags,True,,53939
+b.i::btbt,B.I,BTBT,0,0,no tags,False,,239762
+infinite::btd (before the dawn),Infinite,BTD (Before The Dawn),0,0,no tags,True,,32127
+orange caramel::bubble bath,Orange Caramel,Bubble Bath,0,0,no tags,True,,22694
+현아::bubble pop!,현아,Bubble Pop!,0,0,no tags,True,,21953
+oh my girl::bungee (fall in love),OH MY GIRL,BUNGEE (Fall In Love),0,0,no tags,True,,38901
+sunmi::burn,SUNMI,Burn,0,0,no tags,False,,19799
+maka`maka::burning power,Maka`Maka,Burning Power,0,0,no tags,True,,4044
+bts::butter,BTS,Butter,10,7,has tags,True,,875654
+hearts2hearts::butterflies,Hearts2Hearts,Butterflies,10,7,has tags,True,,167208
+bts::butterfly,BTS,Butterfly,9,6,has tags,True,,577910
+loona::butterfly,Loona,Butterfly,0,0,no tags,True,,299778
+p1harmony::butterfly,P1Harmony,Butterfly,0,0,no tags,True,,109659
+twelvem::butterfly,twelveM,butterfly,0,0,no tags,False,,14489
+yuri::butterfly,Yuri,Butterfly,0,0,no tags,True,,7513
+red velvet::bye bye,Red Velvet,BYE BYE,0,0,no tags,True,,204114
+wei::bye bye bye,WEi,BYE BYE BYE,0,0,no tags,True,,29378
+a.c.e::cactus,A.C.E,Cactus,0,0,no tags,True,,48339
+itzy::cake,ITZY,CAKE,0,0,no tags,True,,233449
+sunmi::call,SUNMI,Call,0,0,no tags,False,,37592
+exo::call me baby,Exo,CALL ME BABY,10,7,has tags,True,,437500
+clc::call my name,CLC,CALL MY NAME,0,0,no tags,True,,15433
+cravity::call my name,CRAVITY,Call My Name,0,0,no tags,True,,11618
+lovelyz::cameo,Lovelyz,Cameo,0,0,no tags,True,,14229
+boa::camo,Boa,CAMO,0,0,no tags,True,,36415
+dreamcatcher::can't get you out of my mind,Dreamcatcher,Can't get you out of my mind,0,0,no tags,False,,57937
+iu::can't love you anymore (with ohhyuk),IU,Can't Love You Anymore (With OHHYUK),0,0,no tags,True,,255412
+2ne1::can't nobody,2NE1,Can't Nobody,0,0,no tags,True,,85355
+nct dream::candy,NCT DREAM,Candy,0,0,no tags,True,,223513
+baekhyun::candy,BAEKHYUN,Candy,0,0,no tags,True,,250857
+h.o.t::candy,H.O.T,Candy,0,0,no tags,True,,5241
+tomorrow x together::cat & dog,TOMORROW X TOGETHER,Cat & Dog,0,0,no tags,True,,326377
+이달의 소녀 오드아이써클::chaotic,이달의 소녀 오드아이써클,Chaotic,0,0,no tags,True,,4524
+stray kids::charmer,Stray Kids,Charmer,0,0,no tags,True,,231169
+tomorrow x together::chasing that feeling,TOMORROW X TOGETHER,Chasing That Feeling,10,7,has tags,True,,261610
+twice::cheer up,TWICE,CHEER UP,10,8,has tags,True,,525665
+seventeen::cheers,Seventeen,CHEERS,0,0,no tags,True,,201290
+key::chemicals,Key,Chemicals,0,0,no tags,True,,25883
+nct 127::cherry bomb,NCT 127,Cherry Bomb,10,6,has tags,True,,397143
+stray kids::chk chk boom,Stray Kids,Chk Chk Boom,10,7,has tags,True,,400760
+f(x)::chu~♡,f(x),Chu~♡,0,0,no tags,True,,108266
+seventeen::circles,Seventeen,Circles,0,0,no tags,True,,81764
+oh my girl::closer,OH MY GIRL,CLOSER,0,0,no tags,True,,97993
+wjsn::closer to you,WJSN,Closer To You,0,0,no tags,True,,13284
+fromis_9::clover,fromis_9,Clover,0,0,no tags,True,,26917
+bts::coffee,BTS,Coffee,9,6,has tags,True,,430669
+yuju::cold winter (feat. mad clown),Yuju,Cold Winter (feat. Mad Clown),0,0,no tags,True,,14337
+shinee::colorful,SHINee,Colorful,0,0,no tags,True,,24084
+oh my girl::coloring book,OH MY GIRL,Coloring Book,0,0,no tags,True,,27663
+b.a.p::coma,B.A.P,COMA,0,0,no tags,False,,16477
+2ne1::come back home,2NE1,COME BACK HOME,0,0,no tags,True,,187573
+se7en::come back to me,SE7EN,Come Back To Me,0,0,no tags,True,,14414
+aoa::come see me,AOA,Come See Me,0,0,no tags,True,,50472
+stray kids::comflex,Stray Kids,COMFLEX,0,0,no tags,True,,121883
+nmixx::cool (your rainbow),NMIXX,COOL (Your rainbow),0,0,no tags,True,,156456
+newjeans::cool with you,NewJeans,Cool With You,10,7,has tags,True,,717315
+red velvet::cosmic,Red Velvet,Cosmic,10,7,has tags,False,,381307
+loossemble::cotton candy,Loossemble,cotton candy,0,0,no tags,True,,73579
+blackpink::crazy over you,BLACKPINK,Crazy Over You,0,0,no tags,False,,341609
+exid::cream,EXID,Cream,0,0,no tags,True,,27692
+enhypen::criminal love,ENHYPEN,CRIMINAL LOVE,10,7,has tags,True,,210351
+tomorrow x together::crown,TOMORROW X TOGETHER,CROWN,10,6,has tags,True,,358996
+exo::crown,Exo,CROWN,0,0,no tags,True,,69476
+twice::cruel,TWICE,CRUEL,0,0,no tags,True,,159942
+아이오아이::crush,아이오아이,Crush,0,0,no tags,True,,842
+t-ara::cry cry,T-ARA,Cry Cry,0,0,no tags,False,,57663
+oh my girl::cupid,OH MY GIRL,CUPID,0,0,no tags,True,,28100
+oh my girl::curious,OH MY GIRL,Curious,0,0,no tags,True,,5989
+sonamoo::cushion,SONAMOO,Cushion,0,0,no tags,False,,9291
+ateez::cyberpunk,ATEEZ,Cyberpunk,0,0,no tags,True,,160118
+itzy::dalla dalla,ITZY,DALLA DALLA,10,8,has tags,True,,381283
+twice::dance the night away,TWICE,Dance the Night Away,10,7,has tags,True,,505662
+wei::dancing in the dark,WEi,Dancing In The Dark,0,0,no tags,True,,4892
+소녀시대::dancing queen,소녀시대,Dancing Queen,0,0,no tags,True,,13795
+f(x)::dangerous,f(x),Dangerous,0,0,no tags,True,,44798
+shinee::dangerous (medusa ⅱ),SHINee,Dangerous (Medusa Ⅱ),0,0,no tags,True,,14183
+t-ara::day by day,T-ARA,DAY BY DAY,0,0,no tags,True,,69093
+exid::ddd,EXID,DDD,0,0,no tags,True,,190431
+blackpink::ddu-du ddu-du,BLACKPINK,DDU-DU DDU-DU,10,6,has tags,False,,816354
+mamamoo::decalcomanie,MAMAMOO,Decalcomanie,0,0,no tags,True,,29505
+ateez::deja vu,ATEEZ,Deja Vu,0,0,no tags,True,,262282
+tomorrow x together::deja vu,TOMORROW X TOGETHER,Deja Vu,10,7,has tags,False,,309927
+sonamoo::deja vu,SONAMOO,Deja Vu,0,0,no tags,False,,13651
+shinee::destination,SHINee,Destination,0,0,no tags,True,,18556
+clc::devil,CLC,Devil,0,0,no tags,True,,168826
+baekhyun::diamond,BAEKHYUN,Diamond,0,0,no tags,True,,59924
+nu'est::different,NU'EST,Different,0,0,no tags,True,,6032
+wei::diffuser,WEi,Diffuser,0,0,no tags,True,,7320
+bts::dimple,BTS,Dimple,10,6,has tags,True,,671783
+ze:a::dirty cat,ZE:A,Dirty Cat,0,0,no tags,True,,2601
+aespa::dirty work,aespa,Dirty Work,10,8,has tags,False,,298570
+stray kids::district 9,Stray Kids,District 9,0,0,no tags,True,,181299
+after school::diva,After School,Diva,0,0,no tags,True,,64478
+stray kids::divine,Stray Kids,DIVINE,9,7,has tags,True,,120787
+iu::dlwlrma,IU,dlwlrma,0,0,no tags,True,,135132
+sonamoo::do it like me,SONAMOO,Do it like me,0,0,no tags,False,,1605
+2ne1::do you love me,2NE1,DO YOU LOVE ME,0,0,no tags,True,,37096
+oh my girl::dolphin,OH MY GIRL,Dolphin,0,0,no tags,True,,208600
+stray kids::domino,Stray Kids,DOMINO,0,0,no tags,True,,222576
+pochonbo electronic ensemble::don't ask my name,Pochonbo Electronic Ensemble,Don't Ask My Name,0,0,no tags,False,,325
+blackpink::don't know what to do,BLACKPINK,Don't Know What to Do,10,7,has tags,False,,419692
+kard::don't recall,KARD,Don't Recall,0,0,no tags,True,,126909
+seventeen::don't wanna cry,Seventeen,Don't Wanna Cry,0,0,no tags,True,,310660
+girl's day::don’t be shy,Girl's Day,Don’t Be Shy,0,0,no tags,True,,7460
+송지은::don’t look at me like that,송지은,Don’t Look At Me Like That,0,0,no tags,False,,212
+jin::don’t say you love me,Jin,Don’t Say You Love Me,10,7,has tags,False,,299536
+i.o.i::doo wap,I.O.I,Doo Wap,0,0,no tags,True,,10504
+bts::dope,BTS,Dope,10,8,has tags,True,,636399
+i.o.i::downpour,I.O.I,DOWNPOUR,0,0,no tags,True,,79840
+f(x)::dracula,f(x),Dracula,0,0,no tags,True,,64462
+aespa::drama,aespa,Drama,10,7,has tags,True,,685823
+9muses::drama,9MUSES,DRAMA,0,0,no tags,True,,25031
+monsta x::dramarama,MONSTA X,DRAMARAMA,0,0,no tags,True,,141970
+real girls project::dream,Real Girls Project,Dream,0,0,no tags,True,,1961
+shinee::dream girl,SHINee,Dream Girl,0,0,no tags,True,,78328
+i.o.i::dream girls,I.O.I,Dream Girls,0,0,no tags,True,,34549
+aespa::dreams come true,aespa,Dreams Come True,10,5,has tags,True,,326860
+after school::dressing room,After School,Dressing Room,0,0,no tags,True,,23219
+babymonster::drip,BABYMONSTER,DRIP,6,3,has tags,True,,229782
+"stray kids::drive (bang chan, lee know)",Stray Kids,"Drive (Bang Chan, Lee Know)",0,0,no tags,True,,95843
+apink::dumhdurum,Apink,Dumhdurum,0,0,no tags,True,,180668
+everglow::dun dun,Everglow,DUN DUN,0,0,no tags,True,,369825
+oh my girl::dun dun dance,OH MY GIRL,Dun Dun Dance,0,0,no tags,True,,181881
+ateez::dune,ATEEZ,Dune,0,0,no tags,True,,92648
+bts::dynamite,BTS,Dynamite,10,7,has tags,True,,1122567
+jisoo::earthquake,JISOO,earthquake,10,7,has tags,True,,264394
+stray kids::easy,Stray Kids,Easy,0,0,no tags,True,,201229
+wjsn the black::easy,WJSN THE BLACK,Easy,0,0,no tags,True,,87052
+key::easy to love,Key,Easy to Love,0,0,no tags,True,,17525
+loona::eclipse,Loona,Eclipse,0,0,no tags,True,,190194
+이달의 소녀::eclipse (prod. by daniel obi klein),이달의 소녀,Eclipse (Prod. by Daniel Obi Klein),0,0,no tags,False,,2470
+looπδ::egoist (feat. 진솔) (olivia hye),LOOΠΔ,Egoist (feat. 진솔) (Olivia Hye),0,0,no tags,False,,1026
+clc::eighteen,CLC,Eighteen,0,0,no tags,True,,9573
+ive::either way,IVE,Either Way,0,0,no tags,True,,190239
+f(x)::electric shock,f(x),Electric Shock,10,5,has tags,True,,235511
+ive::eleven,IVE,ELEVEN,10,6,has tags,True,,513211
+손담비::emergency call,손담비,Emergency Call,0,0,no tags,True,,1559
+lovelyz::emotion,Lovelyz,Emotion,0,0,no tags,True,,8011
+yuri::ending credit (to be continued),Yuri,Ending Credit (To be continued),0,0,no tags,True,,4267
+f(x)::ending page,f(x),Ending Page,0,0,no tags,True,,44407
+wanna one::energetic,Wanna One,Energetic,0,0,no tags,True,,243502
+uniq::eoeo,UNIQ,EOEO,0,0,no tags,True,,49575
+bts::epilogue: young forever,BTS,EPILOGUE: Young Forever,9,6,has tags,True,,418510
+stray kids::escape (bang chan & hyunjin),Stray Kids,ESCAPE (Bang Chan & Hyunjin),0,0,no tags,True,,100718
+fromis_9::escape room,fromis_9,Escape Room,0,0,no tags,True,,98997
+조규현::eternal sunshine,조규현,Eternal Sunshine,0,0,no tags,False,,621
+billlie::eunoia,Billlie,EUNOIA,0,0,no tags,True,,121074
+shinee::everybody,SHINee,Everybody,0,0,no tags,True,,65875
+shinee::evil,SHINee,Evil,0,0,no tags,True,,29932
+bestie::excuse me,BESTie,Excuse Me,0,0,no tags,True,,34297
+shinee::excuse me miss,SHINee,Excuse Me Miss,0,0,no tags,True,,41034
+twice::eye eye eyes,TWICE,EYE EYE EYES,0,0,no tags,True,,106849
+victon::eyez eyez,VICTON,Eyez Eyez,0,0,no tags,True,,8907
+nu'est::face,NU'EST,FACE,0,0,no tags,True,,88672
+bts::fake love (rocking vibe mix),BTS,FAKE LOVE (Rocking Vibe Mix),0,0,no tags,True,,210193
+2ne1::falling in love,2NE1,Falling in Love,0,0,no tags,True,,63942
+송지은::false hope,송지은,False Hope,0,0,no tags,False,,98
+epik high::fan,Epik High,Fan,0,0,no tags,True,,27007
+weki meki::fantastic,Weki Meki,Fantastic,0,0,no tags,True,,11587
+bigbang::fantastic baby,Bigbang,FANTASTIC BABY,10,6,has tags,True,,291956
+jbj::fantasy,JBJ,Fantasy,0,0,no tags,True,,24048
+"tomorrow x together::farewell, neverland",TOMORROW X TOGETHER,"Farewell, Neverland",0,0,no tags,True,,230360
+looπδ::favorite,LOOΠΔ,favOriTe,0,0,no tags,True,,38317
+seventeen::fear,Seventeen,Fear,0,0,no tags,True,,173823
+red velvet::feel my rhythm,Red Velvet,Feel My Rhythm,10,7,has tags,True,,395440
+enhypen::fever,ENHYPEN,FEVER,10,9,has tags,True,,628196
+beast::fiction,Beast,Fiction,0,0,no tags,True,,133413
+bss::fighting (feat. lee young ji),BSS,Fighting (feat. Lee Young Ji),0,0,no tags,True,,237358
+bts::filter,BTS,Filter,10,6,has tags,True,,570283
+mamamoo::finally,MAMAMOO,Finally,0,0,no tags,False,,17489
+taeyeon::fine,TAEYEON,Fine,0,0,no tags,True,,219124
+nu'est::fine,NU'EST,Fine,0,0,no tags,True,,7944
+2ne1::fire,2NE1,Fire,0,0,no tags,True,,205443
+bts::fire,BTS,Fire,0,0,no tags,True,,55525
+le sserafim::fire in the belly,LE SSERAFIM,Fire in the belly,0,0,no tags,True,,222162
+nu'est::firework,NU'EST,Firework,0,0,no tags,True,,6459
+ateez::fireworks (i'm the one),ATEEZ,Fireworks (I'm The One),0,0,no tags,True,,199693
+bts::first love,BTS,First Love,10,9,has tags,True,,320868
+hello venus::first love,HELLO VENUS,First Love,0,0,no tags,False,,2981
+lovelyz::first snow,Lovelyz,First Snow,0,0,no tags,True,,8256
+le sserafim::flash forward,LE SSERAFIM,Flash Forward,0,0,no tags,True,,208569
+"zelo::flash, party!",ZELO,"Flash, Party!",0,0,no tags,True,,3264
+after school::flashback,After School,Flashback,0,0,no tags,True,,51480
+got7::fly,GOT7,Fly,0,0,no tags,True,,77295
+kara::follow me,Kara,Follow Me,0,0,no tags,True,,9452
+wjsn::follow me,WJSN,Follow Me,0,0,no tags,True,,14134
+winner::fool,Winner,FOOL,0,0,no tags,True,,58148
+babymonster::forever,BABYMONSTER,FOREVER,10,7,has tags,True,,208983
+exo::forever,Exo,Forever,0,0,no tags,True,,92882
+girls' generation::forever 1,Girls' Generation,FOREVER 1,0,0,no tags,True,,246268
+boa::freak in me,Boa,Freak In Me,0,0,no tags,True,,7691
+luna::free somebody,Luna,Free Somebody,0,0,no tags,True,,104630
+momoland::freeze,MOMOLAND,Freeze,0,0,no tags,True,,27986
+sonamoo::friday night,SONAMOO,Friday Night,0,0,no tags,True,,14240
+clc::friend lover zone,CLC,Friend Lover Zone,0,0,no tags,True,,5304
+tomorrow x together::frost,TOMORROW X TOGETHER,Frost,0,0,no tags,True,,215111
+iu::full stop,IU,Full Stop,0,0,no tags,True,,45109
+bigbang::fxxk it,Bigbang,FXXK IT,0,0,no tags,True,,219738
+super junior::game,SUPER JUNIOR,GAME,0,0,no tags,True,,5195
+noir::gangsta,Noir,Gangsta,0,0,no tags,True,,4456
+cravity::gas pedal,CRAVITY,Gas Pedal,0,0,no tags,True,,22276
+sunmi::gashina,SUNMI,Gashina,0,0,no tags,True,,384585
+소녀시대::gee,소녀시대,Gee,0,0,no tags,True,,66204
+wjsn::geeminy,WJSN,Geeminy,0,0,no tags,True,,15454
+triples::generation,tripleS,Generation,0,0,no tags,True,,249162
+소녀시대::genie,소녀시대,GENIE,0,0,no tags,True,,11743
+teen top::get crazy,TEEN TOP,Get Crazy,0,0,no tags,True,,3366
+pristin v::get it,PRISTIN V,Get It,0,0,no tags,True,,179305
+got7::gimme,GOT7,Gimme,0,0,no tags,True,,16573
+looπδ / odd eye circle::girl front,LOOΠΔ / ODD EYE CIRCLE,Girl Front,10,6,has tags,True,,279605
+이달의 소녀 오드아이써클::girl front,이달의 소녀 오드아이써클,Girl Front,0,0,no tags,True,,8993
+triple h::girl girl girl,Triple H,GIRL GIRL GIRL,0,0,no tags,False,,14588
+aespa::girls,aespa,Girls,10,8,has tags,True,,377336
+got7::girls girls girls,GOT7,Girls Girls Girls,0,0,no tags,True,,85359
+"shinee::girls, girls, girls",SHINee,"Girls, Girls, Girls",0,0,no tags,True,,25108
+loossemble::girls’ night,Loossemble,Girls’ Night,0,0,no tags,True,,96986
+sistar::give it to me,SISTAR,Give It To Me,0,0,no tags,True,,147018
+lay::give me a chance,LAY,Give Me a Chance,0,0,no tags,True,,15546
+enhypen::given-taken,ENHYPEN,Given-Taken,10,9,has tags,True,,463590
+nct dream::glitch mode,NCT DREAM,Glitch Mode,0,0,no tags,True,,155327
+rescene::glow up,RESCENE,Glow Up,0,0,no tags,True,,89442
+2ne1::go away,2NE1,Go Away,0,0,no tags,True,,95426
+bts::go go,BTS,Go Go,10,8,has tags,False,,554790
+cravity::go go,CRAVITY,GO GO,0,0,no tags,True,,11002
+seventeen::god of music,Seventeen,God of Music,0,0,no tags,True,,168832
+stray kids::god’s menu,Stray Kids,God’s Menu,10,6,has tags,True,,588919
+mamamoo::gogobebe,MAMAMOO,gogobebe,0,0,no tags,True,,259313
+huntr/x::golden,HUNTR/X,Golden,10,7,has tags,True,,1113966
+gd x taeyang::good boy,GD X TAEYANG,GOOD BOY,0,0,no tags,True,,169046
+nu'est::good bye bye,NU'EST,Good Bye Bye,0,0,no tags,True,,15240
+iu::good day,IU,Good Day,0,0,no tags,True,,156623
+key::good good,Key,Good Good,0,0,no tags,True,,24219
+zerobaseone::good night,ZEROBASEONE,Good Night,0,0,no tags,True,,46508
+dreamcatcher::good night,Dreamcatcher,GOOD NIGHT,0,0,no tags,False,,94718
+lovelyz::good night like yesterday,Lovelyz,Good Night Like Yesterday,0,0,no tags,True,,12427
+le sserafim::good parts (when the quality is bad but i am),LE SSERAFIM,Good Parts (when the quality is bad but I am),0,0,no tags,True,,322754
+miss a::good-bye baby,miss A,Good-bye Baby,0,0,no tags,True,,134066
+vav::gorgeous,VAV,Gorgeous,0,0,no tags,True,,16528
+pentagon::gorilla,Pentagon,Gorilla,0,0,no tags,True,,35154
+rainbow::gossip girl,Rainbow,Gossip Girl,0,0,no tags,True,,10745
+twice::got the thrills,TWICE,GOT THE THRILLS,0,0,no tags,True,,132762
+chung ha::gotta go,CHUNG HA,Gotta Go,0,0,no tags,True,,321645
+soyou::gotta go,SOYOU,GOTTA GO,0,0,no tags,True,,21665
+cravity::groovy,CRAVITY,Groovy,0,0,no tags,True,,43677
+9muses::gun,9MUSES,GUN,0,0,no tags,True,,26132
+ateez::halazia,ATEEZ,HALAZIA,10,7,has tags,True,,228417
+stray kids::hall of fame,Stray Kids,Hall of Fame,0,0,no tags,True,,157404
+2pm::hands up,2PM,Hands Up,0,0,no tags,True,,96030
+red velvet::happily ever after,Red Velvet,Happily Ever After,0,0,no tags,True,,66734
+stray kids::happy (han),Stray Kids,HaPpY (HAN),0,0,no tags,True,,51717
+kara::happy hour,Kara,Happy Hour,0,0,no tags,True,,8303
+blackpink::hard to love,BLACKPINK,Hard To Love,0,0,no tags,False,,371246
+bigbang::haru haru,Bigbang,Haru Haru,0,0,no tags,True,,175344
+4minute::hate,4minute,Hate,0,0,no tags,True,,131834
+2ne1::hate you,2NE1,Hate You,0,0,no tags,True,,76945
+aoa::heart attack,AOA,Heart Attack,0,0,no tags,True,,157288
+loona::heart attack (츄),Loona,Heart Attack (츄),10,7,has tags,True,,493295
+sunmi::heart burn,SUNMI,Heart Burn,0,0,no tags,False,,194231
+twice::heart shaker,TWICE,Heart Shaker,0,0,no tags,True,,335120
+2pm::heartbeat,2PM,Heartbeat,0,0,no tags,True,,99010
+g-dragon::heartbreaker,G-DRAGON,Heartbreaker,0,0,no tags,True,,74503
+에일리::heaven,에일리,Heaven,0,0,no tags,True,,12851
+clc::helicopter - english version,CLC,HELICOPTER - English Version,0,0,no tags,True,,19388
+stray kids::hellevator,Stray Kids,Hellevator,0,0,no tags,True,,214915
+shinee::hello,SHINee,Hello,0,0,no tags,True,,85035
+joy::hello,Joy,Hello,0,0,no tags,True,,260023
+treasure::hello,Treasure,HELLO,0,0,no tags,True,,106700
+nu'est w::help me,NU'EST W,HELP ME,0,0,no tags,True,,30018
+block b::her,Block B,HER,0,0,no tags,True,,176665
+monsta x::hero,MONSTA X,HERO,0,0,no tags,True,,177691
+sunmi::heroine,SUNMI,Heroine,0,0,no tags,True,,199467
+lovelyz::hide and seek,Lovelyz,Hide and Seek,0,0,no tags,True,,6278
+clc::high heels,CLC,High Heels,0,0,no tags,True,,14024
+gd&top::high high,GD&TOP,HIGH HIGH,0,0,no tags,True,,71959
+nmixx::high horse,NMIXX,High Horse,10,8,has tags,True,,109791
+mamamoo::hip,MAMAMOO,HIP,10,6,has tags,True,,497156
+exo-k::history,EXO-K,HISTORY,0,0,no tags,True,,115122
+clc::hobgoblin,CLC,Hobgoblin,0,0,no tags,True,,182842
+rainbow pixie::hoi hoi,Rainbow Pixie,Hoi Hoi,0,0,no tags,True,,2301
+kard::hola hola,KARD,Hola Hola,0,0,no tags,True,,110865
+i.o.i::hold on,I.O.I,Hold On,0,0,no tags,True,,24486
+aespa::hold on tight,aespa,Hold On Tight,10,7,has tags,True,,481019
+clc::hold your hand,CLC,Hold Your Hand,0,0,no tags,True,,8539
+소녀시대::holiday,소녀시대,Holiday,0,0,no tags,True,,4851
+t-ara::holiday,T-ARA,HOLIDAY,0,0,no tags,True,,10704
+bts::home,BTS,HOME,10,6,has tags,True,,607567
+key::honest,Key,Honest,0,0,no tags,True,,25177
+riize::honestly,RIIZE,Honestly,0,0,no tags,False,,60399
+kara::honey,Kara,Honey,0,0,no tags,True,,76558
+b.a.p::honeymoon,B.A.P,HONEYMOON,0,0,no tags,True,,35444
+소녀시대::hoot,소녀시대,Hoot,0,0,no tags,True,,7474
+twice::hot,TWICE,HOT,0,0,no tags,True,,117338
+ariaz::hot & cold (2021),ARIAZ,Hot & Cold (2021),0,0,no tags,True,,5039
+4minute::hot issue,4minute,Hot Issue,0,0,no tags,True,,123838
+exid::hot pink,EXID,Hot Pink,0,0,no tags,True,,103860
+f(x)::hot summer,f(x),Hot Summer,10,5,has tags,True,,170208
+s.m. the ballad::hot times (시험하지 말기),S.M. THE BALLAD,Hot Times (시험하지 말기),0,0,no tags,True,,10619
+huntr/x::how it’s done,HUNTR/X,How It’s Done,10,7,has tags,True,,606144
+newjeans::how sweet,NewJeans,How Sweet,10,6,has tags,True,,661133
+exid::how why,EXID,How Why,0,0,no tags,True,,23050
+t-ara::hue,T-ARA,HUE,0,0,no tags,True,,9059
+4minute::huh,4minute,HUH,0,0,no tags,True,,60622
+b.a.p::hurricane,B.A.P,Hurricane,0,0,no tags,True,,18857
+miss a::hush,miss A,Hush,10,5,has tags,True,,205891
+kiiikiii::i do me,KiiiKiii,I DO ME,10,7,has tags,True,,121695
+2ne1::i don't care,2NE1,I Don't Care,0,0,no tags,True,,109366
+exid::i feel good,EXID,I Feel Good,0,0,no tags,True,,31442
+소녀시대::i got a boy,소녀시대,I Got a Boy,0,0,no tags,True,,24091
+boa::i kiss,Boa,I Kiss,0,0,no tags,True,,5904
+현아::i like (feat. flowsik of aziatix),현아,I Like (Feat. Flowsik Of Aziatix),0,0,no tags,False,,1876
+stray kids::i like it,Stray Kids,I Like It,10,6,has tags,True,,238423
+clc::i like it,CLC,I LIKE IT,0,0,no tags,True,,41227
+exid::i love you,EXID,I Love You,0,0,no tags,True,,181232
+2ne1::i love you,2NE1,I Love You,0,0,no tags,True,,94285
+psy::i luv it,Psy,I Luv It,0,0,no tags,True,,93894
+clc::i mean that,CLC,I Mean That,0,0,no tags,True,,15302
+태양::i need a girl (feat. g-dragon),태양,I Need A Girl (feat. G-Dragon),0,0,no tags,True,,14547
+sonamoo::i think i love u,SONAMOO,I Think I Love U,0,0,no tags,False,,5749
+huh yunjin::i ≠ doll,HUH YUNJIN,I ≠ DOLL,0,0,no tags,True,,154489
+2pm::i'll be back,2PM,I'll Be Back,0,0,no tags,True,,48859
+hi suhyun::i'm different (feat. bobby),HI SUHYUN,I'm Different (feat. Bobby),0,0,no tags,False,,3368
+bts::i'm fine,BTS,I'm Fine,10,7,has tags,True,,405687
+dean::i'm not sorry,Dean,I'm Not Sorry,0,0,no tags,True,,173312
+xlov::i'mma be,XLOV,I'mma Be,0,0,no tags,True,,115100
+현아::ice cream (feat. maboos),현아,Ice Cream (feat. Maboos),0,0,no tags,True,,9124
+blackpink::ice cream (with selena gomez),BLACKPINK,Ice Cream (with Selena Gomez),0,0,no tags,False,,578604
+red velvet::ice cream cake,Red Velvet,Ice Cream Cake,10,8,has tags,True,,320835
+twice::icon,TWICE,ICON,0,0,no tags,True,,206406
+zelo::idc,ZELO,IDC,0,0,no tags,True,,1368
+bonusbaby::if i become an adult,BONUSbaby,If I Become An Adult,0,0,no tags,True,,2964
+bigbang::if you,Bigbang,IF YOU,0,0,no tags,True,,153176
+ateez::illusion,ATEEZ,Illusion,0,0,no tags,False,,105058
+btob::imagine,BTOB,Imagine,0,0,no tags,True,,12267
+key::imagine,Key,Imagine,0,0,no tags,True,,22832
+zerobaseone::in bloom,ZEROBASEONE,In Bloom,0,0,no tags,True,,233490
+oh my girl::in my dreams,OH MY GIRL,In My Dreams,0,0,no tags,True,,7871
+rescene::in my lotion,RESCENE,In my lotion,0,0,no tags,True,,60505
+dreamcatcher::in the frozen,Dreamcatcher,In the Frozen,0,0,no tags,False,,56547
+itzy::in the morning,ITZY,In the morning,0,0,no tags,True,,406145
+ateez::in your fantasy,ATEEZ,In Your Fantasy,10,7,has tags,True,,187695
+ateez::inception,ATEEZ,INCEPTION,0,0,no tags,True,,207921
+소녀시대::into the new world,소녀시대,Into The New World,0,0,no tags,True,,6913
+noir::intro,Noir,Intro,0,0,no tags,False,,1757
+nct::intro: neo got my back,NCT,INTRO: Neo Got My Back,0,0,no tags,True,,97576
+taeyeon::invu,TAEYEON,INVU,0,0,no tags,True,,306478
+wonder girls::irony,Wonder Girls,Irony,0,0,no tags,True,,64118
+lee hi::it's over,LEE HI,It's Over,0,0,no tags,True,,5193
+"ateez::it's you (yeosang, san, wooyoung)",ATEEZ,"IT's You (YEOSANG, SAN, WOOYOUNG)",0,0,no tags,True,,103514
+stray kids::item,Stray Kids,ITEM,0,0,no tags,True,,139964
+chung ha::i’m ready,CHUNG HA,I’m Ready,0,0,no tags,True,,96879
+red velvet::jackpot,Red Velvet,Jackpot,0,0,no tags,True,,38943
+bts::jamais vu,BTS,Jamais Vu,10,6,has tags,True,,472537
+boyfriend::janus,Boyfriend,JANUS,0,0,no tags,True,,18138
+treasure::jikjin,Treasure,JIKJIN,0,0,no tags,True,,194174
+momoland::jjan! koong! kwang!,MOMOLAND,JJan! Koong! Kwang!,0,0,no tags,True,,17282
+aoa::joa yo!,AOA,Joa Yo!,0,0,no tags,True,,12561
+shinee::jojo,SHINee,JoJo,0,0,no tags,True,,41566
+shinee::juliette,SHINee,JULIETTE,0,0,no tags,True,,78965
+rainz::juliette,RAINZ,Juliette,0,0,no tags,True,,3558
+cravity::jumper,CRAVITY,JUMPER,0,0,no tags,True,,20427
+dreamcatcher::justice,Dreamcatcher,JUSTICE,0,0,no tags,False,,73498
+b.i::keep me up,B.I,Keep me up,0,0,no tags,False,,78729
+luna::keep on doin',Luna,Keep On Doin',0,0,no tags,True,,35830
+f(x)::kick,f(x),Kick,0,0,no tags,True,,56159
+blackpink::kick it,BLACKPINK,Kick It,0,0,no tags,False,,280029
+brown eyed girls::kill bill,Brown Eyed Girls,Kill Bill,0,0,no tags,True,,77481
+ikon::killing me,Ikon,KILLING ME,0,0,no tags,True,,198414
+hello venus::kiss me,HELLO VENUS,Kiss Me,0,0,no tags,True,,2197
+wjsn::kiss me,WJSN,KISS ME,0,0,no tags,True,,14366
+소녀시대::kissing you,소녀시대,Kissing You,0,0,no tags,True,,20846
+twice::knock knock,TWICE,KNOCK KNOCK,0,0,no tags,True,,297404
+lovelyz::knock knock,Lovelyz,Knock Knock,0,0,no tags,True,,5611
+i.o.i::knock knock knock,I.O.I,Knock Knock Knock,0,0,no tags,True,,12162
+exo::ko ko bop,Exo,Ko Ko Bop,0,0,no tags,True,,361189
+exid::l.i.e,EXID,L.I.E,0,0,no tags,True,,95194
+park ji hoon::l.o.v.e,Park Ji Hoon,L.O.V.E,0,0,no tags,True,,21602
+f(x)::la cha ta,f(x),LA chA TA,0,0,no tags,True,,75842
+비::la song,비,La Song,0,0,no tags,True,,2339
+iz*one::la vie en rose,IZ*ONE,La Vie en Rose,0,0,no tags,True,,349424
+gfriend::labyrinth,GFRIEND,Labyrinth,0,0,no tags,True,,69356
+stray kids::lalalala,Stray Kids,LALALALA,10,6,has tags,True,,370471
+april::lalalilala,April,LALALILALA,0,0,no tags,True,,77447
+bigbang::last dance,Bigbang,LAST DANCE,0,0,no tags,True,,102309
+enhypen::let me in (20 cube),ENHYPEN,Let Me In (20 CUBE),0,0,no tags,True,,220352
+bts::let me know,BTS,Let Me Know,10,5,has tags,True,,361729
+clc::liar,CLC,Liar,0,0,no tags,True,,41767
+oh my girl::liar liar,OH MY GIRL,LIAR LIAR,0,0,no tags,True,,56153
+bts::lie,BTS,Lie,10,6,has tags,True,,503330
+bts::life goes on,BTS,Life Goes On,10,8,has tags,True,,624313
+exo::lightsaber,Exo,LIGHTSABER,0,0,no tags,True,,71970
+aoa::like a cat,AOA,Like a Cat,0,0,no tags,True,,201241
+black6ix::like a flower,BLACK6IX,Like a Flower,0,0,no tags,True,,5559
+twice::like it like it,TWICE,Like It Like It,0,0,no tags,False,,124365
+wonder girls::like this,Wonder Girls,Like This,0,0,no tags,True,,46184
+iu::lilac,IU,LILAC,10,8,has tags,True,,512847
+girls' generation-oh!gg::lil’ touch,Girls' Generation-Oh!GG,Lil’ Touch,0,0,no tags,True,,183786
+stray kids::limbo (lee know),Stray Kids,Limbo (Lee Know),0,0,no tags,True,,79345
+hyuna::lip & hip,HyunA,Lip & Hip,0,0,no tags,True,,187933
+favorite::loca,Favorite,LOCA,0,0,no tags,True,,29651
+itzy::loco,ITZY,LOCO,10,6,has tags,True,,480450
+2ne1::lollipop,2NE1,Lollipop,0,0,no tags,True,,40388
+2ne1::lonely,2NE1,Lonely,0,0,no tags,True,,129834
+hyolyn::lonely,HYOLYN,Lonely,0,0,no tags,True,,6870
+이달의 소녀 오드아이써클::loonatic,이달의 소녀 오드아이써클,LOONATIC,0,0,no tags,True,,5873
+bts::lost,BTS,Lost,10,7,has tags,True,,388468
+pentagon::lost paradise (hip hop unit),Pentagon,Lost Paradise (Hip Hop Unit),0,0,no tags,True,,12742
+exo::lotto,Exo,Lotto,0,0,no tags,True,,297614
+bts::louder than bombs,BTS,Louder than bombs,10,7,has tags,True,,459921
+riize::love 119,RIIZE,Love 119,0,0,no tags,False,,174688
+girl's day::love again,Girl's Day,Love Again,0,0,no tags,True,,11347
+iu::love alone,IU,Love Alone,0,0,no tags,True,,46067
+hello venus::love appeal,HELLO VENUS,Love Appeal,0,0,no tags,True,,5119
+k.will::love blossom (러브블러썸),K.Will,Love Blossom (러브블러썸),0,0,no tags,True,,1527
+fromis 9::love bomb,fromis 9,Love Bomb,0,0,no tags,True,,2404
+sonamoo::love call,SONAMOO,Love Call,0,0,no tags,False,,2727
+cnblue::love cut,CNBLUE,Love Cut,0,0,no tags,True,,13714
+laboum::love game,LABOUM,Love Game,0,0,no tags,True,,8980
+nmixx::love is lonely,NMIXX,Love Is Lonely,0,0,no tags,True,,68415
+박장현 & 박현규::love is...,박장현 & 박현규,Love Is...,0,0,no tags,False,,612
+ss501::love like this (네게로),SS501,Love Like This (네게로),0,0,no tags,True,,11006
+cravity::love or die,CRAVITY,Love or Die,0,0,no tags,True,,40449
+nu'est::love paint (every afternoon),NU'EST,Love Paint (every afternoon),0,0,no tags,True,,23768
+ikon::love scenario,Ikon,LOVE SCENARIO,10,6,has tags,True,,460156
+tahiti::love sick,Tahiti,Love Sick,0,0,no tags,True,,5759
+momoland::love sick,MOMOLAND,love sick,0,0,no tags,True,,5304
+cherry bullet::love so sweet,Cherry Bullet,Love So Sweet,0,0,no tags,True,,124621
+nct 127::love song,NCT 127,Love Song,0,0,no tags,False,,103153
+ss501::love ya,SS501,Love Ya,0,0,no tags,True,,33857
+taeyeon::love you like crazy,TAEYEON,Love You Like Crazy,0,0,no tags,True,,45564
+holland::loved you better (feat. issac hong),Holland,LOVED YOU BETTER (feat. Issac Hong),0,0,no tags,True,,4271
+april::lovesick,April,LOVESICK,0,0,no tags,True,,6157
+t-ara::lovey-dovey,T-ARA,Lovey-Dovey,0,0,no tags,True,,63694
+shinee::lucifer,SHINee,LUCIFER,10,7,has tags,True,,296870
+pentagon::lucky,Pentagon,Lucky,0,0,no tags,True,,6802
+illit::lucky girl syndrome,ILLIT,Lucky Girl Syndrome,10,8,has tags,True,,447745
+pentagon::lukewarm,Pentagon,Lukewarm,0,0,no tags,True,,9447
+moon byul::lunatic (english ver.),Moon Byul,LUNATIC (English Ver.),0,0,no tags,True,,8358
+kara::lupin,Kara,Lupin,0,0,no tags,True,,66781
+stray kids::m.i.a.,Stray Kids,M.I.A.,0,0,no tags,True,,97348
+sistar19::ma boy,SISTAR19,Ma Boy,0,0,no tags,True,,130348
+씨스타19::ma boy,씨스타19,Ma Boy,0,0,no tags,True,,3970
+young posse::macaroni cheese,YOUNG POSSE,MACARONI CHEESE,0,0,no tags,True,,62267
+exo-k::machine,EXO-K,Machine,0,0,no tags,True,,55650
+seventeen::maestro,Seventeen,MAESTRO,0,0,no tags,True,,182726
+승리::magic,승리,MAGIC,0,0,no tags,True,,7392
+noir::magic,Noir,Magic,0,0,no tags,True,,1478
+illit::magnetic,ILLIT,Magnetic,10,7,has tags,True,,1061716
+gfriend::mago,GFRIEND,MAGO,10,8,has tags,True,,413005
+nct u::make a wish (birthday song),NCT U,Make A Wish (Birthday Song),0,0,no tags,False,,269770
+bts::make it right,BTS,Make It Right,10,7,has tags,True,,521575
+exo-k::mama,EXO-K,MAMA,0,0,no tags,True,,208407
+bts::mama,BTS,MAMA,7,4,has tags,True,,343518
+lc9::mama beat (feat. 가인),LC9,MaMa Beat (feat. 가인),0,0,no tags,False,,860
+super junior::mamacita (아야야),SUPER JUNIOR,MAMACITA (아야야),0,0,no tags,True,,84689
+kara::mamma mia,Kara,Mamma Mia,0,0,no tags,True,,99349
+seventeen::march,Seventeen,March,0,0,no tags,True,,105564
+april::mayday,April,MAYDAY,0,0,no tags,True,,11692
+clc::me,CLC,ME,0,0,no tags,True,,146092
+gfriend::me gustas tu,GFRIEND,Me Gustas Tu,10,7,has tags,True,,296028
+f(x)::me+u,f(x),ME+U,0,0,no tags,True,,186
+riize::memories,RIIZE,Memories,0,0,no tags,False,,170365
+meovv::meow,MEOVV,MEOW,10,7,has tags,True,,208191
+clc::meow meow,CLC,Meow Meow,0,0,no tags,True,,38887
+monsta x::mercy,MONSTA X,Mercy,0,0,no tags,True,,17841
+pabllo vittar::mexe,Pabllo Vittar,MEXE,0,0,no tags,False,,121761
+bts::mic drop (feat. desiigner) [steve aoki remix],BTS,MIC Drop (feat. Desiigner) [Steve Aoki Remix],0,0,no tags,True,,221648
+kiss of life::midas touch,Kiss of Life,Midas Touch,10,7,has tags,True,,424947
+bts::mikrokosmos,BTS,Mikrokosmos,10,6,has tags,True,,536155
+f(x)::milk,f(x),MILK,0,0,no tags,True,,61682
+fiestar::mirror,FIESTAR,Mirror,0,0,no tags,True,,38456
+알렉스::miss. understand (feat. simon dominic),알렉스,Miss. Understand (feat. Simon Dominic),0,0,no tags,True,,925
+clc::mistake,CLC,Mistake,0,0,no tags,True,,20429
+saturday::mmook jji bba,Saturday,MMook JJi BBa,0,0,no tags,True,,14679
+i-dle::mono (feat. skaiwater),i-dle,Mono (Feat. skaiwater),6,2,has tags,True,,115086
+exo::monster,Exo,Monster,10,6,has tags,True,,483931
+red velvet - irene & seulgi::monster,Red Velvet - IRENE & SEULGI,Monster,0,0,no tags,True,,413952
+bigbang::monster,Bigbang,MONSTER,0,0,no tags,True,,68664
+park ji hoon::moon,Park Ji Hoon,Moon,0,0,no tags,True,,2970
+nu'est::moon dance,NU'EST,Moon Dance,0,0,no tags,True,,9168
+twice::moonlight,TWICE,MOONLIGHT,0,0,no tags,True,,237667
+twice::more & more,TWICE,MORE & MORE,10,6,has tags,True,,417686
+boa::moto,Boa,MOTO,0,0,no tags,True,,15716
+taemin::move,TAEMIN,MOVE,10,5,has tags,False,,370574
+cix::movie star,CIX,Movie Star,0,0,no tags,True,,174337
+kara::mr.,Kara,Mr.,0,0,no tags,True,,126893
+wjsn::mr. badboy,WJSN,Mr. BadBoy,0,0,no tags,True,,17063
+f(x)::mr. boogie,f(x),Mr. Boogie,10,8,has tags,True,,100090
+a pink::mr. chu,A Pink,Mr. Chu,0,0,no tags,True,,4768
+super junior::mr. simple,SUPER JUNIOR,Mr. Simple,0,0,no tags,True,,173476
+소녀시대::mr.mr.,소녀시대,Mr.Mr.,0,0,no tags,True,,15027
+4minute::muzik,4minute,Muzik,0,0,no tags,True,,44861
+orange caramel::my copycat,Orange Caramel,My Copycat,0,0,no tags,True,,62218
+boa::my genie,Boa,My Genie,0,0,no tags,True,,5352
+luna::my medicine,Luna,My Medicine,0,0,no tags,True,,12562
+stray kids::my pace,Stray Kids,My Pace,0,0,no tags,True,,226827
+f(x)::my style,f(x),My Style,0,0,no tags,True,,34195
+weki meki::my world,Weki Meki,My World,0,0,no tags,True,,10012
+holland::nar_c,Holland,Nar_C,0,0,no tags,True,,9753
+pentagon::naughty boy,Pentagon,Naughty boy,0,0,no tags,True,,74796
+wjsn::navillera,WJSN,NAVILLERA,0,0,no tags,True,,17776
+ifeye::nerdy,ifeye,NERDY,0,0,no tags,True,,63173
+got7::never ever,GOT7,Never Ever,0,0,no tags,True,,147859
+weki meki::neverland,Weki Meki,Neverland,0,0,no tags,True,,10327
+psy::new face,Psy,New Face,0,0,no tags,True,,105715
+loossemble::newtopia,Loossemble,Newtopia,0,0,no tags,True,,80969
+boynextdoor::nice guy,BOYNEXTDOOR,Nice Guy,0,0,no tags,True,,118698
+shinee::nightmare,SHINee,Nightmare,0,0,no tags,True,,25523
+clc::no,CLC,No,0,0,no tags,True,,149674
+enhypen::no doubt,ENHYPEN,No Doubt,10,8,has tags,True,,281624
+miss a::no mercy,miss A,No Mercy,0,0,no tags,True,,22080
+b.a.p::no mercy,B.A.P,NO MERCY,0,0,no tags,False,,35593
+bts::no more dream,BTS,No More Dream,10,7,has tags,True,,558189
+에일리::no no no,에일리,No No No,0,0,no tags,True,,3304
+clc::no oh oh,CLC,No Oh Oh,0,0,no tags,True,,22952
+le sserafim::no-return (into the unknown),LE SSERAFIM,No-Return (Into the unknown),0,0,no tags,True,,207202
+wonder girls::nobody,Wonder Girls,Nobody,0,0,no tags,True,,293628
+kiss of life::nobody knows,Kiss of Life,Nobody Knows,0,0,no tags,True,,305006
+sunmi::noir,SUNMI,Noir,0,0,no tags,True,,105796
+itzy::none of my business,ITZY,None of My Business,0,0,no tags,True,,94136
+a pink::nonono,A Pink,NoNoNo,0,0,no tags,True,,6466
+oh my girl::nonstop,OH MY GIRL,NONSTOP,0,0,no tags,True,,216226
+illit::not cute anymore,ILLIT,NOT CUTE ANYMORE,10,7,has tags,True,,514048
+itzy::not shy,ITZY,Not Shy,10,8,has tags,True,,452709
+kai::nothing on me,Kai,Nothing On Me,0,0,no tags,True,,107484
+"lovelyz::now, we",Lovelyz,"Now, We",0,0,no tags,True,,22485
+f(x)::nu abo,f(x),NU ABO,0,0,no tags,True,,95608
+cignature::nun nu nan na,Cignature,Nun Nu Nan Na,0,0,no tags,True,,46773
+sf9::o sole mio,SF9,O Sole Mio,0,0,no tags,True,,69955
+exo::obsession,Exo,Obsession,10,7,has tags,True,,314472
+wei::ocean,WEi,Ocean,0,0,no tags,True,,6992
+holland::ocean like me,Holland,Ocean like me,0,0,no tags,True,,4418
+ive::off the record,IVE,Off The Record,10,8,has tags,True,,249168
+seventeen::oh my!,Seventeen,Oh My!,0,0,no tags,True,,177181
+tws::oh mymy : 7s,TWS,Oh Mymy : 7s,0,0,no tags,True,,68395
+kard::oh nana (hidden. hur young ji),KARD,Oh NaNa (Hidden. HUR YOUNG JI),0,0,no tags,True,,114971
+sunmi::oh sorry ya,SUNMI,Oh Sorry Ya,0,0,no tags,False,,49430
+소녀시대::oh!,소녀시대,Oh!,0,0,no tags,True,,40429
+bts::on,BTS,ON,10,6,has tags,False,,653744
+loona::one & only (go won),Loona,One & Only (Go Won),0,0,no tags,True,,101795
+boynextdoor::one and only,BOYNEXTDOOR,One and Only,0,0,no tags,True,,153034
+orange caramel::one love,Orange Caramel,One Love,0,0,no tags,True,,23953
+pentagon::one more night,Pentagon,One More Night,0,0,no tags,True,,7214
+g-dragon::one of a kind,G-DRAGON,One of a Kind,0,0,no tags,True,,68369
+b.a.p::one shot,B.A.P,ONE SHOT,0,0,no tags,False,,61844
+"boa::one shot, two shot",Boa,"ONE SHOT, TWO SHOT",0,0,no tags,True,,69229
+hyolyn::one way love,HYOLYN,One Way Love,0,0,no tags,True,,17367
+lee hi::only,LEE HI,ONLY,0,0,no tags,True,,2863
+chuu::only cry in the rain,CHUU,Only cry in the rain,0,0,no tags,False,,117598
+boa::only one,Boa,Only One,0,0,no tags,True,,84258
+unb::only one,UNB,Only One,0,0,no tags,True,,7905
+laboum::only u,LABOUM,Only U,0,0,no tags,False,,6320
+twice::options,TWICE,OPTIONS,0,0,no tags,True,,147117
+sonamoo::orange cappuccino,SONAMOO,Orange Cappuccino,0,0,no tags,False,,1466
+소녀시대::oscar,소녀시대,Oscar,0,0,no tags,True,,12856
+zerobaseone::our season,ZEROBASEONE,Our Season,0,0,no tags,True,,73099
+g-dragon::outro. 신곡(神曲) (divina commedia),G-DRAGON,OUTRO. 신곡(神曲) (Divina Commedia),0,0,no tags,True,,22789
+bts::outro: wings,BTS,Outro: Wings,10,7,has tags,True,,395279
+pristin::over n over,PRISTIN,Over N Over,0,0,no tags,True,,11310
+boa::pain-love,Boa,Pain-Love,0,0,no tags,True,,5319
+iu::palette (feat. g-dragon),IU,Palette (feat. G-DRAGON),0,0,no tags,True,,228391
+kara::pandora,Kara,Pandora,0,0,no tags,True,,52918
+f(x)::papi,f(x),Papi,0,0,no tags,True,,71264
+jang dong woo::party girl,Jang Dong Woo,Party Girl,0,0,no tags,True,,3115
+kai::peaches,Kai,Peaches,0,0,no tags,True,,260678
+pentagon::pentagon,Pentagon,Pentagon,0,0,no tags,True,,10479
+oh my girl::perfect day,OH MY GIRL,Perfect Day,0,0,no tags,True,,10786
+le sserafim::perfect night,LE SSERAFIM,Perfect Night,10,5,has tags,True,,781963
+produce 101::pick me,PRODUCE 101,PICK ME,0,0,no tags,True,,46672
+i.o.i::pick me,I.O.I,Pick Me,0,0,no tags,True,,60265
+bts::pied piper,BTS,Pied Piper,10,6,has tags,True,,699776
+hyuna&dawn::ping pong,HyunA&DAWN,PING PONG,0,0,no tags,True,,178409
+stayc::pipe down,STAYC,PIPE DOWN,0,0,no tags,True,,48238
+everglow::pirate,Everglow,Pirate,0,0,no tags,True,,206606
+bestie::pitapat,BESTie,Pitapat,0,0,no tags,True,,5764
+heyoon::pivot (feat. armani white),HEYOON,Pivot (Feat. Armani White),0,0,no tags,True,,6504
+stray kids::placebo,Stray Kids,Placebo,0,0,no tags,True,,53125
+haseul::plastic candy,HaSeul,Plastic Candy,0,0,no tags,True,,68342
+snuper::platonic love,SNUPER,Platonic Love,0,0,no tags,False,,18105
+exo-cbx::playdate,EXO-CBX,Playdate,0,0,no tags,True,,27433
+wjsn::plop plop,WJSN,Plop Plop,0,0,no tags,True,,14609
+purple kiss::ponzona,PURPLE KISS,Ponzona,0,0,no tags,True,,84718
+rania::pop pop pop,Rania,Pop Pop Pop,0,0,no tags,True,,12321
+k/da::pop/stars,K/DA,POP/STARS,10,7,has tags,False,,585801
+red velvet::power up,Red Velvet,Power Up,0,0,no tags,True,,269815
+kara::pretty girl,Kara,Pretty Girl,0,0,no tags,True,,59164
+f(x)::pretty girl,f(x),Pretty Girl,0,0,no tags,True,,61161
+babymonster::psycho,BABYMONSTER,PSYCHO,3,0,no tags,True,,113668
+loona::ptt (paint the town),Loona,PTT (Paint the Town),0,0,no tags,False,,323412
+nct 127::punch,NCT 127,Punch,0,0,no tags,False,,125253
+shinee::punch drunk love,SHINee,Punch Drunk Love,0,0,no tags,True,,26162
+marmello::puppet,MARMELLO,Puppet,0,0,no tags,True,,3472
+looπδ::puzzle,LOOΠΔ,Puzzle,0,0,no tags,True,,18118
+cherry bullet::q&a,Cherry Bullet,Q&A,0,0,no tags,True,,97562
+bay.b::quecera cera,Bay.B,Quecera Cera,0,0,no tags,False,,107
+red velvet::queendom,Red Velvet,Queendom,0,0,no tags,True,,372789
+lovelyz::r u ready?,Lovelyz,R U Ready?,0,0,no tags,True,,8872
+gugudan::rainbow,gugudan,Rainbow,0,0,no tags,True,,9462
+에일리::rainy day,에일리,Rainy Day,0,0,no tags,True,,3253
+red velvet::rbb (really bad boy),Red Velvet,RBB (Really Bad Boy),0,0,no tags,True,,249915
+lc9::ready set go,LC9,Ready Set Go,0,0,no tags,False,,2603
+oh my girl::real world,OH MY GIRL,Real World,0,0,no tags,True,,7481
+blackpink::really,BLACKPINK,REALLY,0,0,no tags,False,,305185
+cherry bullet::really really,Cherry Bullet,Really Really,0,0,no tags,True,,54580
+winner::really really,Winner,REALLY REALLY,0,0,no tags,True,,222317
+ive::rebel heart,IVE,REBEL HEART,10,7,has tags,True,,192183
+f(x)::red light,f(x),Red Light,0,0,no tags,True,,149845
+"nmixx::red light sign, but we go",NMIXX,"Red light sign, but we go",0,0,no tags,True,,59556
+iu::red queen (feat. zion.t),IU,Red Queen (feat. Zion.T),0,0,no tags,True,,22889
+clc::refresh,CLC,Refresh,0,0,no tags,True,,7085
+psy::refuge,Psy,Refuge,0,0,no tags,True,,3608
+ikon::rhythm ta,Ikon,RHYTHM TA,0,0,no tags,True,,148120
+newjeans::right now,NewJeans,Right Now,10,7,has tags,True,,396015
+unnies::right?,Unnies,Right?,0,0,no tags,True,,6263
+shinee::ring ding dong,SHINee,Ring Ding Dong,10,7,has tags,True,,324769
+psy::rock will never die,Psy,Rock Will Never Die,0,0,no tags,True,,4781
+xikers::rockstar,xikers,ROCKSTAR,0,0,no tags,True,,44766
+chung ha::roller coaster,CHUNG HA,Roller Coaster,0,0,no tags,True,,231575
+brave girls::rollin',Brave Girls,Rollin',0,0,no tags,True,,237821
+t-ara::roly-poly,T-ARA,Roly-Poly,0,0,no tags,True,,138744
+red velvet::rookie,Red Velvet,Rookie,0,0,no tags,True,,219096
+super junior-d&e::rose,Super Junior-D&E,ROSE,0,0,no tags,True,,1997
+sf9::round and round,SF9,Round And Round,0,0,no tags,True,,13278
+ive::royal,IVE,ROYAL,0,0,no tags,True,,182320
+sf9::rpm,SF9,RPM,0,0,no tags,True,,36793
+h.i.n.p (hot issue of ntl. producers)::rumor,H.I.N.P (Hot Issue of Ntl. Producers),Rumor,0,0,no tags,True,,148800
+kard::rumor,KARD,RUMOR,0,0,no tags,True,,73846
+bts::run,BTS,RUN,10,7,has tags,True,,672028
+stray kids::run (han),Stray Kids,RUN (HAN),0,0,no tags,True,,62970
+tzuyu::run away,TZUYU,Run Away,0,0,no tags,True,,119149
+소녀시대::run devil run,소녀시대,Run Devil Run,0,0,no tags,True,,42697
+nmixx::run for roses,NMIXX,Run For Roses,10,7,has tags,True,,164252
+stray kids::runners,Stray Kids,Runners,0,0,no tags,True,,105312
+pristin::running,PRISTIN,Running,0,0,no tags,True,,18312
+le sserafim::saki (feat. aliyah's interlude),LE SSERAFIM,Saki (feat. Aliyah's Interlude),8,5,has tags,False,,76982
+jessica::saturday night,Jessica,Saturday Night,0,0,no tags,False,,4729
+bts::save me,BTS,Save ME,10,7,has tags,True,,610447
+"wjsn::save me, save you",WJSN,"Save Me, Save You",0,0,no tags,True,,121508
+ateez::say my name,ATEEZ,Say My Name,0,0,no tags,False,,222287
+4minute::say my name,4minute,Say My Name,0,0,no tags,True,,14210
+twice::scientist,TWICE,SCIENTIST,0,0,no tags,True,,367998
+grimes::scream,Grimes,SCREAM,0,0,no tags,True,,231815
+a pink::secret garden,A Pink,Secret Garden,0,0,no tags,True,,2354
+vixx::secret night,VIXX,Secret Night,0,0,no tags,True,,8337
+rania::secret party,Rania,Secret Party,0,0,no tags,True,,3021
+iz*one::secret story of the swan,IZ*ONE,Secret Story of the Swan,10,7,has tags,True,,298017
+nmixx::see that?,NMIXX,See that?,0,0,no tags,True,,124024
+blackpink::see u later,BLACKPINK,See U Later,0,0,no tags,False,,284904
+twice::seesaw,TWICE,SEESAW,0,0,no tags,True,,91215
+vav::senorita,VAV,Senorita,0,0,no tags,True,,34870
+loossemble::sensitive,Loossemble,Sensitive,0,0,no tags,True,,118986
+bts::serendipity (full length edition),BTS,Serendipity (Full Length Edition),10,6,has tags,True,,426624
+twice::set me free,TWICE,SET ME FREE,10,8,has tags,True,,401115
+jimin::set me free pt.2,Jimin,Set Me Free Pt.2,10,7,has tags,True,,405932
+장우영::sexy lady,장우영,Sexy Lady,0,0,no tags,True,,3677
+t-ara::sexy love,T-ARA,Sexy Love,0,0,no tags,True,,71505
+"super junior::sexy, free & single",SUPER JUNIOR,"Sexy, Free & Single",0,0,no tags,True,,53700
+nu'est w::shadow,NU'EST W,Shadow,0,0,no tags,True,,9390
+after school::shampoo,After School,Shampoo,0,0,no tags,True,,43570
+myteen::she bad,MYTEEN,SHE BAD,0,0,no tags,True,,20724
+pentagon::shine,Pentagon,Shine,0,0,no tags,True,,325578
+shinee::shine (medusa ⅰ),SHINee,SHINe (Medusa Ⅰ),0,0,no tags,True,,6970
+beast::shock,Beast,Shock,0,0,no tags,True,,43930
+day6::shoot me,DAY6,Shoot Me,0,0,no tags,True,,259498
+itzy::shoot!,ITZY,SHOOT!,0,0,no tags,True,,268352
+kep1er::shooting star,Kep1er,Shooting Star,0,0,no tags,True,,83390
+aoa::short hair,AOA,Short Hair,0,0,no tags,True,,133693
+소녀시대::show! show! show!,소녀시대,Show! Show! Show!,0,0,no tags,True,,22911
+class:y::shut down,CLASS:y,SHUT DOWN,0,0,no tags,False,,40442
+brown eyed girls::sign,Brown Eyed Girls,Sign,0,0,no tags,True,,38949
+izna::sign,izna,SIGN,0,0,no tags,True,,78690
+nu'est w::signal,NU'EST W,Signal,0,0,no tags,True,,9174
+stray kids::silent cry,Stray Kids,Silent Cry,0,0,no tags,True,,146213
+bts::silver spoon,BTS,Silver Spoon,10,7,has tags,True,,588305
+nct 127::simon says,NCT 127,Simon Says,0,0,no tags,True,,192124
+brown eyed girls::sixth sense,Brown Eyed Girls,Sixth Sense,0,0,no tags,True,,63002
+kiss of life::sixth sense,Kiss of Life,Sixth Sense,0,0,no tags,True,,34565
+9muses::sleepless night,9MUSES,Sleepless Night,0,0,no tags,True,,25328
+le sserafim::smart,LE SSERAFIM,Smart,10,7,has tags,True,,654096
+pick-cat::snap,PICK-CAT,SNAP,0,0,no tags,True,,8369
+chung ha::snapping,CHUNG HA,Snapping,0,0,no tags,True,,259129
+f(x)::snapshot,f(x),Snapshot,0,0,no tags,True,,46747
+itzy::sneakers,ITZY,SNEAKERS,0,0,no tags,True,,244433
+sistar::so cool,SISTAR,So Cool,0,0,no tags,True,,51453
+sonamoo::so good,SONAMOO,So Good,0,0,no tags,True,,4815
+red velvet::some love,Red Velvet,Some Love,0,0,no tags,True,,62735
+red velvet::somethin kinda crazy,Red Velvet,Somethin Kinda Crazy,0,0,no tags,True,,105118
+girl's day::something,Girl's Day,Something,0,0,no tags,True,,242280
+xg::something ain't right,XG,Something Ain't Right,9,7,has tags,True,,251599
+nmixx::soñar (breaker),NMIXX,Soñar (Breaker),0,0,no tags,True,,198326
+wjsn::space cowgirl,WJSN,Space Cowgirl,0,0,no tags,True,,17576
+chung ha::sparkling,CHUNG HA,Sparkling,0,0,no tags,True,,121963
+waker::spirit,Waker,SPIRIT,0,0,no tags,True,,1774
+shinee::spoiler,SHINee,Spoiler,0,0,no tags,True,,31527
+pristin v::spotlight,PRISTIN V,Spotlight,0,0,no tags,True,,28297
+stray kids::spread my wings,Stray Kids,Spread My Wings,0,0,no tags,True,,91601
+bts::spring day,BTS,Spring Day,10,7,has tags,True,,700191
+shinee::stand by me,SHINee,Stand By Me,0,0,no tags,True,,84023
+cravity::star,CRAVITY,Star,0,0,no tags,True,,13199
+dreamcatcher::starlight,Dreamcatcher,Starlight,0,0,no tags,False,,61078
+이달의 소녀 오드아이써클::starlight,이달의 소녀 오드아이써클,Starlight,0,0,no tags,True,,3994
+jessica::starry night,Jessica,Starry Night,0,0,no tags,True,,4410
+wei::starry night (prod. dress),WEi,Starry Night (prod. dress),0,0,no tags,True,,5252
+stray kids::stars and raindrops (seungmin),Stray Kids,Stars and Raindrops (Seungmin),0,0,no tags,True,,75253
+mblaq::stay,MBLAQ,Stay,0,0,no tags,True,,34242
+blackpink::stay,BLACKPINK,STAY,0,0,no tags,True,,324956
+chung ha::stay tonight,CHUNG HA,Stay Tonight,0,0,no tags,True,,213424
+weki meki::stay with me,Weki Meki,Stay with Me,0,0,no tags,True,,11574
+kara::step,Kara,STEP,0,0,no tags,True,,121373
+f(x)::step,f(x),Step,0,0,no tags,True,,55303
+got the beat::step back,GOT the beat,Step Back,0,0,no tags,True,,324361
+bts::stigma,BTS,Stigma,10,8,has tags,True,,450607
+sf9::stop it now,SF9,Stop It Now,0,0,no tags,True,,7120
+map6::storm,MAP6,Storm,0,0,no tags,True,,1916
+twice::strategy,TWICE,Strategy,3,2,has tags,True,,452946
+olivia marsh::strategy,Olivia Marsh,Strategy,0,0,no tags,True,,41967
+stray kids::streetlight (changbin),Stray Kids,Streetlight (Changbin),0,0,no tags,True,,55740
+loona::stylish,Loona,Stylish,0,0,no tags,True,,156158
+wjsn::sugar,WJSN,Sugar,0,0,no tags,True,,17149
+t-ara::sugar free,T-ARA,Sugar Free,0,0,no tags,False,,54135
+tomorrow x together::sugar rush ride,TOMORROW X TOGETHER,Sugar Rush Ride,10,6,has tags,True,,424603
+nct 127::summer 127,NCT 127,Summer 127,0,0,no tags,False,,103027
+clc::summer kiss,CLC,SUMMER KISS,0,0,no tags,True,,13839
+triple h::sunflower,Triple H,Sunflower,0,0,no tags,True,,18039
+babymonster::supa dupa luv,BABYMONSTER,SUPA DUPA LUV,0,0,no tags,True,,50782
+seventeen::super,Seventeen,Super,10,7,has tags,True,,347099
+stray kids::super bowl,Stray Kids,Super Bowl,0,0,no tags,True,,152313
+super junior m::super girl,Super Junior M,Super Girl,0,0,no tags,True,,16063
+vixx::super hero,VIXX,SUPER HERO,0,0,no tags,True,,17924
+g-dragon::super star,G-DRAGON,SUPER STAR,0,0,no tags,True,,32110
+jin::super tuna,Jin,Super Tuna,10,8,has tags,True,,334057
+newjeans::supernatural,NewJeans,Supernatural,10,8,has tags,True,,617936
+fromis_9::supersonic,fromis_9,Supersonic,10,7,has tags,True,,242675
+세븐틴::swimming fool,세븐틴,Swimming Fool,0,0,no tags,True,,1668
+shinhwa::t.o.p. - edit version,Shinhwa,T.O.P. - Edit Version,0,0,no tags,True,,301
+sunmi::tail,SUNMI,TAIL,0,0,no tags,False,,220835
+baekhyun::take you home,BAEKHYUN,Take You Home,0,0,no tags,True,,39887
+nu'est::talk about love,NU'EST,Talk about love,0,0,no tags,True,,7001
+riize::talk saxy,RIIZE,Talk Saxy,0,0,no tags,False,,147869
+blackpink::tally,BLACKPINK,Tally,0,0,no tags,False,,328192
+구공탄 (비투비)::tang tang tang,구공탄 (비투비),TANG TANG TANG,0,0,no tags,True,,3815
+nmixx::tank,NMIXX,TANK,0,0,no tags,True,,226525
+xdinary heroes::test me,Xdinary Heroes,Test Me,0,0,no tags,True,,95458
+bestie::thank u very much,BESTie,Thank U Very Much,0,0,no tags,True,,9544
+seventeen::thanks,Seventeen,Thanks,0,0,no tags,True,,153841
+ateez::thanxx,ATEEZ,THANXX,0,0,no tags,True,,154206
+itzy::that's a no no,ITZY,THAT'S A NO NO,0,0,no tags,True,,8670
+itzy::that’s a no no,ITZY,THAT’S A NO NO,10,9,has tags,True,,177081
+소녀시대::the boys,소녀시대,The Boys,0,0,no tags,True,,29551
+blackpink::the girls - blackpink the game ost,BLACKPINK,THE GIRLS - BLACKPINK THE GAME OST,0,0,no tags,False,,189955
+le sserafim::the great mermaid,LE SSERAFIM,The Great Mermaid,0,0,no tags,True,,258883
+bts::the truth untold,BTS,The Truth Untold,0,0,no tags,True,,376731
+girl's day::thirsty,Girl's Day,THIRSTY,0,0,no tags,True,,21516
+key::this life,Key,This Life,0,0,no tags,True,,16355
+신화::this love,신화,This Love,0,0,no tags,True,,5823
+iu::through the night,IU,Through the Night,0,0,no tags,True,,188284
+exo-k::thunder,EXO-K,Thunder,0,0,no tags,True,,93560
+superm::tiger inside,SuperM,Tiger Inside,0,0,no tags,True,,208217
+tomorrow x together::tinnitus (wanna be a rock),TOMORROW X TOGETHER,Tinnitus (Wanna Be a Rock),10,9,has tags,True,,390393
+rainbow::to me,Rainbow,To Me,0,0,no tags,True,,13899
+pentagon::to universe,Pentagon,To Universe,0,0,no tags,True,,6031
+teen top::to you,TEEN TOP,To You,0,0,no tags,True,,24312
+bts::tomorrow,BTS,Tomorrow,10,6,has tags,True,,401282
+bigbang::tonight,Bigbang,TONIGHT,0,0,no tags,True,,69185
+miss a::touch,miss A,Touch,0,0,no tags,False,,68841
+sistar::touch my body,SISTAR,Touch My Body,0,0,no tags,True,,203029
+f(x)::toy,f(x),Toy,0,0,no tags,False,,50565
+noir::travel,Noir,Travel,0,0,no tags,True,,1266
+소녀시대::trick,소녀시대,TRICK,0,0,no tags,True,,12423
+bts::trivia 轉 : seesaw,BTS,Trivia 轉 : Seesaw,10,6,has tags,True,,485209
+trouble maker::trouble maker,Trouble Maker,Trouble Maker,0,0,no tags,False,,232001
+stray kids::truman (han & felix),Stray Kids,Truman (HAN & Felix),10,7,has tags,True,,116177
+tomorrow x together::trust fund baby,TOMORROW X TOGETHER,Trust Fund Baby,0,0,no tags,True,,156543
+gain::truth or dare,Gain,Truth or Dare,0,0,no tags,True,,5442
+송지은::twenty-five,송지은,Twenty-Five,0,0,no tags,False,,418
+wei::twilight,WEi,TWILIGHT,0,0,no tags,True,,24116
+super junior::u,SUPER JUNIOR,U,0,0,no tags,True,,42693
+에일리::u & i,에일리,U & I,0,0,no tags,True,,5509
+ss501::u r man,SS501,U R Man,0,0,no tags,True,,41356
+ss501::u r man(remix),SS501,U R MAN(Remix),0,0,no tags,True,,1020
+2ne1::ugly,2NE1,Ugly,0,0,no tags,True,,104169
+iu::ugly duckling,IU,Ugly Duckling,0,0,no tags,True,,13720
+momoland::uh-gi-yeo-cha,MOMOLAND,uh-gi-yeo-cha,0,0,no tags,True,,6326
+unchild::unchild,UNCHILD,UNCHILD,10,7,has tags,False,,60245
+le sserafim::unforgiven (feat. nile rodgers),LE SSERAFIM,UNFORGIVEN (feat. Nile Rodgers),10,7,has tags,True,,538082
+everglow::untouchable,Everglow,UNTOUCHABLE,0,0,no tags,True,,102647
+exid::up & down,EXID,Up & Down,0,0,no tags,True,,290596
+looπδ 1/3::valentine girl,LOOΠΔ 1/3,Valentine Girl,0,0,no tags,True,,72020
+exid::velvet [le solo],EXID,Velvet [LE Solo],0,0,no tags,True,,25296
+hello venus::venus,HELLO VENUS,Venus,0,0,no tags,True,,10011
+신화::venus,신화,Venus,0,0,no tags,True,,4856
+block b::very good,Block B,Very Good,0,0,no tags,True,,78702
+i.o.i::very very very,I.O.I,Very Very Very,0,0,no tags,True,,234725
+iz*one::violeta,IZ*ONE,Violeta,0,0,no tags,True,,224316
+dreamcatcher::vision,Dreamcatcher,VISION,0,0,no tags,False,,86318
+4minute::volume up,4minute,Volume Up,0,0,no tags,True,,73870
+exo-cbx::vroom vroom,EXO-CBX,Vroom Vroom,0,0,no tags,True,,49384
+kep1er::wa da da,Kep1er,WA DA DA,0,0,no tags,True,,300989
+4minute::wait a minute,4minute,Wait A Minute,0,0,no tags,True,,8635
+kai::wait on me,Kai,Wait On Me,0,0,no tags,False,,128728
+wei::waitin',WEi,Waitin',0,0,no tags,True,,7619
+b.a.p::wake me up,B.A.P,WAKE ME UP,0,0,no tags,True,,48629
+nct 127::wake up,NCT 127,Wake Up,0,0,no tags,True,,55698
+stray kids::walkin on water,Stray Kids,Walkin On Water,10,7,has tags,True,,176057
+kara::wanna,Kara,Wanna,0,0,no tags,True,,33890
+b.a.p::warrior,B.A.P,WARRIOR,0,0,no tags,False,,47250
+seventeen::wave,Seventeen,Wave,0,0,no tags,True,,71198
+pristin::we,PRISTIN,WE,0,0,no tags,True,,17899
+bts::we are bulletproof : the eternal,BTS,We are Bulletproof : the Eternal,10,7,has tags,True,,427021
+pristin::we are pristin,PRISTIN,WE ARE PRISTIN,0,0,no tags,True,,13089
+psy::we are young,Psy,We Are Young,0,0,no tags,True,,4024
+fiestar::we don't stop,FIESTAR,We Don't Stop,0,0,no tags,True,,5538
+fromis_9::we go,fromis_9,WE GO,0,0,no tags,True,,175577
+nct dream::we go up,NCT DREAM,We Go Up,0,0,no tags,True,,182331
+pristin::we like,PRISTIN,WE LIKE,0,0,no tags,True,,67775
+태양::wedding dress,태양,Wedding Dress,0,0,no tags,True,,19240
+pristin::wee woo,PRISTIN,WEE WOO,0,0,no tags,True,,131084
+aespa::welcome to my world (feat. nævis),aespa,Welcome To MY World (feat. nævis),0,0,no tags,True,,239862
+zico::well done (feat. ja mezz),ZICO,Well Done (Feat. Ja Mezz),0,0,no tags,False,,1484
+bts::whalien 52,BTS,Whalien 52,5,2,has tags,True,,373607
+exo-k::what is love,EXO-K,What Is Love,0,0,no tags,True,,91773
+twice::what is love?,TWICE,What is Love?,10,6,has tags,True,,723473
+sunmi::what the flower,SUNMI,What The Flower,0,0,no tags,False,,25666
+triple h::what's going on?,Triple H,What's Going On?,0,0,no tags,True,,15895
+myname::what's up,MYNAME,What's Up,0,0,no tags,False,,1477
+yesung::whatcha doin',YESUNG,Whatcha Doin',0,0,no tags,True,,19762
+kara::when i move,Kara,WHEN I MOVE,0,0,no tags,True,,65404
+kara::when i move - japanese version,Kara,WHEN I MOVE - Japanese Version,0,0,no tags,True,,3268
+pentagon::when i was in love,Pentagon,When I Was In Love,0,0,no tags,True,,6841
+i.o.i::when the cherry blossoms fade,I.O.I,When the Cherry Blossoms Fade,0,0,no tags,True,,24164
+clc::where are you?,CLC,Where Are You?,0,0,no tags,True,,64190
+nu'est w::where you at,NU'EST W,WHERE YOU AT,0,0,no tags,True,,41300
+nct 127::whiplash,NCT 127,Whiplash,0,0,no tags,True,,190685
+blackpink::whistle,BLACKPINK,WHISTLE,10,5,has tags,True,,569185
+wei::white light,WEi,White Light,0,0,no tags,True,,5492
+bga::who's it gonna be,BgA,Who's It Gonna Be,0,0,no tags,True,,7095
+rainbow::whoo,Rainbow,Whoo,0,0,no tags,True,,15259
+exid::whoz that girl,EXID,WHOZ THAT GIRL,0,0,no tags,True,,20467
+rain::why don't we (feat. chung ha),Rain,why don't we (feat. CHUNG HA),0,0,no tags,True,,6360
+wonder girls::why so lonely,Wonder Girls,Why So Lonely,0,0,no tags,True,,284487
+shinee::why so serious?,SHINee,Why So Serious?,0,0,no tags,True,,45181
+oh my girl::windy day,OH MY GIRL,WINDY DAY,0,0,no tags,True,,46196
+hello venus::winter fantasy,HELLO VENUS,Winter Fantasy,0,0,no tags,False,,2894
+"wei::winter, flower",WEi,"Winter, Flower",0,0,no tags,True,,4600
+rain::with u,Rain,With U,0,0,no tags,True,,6246
+2pm::without u,2PM,Without U,0,0,no tags,True,,42236
+momoland::wonderful love,MOMOLAND,Wonderful Love,0,0,no tags,True,,14518
+ateez::wonderland,ATEEZ,WONDERLAND,0,0,no tags,False,,280185
+btob::wow,BTOB,WOW,0,0,no tags,True,,82097
+seulgi::wow thing,SEULGI,Wow Thing,0,0,no tags,True,,171037
+lovelyz::wow!,Lovelyz,WoW!,0,0,no tags,True,,25885
+enhypen::xo (only if you say yes),ENHYPEN,XO (Only If You Say Yes),10,8,has tags,True,,342052
+ive::xoxz,IVE,XOXZ,10,7,has tags,True,,175342
+young posse::xxl,YOUNG POSSE,XXL,0,0,no tags,True,,111379
+mxm::ya ya ya,MXM,YA YA YA,0,0,no tags,True,,6223
+clc::yaya (say bye to solo),CLC,Yaya (Say Bye to Solo),0,0,no tags,True,,6229
+blackpink::yeah yeah yeah,BLACKPINK,Yeah Yeah Yeah,0,0,no tags,False,,261860
+dpr live::yellow cab,DPR LIVE,Yellow Cab,0,0,no tags,True,,88287
+twice::yes or yes,TWICE,YES or YES,10,7,has tags,True,,538437
+bts::yet to come,BTS,Yet to Come,10,6,has tags,True,,421088
+nu'est w::ylenol,NU'EST W,ylenoL,0,0,no tags,True,,5295
+boyfriend::you & i,Boyfriend,You & I,0,0,no tags,True,,3216
+dreamcatcher::you and i,Dreamcatcher,YOU AND I,0,0,no tags,False,,117000
+red velvet::you better know,Red Velvet,You Better Know,0,0,no tags,True,,101368
+got7::you calling my name,GOT7,You Calling My Name,0,0,no tags,True,,237044
+sunmi::you can't sit with us,SUNMI,You can't sit with us,0,0,no tags,False,,175272
+kard::you in me,KARD,You in Me,0,0,no tags,True,,60787
+aoa::you know that,AOA,You Know That,0,0,no tags,True,,7539
+aoa::you're the one for me,AOA,You're the One For Me,0,0,no tags,True,,5414
+nicole::you.f.o,Nicole,YOU.F.O,0,0,no tags,True,,4269
+jin::yours,Jin,YOURS,10,6,has tags,True,,286800
+stray kids::youth (lee know),Stray Kids,Youth (Lee Know),0,0,no tags,True,,91173
+fiestar::you’re pitiful,FIESTAR,You’re Pitiful,0,0,no tags,True,,42457
+rescene::yoyo,RESCENE,YoYo,0,0,no tags,True,,74729
+yeo jin::yum-yum,Yeo Jin,Yum-Yum,0,0,no tags,True,,18101
+newjeans::zero,NewJeans,Zero,10,7,has tags,True,,391465
+red velvet::zimzalabim,Red Velvet,Zimzalabim,0,0,no tags,True,,300944
+purple kiss::zombie,PURPLE KISS,Zombie,0,0,no tags,True,,112263
+day6::zombie,DAY6,Zombie,0,0,no tags,True,,152694
+super junior::明日のために、,SUPER JUNIOR,明日のために、,0,0,no tags,True,,625
+버즈::가시,버즈,가시,0,0,no tags,True,,2112
+unb::감각,UNB,감각,0,0,no tags,True,,17030
+psy::강남스타일,Psy,강남스타일,0,0,no tags,True,,45667
+g-dragon::개소리 (bullshit),G-DRAGON,개소리 (BULLSHIT),0,0,no tags,True,,60893
+조규현::광화문에서 (at gwanghwamun),조규현,광화문에서 (At Gwanghwamun),0,0,no tags,False,,813
+taemin::괴도 (danger),TAEMIN,괴도 (Danger),0,0,no tags,True,,118152
+sonamoo::국민 여동생,SONAMOO,국민 여동생,0,0,no tags,False,,1453
+girl's day::기대해,Girl's Day,기대해,0,0,no tags,True,,101610
+teen top::긴 생머리 그녀 (miss right),TEEN TOP,긴 생머리 그녀 (Miss Right),0,0,no tags,True,,4875
+"조규현::깊은 밤을 날아서 (flying, deep in the night)",조규현,"깊은 밤을 날아서 (Flying, deep in the night)",0,0,no tags,False,,207
+orange caramel::까탈레나 (catallena),Orange Caramel,까탈레나 (Catallena),0,0,no tags,True,,9534
+오렌지 캬라멜::까탈레나 (catallena),오렌지 캬라멜,까탈레나 (Catallena),0,0,no tags,True,,2064
+f(x)::나비 (butterfly),f(x),나비 (Butterfly),0,0,no tags,True,,59610
+cl::나쁜 기집애,CL,나쁜 기집애,0,0,no tags,True,,7382
+백퍼센트::나쁜놈,백퍼센트,나쁜놈,0,0,no tags,True,,2716
+버즈::나에게로 떠나는 여행,버즈,나에게로 떠나는 여행,0,0,no tags,True,,1415
+"조규현::나의 생각, 너의 기억 (my thoughts, your memories)",조규현,"나의 생각, 너의 기억 (My thoughts, Your memories)",0,0,no tags,False,,444
+block b::난리나,Block B,난리나,0,0,no tags,True,,110625
+스피카.s::남주긴 아까워?,스피카.S,남주긴 아까워?,0,0,no tags,False,,828
+t-ara::내 이름은,T-ARA,내 이름은,0,0,no tags,True,,21510
+티아라::넘버나인 (no.9),티아라,넘버나인 (No.9),0,0,no tags,True,,4174
+티아라::넘버나인 (no.9) (club ver.),티아라,넘버나인 (No.9) (Club Ver.),0,0,no tags,True,,1912
+에일리::노래가 늘었어,에일리,노래가 늘었어,0,0,no tags,True,,2296
+block b::닐리리맘보,Block B,닐리리맘보,0,0,no tags,True,,136714
+shinee::다이너마이트 (dynamite),SHINee,다이너마이트 (Dynamite),0,0,no tags,True,,13716
+shinee::닫아줘 (close the door),SHINee,닫아줘 (Close the Door),0,0,no tags,True,,16875
+shinee::떠나지 못해 (sleepless night),SHINee,떠나지 못해 (Sleepless Night),0,0,no tags,True,,5328
+t-ara::떠나지마,T-ARA,떠나지마,0,0,no tags,True,,12405
+nct 127::롤러코스터 heartbreaker,NCT 127,롤러코스터 Heartbreaker,0,0,no tags,True,,60816
+orange caramel::립스틱 (lipstick),Orange Caramel,립스틱 (LIPSTICK),0,0,no tags,True,,9914
+nct dream::마지막 첫사랑 my first and last,NCT DREAM,마지막 첫사랑 My First and Last,0,0,no tags,True,,113737
+blackpink::마지막처럼,BLACKPINK,마지막처럼,0,0,no tags,True,,10345
+소녀시대::말해봐 (talk talk),소녀시대,말해봐 (Talk Talk),0,0,no tags,True,,9599
+"g-dragon::무제(無題) (untitled, 2014)",G-DRAGON,"무제(無題) (Untitled, 2014)",0,0,no tags,True,,113226
+f(x)::무지개 (rainbow),f(x),무지개 (Rainbow),0,0,no tags,True,,41610
+이효리::미스코리아,이효리,미스코리아,0,0,no tags,True,,4473
+key::미워 (the duty of love),Key,미워 (The Duty of Love),0,0,no tags,True,,601
+f(x)::미행 (그림자; shadow),f(x),미행 (그림자; Shadow),0,0,no tags,True,,6697
+girl's day::반짝반짝,Girl's Day,반짝반짝,0,0,no tags,True,,49568
+baby v.o.x::배신,Baby V.O.X,배신,0,0,no tags,False,,5221
+f(x)::뱉어내 (spit it out),f(x),뱉어내 (Spit It Out),0,0,no tags,True,,34114
+shinee::버리고 가 (better off),SHINee,버리고 가 (Better Off),0,0,no tags,True,,3004
+노지훈::벌 받나 봐,노지훈,벌 받나 봐,0,0,no tags,True,,2472
+girl's day::보고싶어,Girl's Day,보고싶어,0,0,no tags,True,,11660
+에일리::보여줄게,에일리,보여줄게,0,0,no tags,True,,9126
+로이킴::봄봄봄,로이킴,봄봄봄,0,0,no tags,True,,2926
+우주소녀::비밀이야 (secret),우주소녀,비밀이야 (Secret),0,0,no tags,True,,3138
+shinee::빗 속 뉴욕 (queen of new york),SHINee,빗 속 뉴욕 (Queen of New York),0,0,no tags,True,,18314
+t-ara::사랑놀이,T-ARA,사랑놀이,0,0,no tags,True,,6545
+조규현::사랑이 숨긴 말들 (one confession),조규현,사랑이 숨긴 말들 (One confession),0,0,no tags,False,,464
+성시경::사랑하는 일,성시경,사랑하는 일,0,0,no tags,True,,6356
+orange caramel::샹하이 로맨스 (上海之戀),Orange Caramel,샹하이 로맨스 (上海之戀),0,0,no tags,True,,7181
+hello venus::설레임,HELLO VENUS,설레임,0,0,no tags,True,,3687
+key::센 척 안 해 (one of those nights) (feat. crush),Key,센 척 안 해 (One of Those Nights) (Feat. Crush),0,0,no tags,False,,1095
+kara::숙녀가 못 돼 (damaged lady),Kara,숙녀가 못 돼 (Damaged Lady),0,0,no tags,True,,4276
+f(x)::시그널 (signal),f(x),시그널 (Signal),0,0,no tags,True,,90197
+"super junior::쏘리 쏘리 sorry, sorry",SUPER JUNIOR,"쏘리 쏘리 SORRY, SORRY",0,0,no tags,True,,203315
+라붐::어떡할래,라붐,어떡할래,0,0,no tags,True,,1046
+brown eyed girls::어쩌다,Brown Eyed Girls,어쩌다,0,0,no tags,True,,18705
+f(x)::여우 같은 내 친구 (no more),f(x),여우 같은 내 친구 (No More),0,0,no tags,True,,51309
+girl's day::여자 대통령,Girl's Day,여자 대통령,0,0,no tags,True,,42767
+hello venus::오늘 뭐해?,HELLO VENUS,오늘 뭐해?,0,0,no tags,False,,3619
+noir::오늘만,Noir,오늘만,0,0,no tags,True,,1014
+brown eyes::우산,Brown Eyes,우산,0,0,no tags,False,,2856
+여자친구::유리구슬 glass bead,여자친구,유리구슬 Glass Bead,0,0,no tags,False,,578
+2pm::이 노래를 듣고 돌아와,2PM,이 노래를 듣고 돌아와,0,0,no tags,False,,7519
+dazzling red::이사람,Dazzling Red,이사람,0,0,no tags,False,,883
+lc9::전초전,LC9,전초전,0,0,no tags,False,,2081
+소년공화국::전화해 집에 (party rock),소년공화국,전화해 집에 (Party Rock),0,0,no tags,True,,1240
+f(x)::제트별 (jet),f(x),제트별 (Jet),0,0,no tags,True,,45921
+shinee::줄리엣 (juliette),SHINee,줄리엣 (Juliette),0,0,no tags,True,,13013
+exo-k::중독 (overdose),EXO-K,중독 (Overdose),0,0,no tags,True,,16609
+f(x)::첫 사랑니 (rum pum pum pum),f(x),첫 사랑니 (Rum Pum Pum Pum),0,0,no tags,True,,186774
+다비치::첫키스,다비치,첫키스,0,0,no tags,True,,3385
+super junior::춤을 춘다 (midnight blues),SUPER JUNIOR,춤을 춘다 (Midnight Blues),0,0,no tags,True,,8164
+"nct u::텐데...timeless (sung by jaehyun, doyoung, taeil)",NCT U,"텐데...Timeless (Sung by JAEHYUN, DOYOUNG, TAEIL)",0,0,no tags,True,,41040
+소녀시대::텔레파시 (telepathy),소녀시대,텔레파시 (Telepathy),0,0,no tags,True,,10724
+hello venus::파도처럼,HELLO VENUS,파도처럼,0,0,no tags,True,,2097
+red velvet::피카부 peek-a-boo,Red Velvet,피카부 Peek-a-Boo,0,0,no tags,True,,118610
+2pm::하.니.뿐.,2PM,하.니.뿐.,0,0,no tags,False,,25360
+bigbang::하루 하루,Bigbang,하루 하루,0,0,no tags,True,,1867
+승리::할말 있어요 (gotta talk to u),승리,할말 있어요 (Gotta Talk to U),0,0,no tags,True,,4473
+ive::해야 (heya),IVE,해야 (HEYA),10,7,has tags,True,,244385
+red velvet::행복 (happiness),Red Velvet,행복 (Happiness),10,6,has tags,True,,235401
+girl's day::휘파람,Girl's Day,휘파람,0,0,no tags,True,,7959
+shinee::히치하이킹 (hitchhiking),SHINee,히치하이킹 (Hitchhiking),0,0,no tags,True,,15312
+saja boys::soda pop,Saja Boys,Soda Pop,10,7,has tags,True,,672875
+huntr/x::takedown,HUNTR/X,Takedown,10,6,has tags,True,,548236
+huntr/x::what it sounds like,HUNTR/X,What It Sounds Like,10,8,has tags,True,,544990
+bts::134340,BTS,134340,10,8,has tags,True,,503786
+newjeans::attention,NewJeans,Attention,10,7,has tags,True,,937335
+red velvet::bad boy,Red Velvet,Bad Boy,10,6,has tags,True,,732073
+aespa::bite,aespa,Bite,10,8,has tags,False,,85895
+dayoung::body,DAYOUNG,Body,10,8,has tags,False,,100041
+newjeans::bubble gum,NewJeans,Bubble Gum,10,6,has tags,True,,443025
+newjeans::cookie,NewJeans,Cookie,10,7,has tags,True,,718259
+newjeans::ditto,NewJeans,Ditto,10,7,has tags,True,,1101450
+twice::doughnut,TWICE,Doughnut,10,8,has tags,True,,350654
+le sserafim::easy,LE SSERAFIM,EASY,10,7,has tags,True,,602823
+newjeans::get up,NewJeans,Get Up,10,7,has tags,True,,571634
+newjeans::hurt,NewJeans,Hurt,10,7,has tags,True,,634260
+newjeans::hype boy,NewJeans,Hype Boy,10,6,has tags,True,,934781
+yuna::ice cream,Yuna,Ice Cream,10,7,has tags,False,,82003
+le sserafim::impurities,LE SSERAFIM,Impurities,10,7,has tags,True,,545014
+bts::intro: singularity,BTS,Intro: Singularity,10,6,has tags,True,,425862
+jihyo::killin’ me good,JIHYO,Killin’ Me Good,9,7,has tags,True,,299595
+red velvet::kingdom come,Red Velvet,Kingdom Come,10,7,has tags,True,,236575
+nmixx::know about me,NMIXX,KNOW ABOUT ME,10,6,has tags,True,,197698
+yves::loop (feat. lil cherry),Yves,LOOP (feat. Lil Cherry),10,7,has tags,True,,293276
+kai::mmmh,Kai,Mmmh,10,9,has tags,True,,430253
+lngshot::moonwalkin',LNGSHOT,Moonwalkin',10,7,has tags,True,,224057
+aespa::my plan,aespa,My Plan,10,9,has tags,False,,70067
+newjeans::omg,NewJeans,OMG,10,6,has tags,True,,1065793
+nayeon::pop!,NAYEON,POP!,10,8,has tags,True,,674996
+red velvet::psycho,Red Velvet,Psycho,10,6,has tags,True,,800465
+shinee::replay,SHINee,Replay,10,7,has tags,True,,411707
+le sserafim::sour grapes,LE SSERAFIM,Sour Grapes,10,6,has tags,True,,575826
+stayc::stereotype,STAYC,STEREOTYPE,10,7,has tags,False,,430418
+jung kook::still with you,Jung Kook,Still With You,10,7,has tags,True,,648815
+kiss of life::sugarcoat (natty solo),Kiss of Life,Sugarcoat (NATTY Solo),10,7,has tags,True,,406119
+twice::this is for,TWICE,THIS IS FOR,10,8,has tags,True,,451051
+tomorrow x together::0x1=lovesong (i know i love you) feat. seori,TOMORROW X TOGETHER,0X1=LOVESONG (I Know I Love You) feat. Seori,10,7,has tags,True,,514601
+le sserafim::hot,LE SSERAFIM,HOT,10,7,has tags,False,,427299
+nct 127::kick it,NCT 127,Kick It,10,8,has tags,False,,344792
+tomorrow x together::lo$er=lo♡er,TOMORROW X TOGETHER,LO$ER=LO♡ER,10,6,has tags,True,,481107
+coldplay::my universe,Coldplay,My Universe,10,7,has tags,True,,886639
+nmixx::o.o,NMIXX,O.O,10,7,has tags,True,,362445
+aespa::rich man,aespa,Rich Man,10,7,has tags,True,,259026
+nmixx::loud,NMIXX,LOUD,10,9,has tags,False,,87014
+nmixx::heavy serenade,NMIXX,Heavy Serenade,10,9,has tags,False,,116275
+ateez::bad,ATEEZ,BAD,2,2,has tags,False,,102701
