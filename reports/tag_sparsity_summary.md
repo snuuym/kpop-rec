@@ -75,13 +75,30 @@ First-pass tracks are about **9.5x** as popular. **The bias is confirmed** — d
 
 ## Q2a - Tag sparsity vs release year
 
-Skipped: the `year` field is missing or the sample is too small. Run `enrich_metadata.py` first.
+Sample: 1098 tracks with a known year.
+
+![](../figures/fig2_tags_vs_year.png)
 
 ## Q2b - Tag sparsity vs popularity
 
 Sample: 1267 tracks with a listener count.
 
 ![](../figures/fig3_tags_vs_popularity.png)
+
+## Q2c - Is it novelty, or is it obscurity? (the central test)
+
+Sample: 1098 tracks with both fields. All variables standardized, then regressed jointly:
+
+| Predictor | Univariate correlation | Partial coefficient |
+|---|---:|---:|
+| Release year | +0.382 | **+0.152** |
+| log10(listeners) | +0.620 | **+0.557** |
+
+Model R^2 = 0.403
+
+**Conclusion:** **Popularity dominates.** Once popularity is controlled for, the partial effect of release year collapses. "New tracks have no tags" is a surface reading of "obscure tracks have no tags" — tags are user-generated content, and they only accumulate where listeners do.
+
+> This determines where further effort is worth spending. If sparsity is driven by popularity, scraping additional tag sources has a low ceiling, and the effort belongs on signals that do not depend on UGC at all — acoustic features, or features derived from the audio directly.
 
 ---
 
@@ -107,20 +124,12 @@ Sample: 1267 tracks with a listener count.
 | Q1 coldest | 0% | 84% |
 | Q2 | 0% | 93% |
 | Q3 | 9% | 85% |
-| Q4 | 32% | 87% |
-| Q5 hottest | 95% | 88% |
+| Q4 | 33% | 87% |
+| Q5 hottest | 94% | 89% |
 
-- UGC tag coverage varies by **95 percentage points** across quintiles — heavily popularity-dependent
+- UGC tag coverage varies by **94 percentage points** across quintiles — heavily popularity-dependent
 - Acoustic feature coverage varies by only **9 points** — effectively popularity-independent
 
 ![](../figures/fig5_signal_coverage.png)
 
 > **This is the argument.** UGC signal serves the head; acoustic signal covers the whole distribution. A recommender built only on the former cannot reach the long tail — not because its ranking is weak, but because the input features do not exist there. That is an architectural limit, not an algorithmic one.
-
----
-
-## Missing fields
-
-These fields were absent, so some analyses were skipped: `year`
-
-Run `python3 scripts/enrich_metadata.py` and re-run this script.

@@ -20,10 +20,10 @@ gap is total:
 | Q1 (coldest) | **0%** | 84% |
 | Q2 | **0%** | 93% |
 | Q3 | 9% | 85% |
-| Q4 | 32% | 87% |
-| Q5 (hottest) | 95% | 88% |
+| Q4 | 33% | 87% |
+| Q5 (hottest) | 94% | 89% |
 
-Tag coverage swings **95 percentage points** across the distribution; acoustic
+Tag coverage swings **94 percentage points** across the distribution; acoustic
 coverage swings **9**. A recommender built on tags cannot reach the tail because
 the input features do not exist there — no amount of ranking work changes that.
 
@@ -34,9 +34,31 @@ the input features do not exist there — no amount of ranking work changes that
 ## Why this is the interesting question
 
 The obvious reading of "new tracks have no tags" is that tagging lags release.
-The data says otherwise: the driver is obscurity, not novelty. Tags are
-user-generated content, and they accumulate only where listeners already are —
-which is precisely where a recommender is least needed.
+The data says otherwise, and this is the one claim worth testing rather than
+asserting. Standardizing both predictors and regressing effective tag count on
+them jointly, over the 1,098 tracks carrying both a listener count and a
+release year inside the 1990-2026 sanity range:
+
+| Predictor | Univariate | Partial |
+|---|---:|---:|
+| Release year | +0.382 | **+0.152** |
+| log10(listeners) | +0.620 | **+0.557** |
+
+Popularity barely moves when year is held constant — it keeps 90% of its
+univariate association. Year loses 60% of its own once popularity is held
+constant, so most of the apparent age effect was popularity in disguise. And
+the residual year coefficient is *positive*: newer tracks carry slightly
+**more** tags, which is the opposite of what a tagging-lag story predicts.
+
+![Tags by release year](figures/fig2_tags_vs_year.png)
+
+The right-hand panel is the tagging-lag hypothesis failing in one line: the
+share of zero-tag tracks falls monotonically from 91% for pre-2010 releases to
+39% for 2023-and-later. Older tracks have had fifteen years to accumulate tags
+and still have none.
+
+Tags are user-generated content, and they accumulate only where listeners
+already are — which is precisely where a recommender is least needed.
 
 One number makes the mechanism concrete. The first tagging pass traversed the
 corpus in descending popularity order and was interrupted partway. The tracks
@@ -60,10 +82,10 @@ falling back to random).
 | Claim | Status |
 |---|---|
 | 72.7% of tracks have zero effective tags | Measured, per-track API verified |
-| Tag coverage is popularity-dependent (95pp spread) | Measured |
+| Tag coverage is popularity-dependent (94pp spread) | Measured |
 | Acoustic coverage is popularity-independent (9pp spread) | Measured |
 | 8.4% of tracks are unreachable by any content signal | Measured |
-| Sparsity is driven by obscurity, not novelty | **Not yet tested** — see limitations |
+| Sparsity is driven by obscurity, not novelty | Measured — partial coefficients +0.56 popularity vs +0.15 year |
 | Content method beats a popularity baseline | **Not measured** |
 
 ## Limitations
@@ -82,12 +104,14 @@ These are load-bearing, not boilerplate.
 3. **Positives skew 2.4× more popular than the corpus median**, so a pure
    popularity baseline will be strong and must be reported alongside any
    content-based method.
-4. **The novelty-vs-obscurity test has not been run.** It needs a release-year
-   field, and the MusicBrainz pass (`make enrich` without `--skip-year`) has not
-   been executed — `year` is 0% populated. The regression is implemented in
-   `scripts/analyze_tag_sparsity.py` and will run automatically once the field
-   exists. Until then, obscurity is the better-supported explanation, not the
-   demonstrated one.
+4. **The novelty-vs-obscurity regression covers 87% of the corpus, and the
+   missing 13% is not random.** MusicBrainz resolves a release year for 1,099
+   of 1,267 tracks, but its own coverage is popularity-dependent: 68% in the
+   coldest quintile against 93% in the hottest, and unresolved tracks have
+   one-eighth the median listeners of resolved ones. The regression therefore
+   under-weights exactly the tail this project is about. The result is stable
+   across the full corpus and the 200-track sample, but a stronger test needs a
+   year source that does not thin out in the tail.
 5. **Corpus size is ~1.3k tracks**, which bounds both label density and
    candidate-pool realism. Brute-force similarity is entirely adequate at this
    scale; an ANN index would be premature.
@@ -108,8 +132,10 @@ make eval      # runs the full analysis on the bundled sample
 `make eval` runs against `data/songs.sample.json` (200 tracks, stratified across
 popularity quintiles), needs no API key, and writes to `reports/sample/` so it
 never overwrites the committed full-corpus results. The sample reproduces the
-headline finding closely — 74.0% zero-tag against 72.7% on the full corpus, and
-a 98-point coverage spread against 95.
+headline finding closely — 74.0% zero-tag against 72.7% on the full corpus, a
+98-point coverage spread against 94, and the same central regression result
+(partial coefficients +0.54 popularity / +0.15 year, against +0.56 / +0.15 on
+the full corpus).
 
 To rebuild the full dataset:
 
