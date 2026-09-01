@@ -70,14 +70,116 @@ That reframes the engineering problem. Scraping more tag sources has a low
 ceiling. The effort belongs on signals that do not depend on anyone having
 listened to the track first.
 
+## Does any of this actually rank better?
+
+Five policies, scored against the pseudo-relevance labels over 1,021 seeds.
+Every policy is charged for the seeds it cannot serve, because a policy with no
+signal does not rank badly — it does not rank at all, and a user feels the
+difference as an empty result rather than a poor one.
+
+| Policy | Can rank | NDCG@10 where it can | NDCG@10 over every seed |
+|---|---:|---:|---:|
+| `random` | 100% | 0.034 | 0.034 |
+| `popularity` | 100% | 0.072 | **0.072** |
+| `tags` | 33% | **0.201** | 0.067 |
+| `acoustic` | 87% | 0.054 | 0.047 |
+| `hybrid` (what the app ships) | 92% | 0.063 | 0.058 |
+
+**At K=10, no content-based policy beats ranking by raw popularity.** That is
+the headline, and it is a negative result. Tag overlap is by far the strongest
+signal *where a tag exists* — 0.201, nearly three times the popularity baseline
+— but it reaches only a third of the catalogue, and averaged over every seed
+that advantage is spent.
+
+The result is not stable across list length, which is worth stating plainly
+rather than quoting the K that flatters the conclusion:
+
+| NDCG@K, every seed | K=5 | K=10 | K=20 | K=50 |
+|---|---:|---:|---:|---:|
+| `popularity` | 0.062 | **0.072** | **0.071** | **0.070** |
+| `tags` | **0.076** | 0.067 | 0.062 | 0.058 |
+| `hybrid` | 0.062 | 0.058 | 0.056 | 0.059 |
+| `acoustic` | 0.048 | 0.047 | 0.045 | 0.047 |
+| `random` | 0.034 | 0.034 | 0.036 | 0.041 |
+
+At K=5 tag overlap does beat the baseline, 0.076 against 0.062. It loses the
+lead by K=10 and keeps losing it: tags concentrate their hits at the very top
+of a short list, whereas popularity keeps paying off as the list grows. Which
+policy "wins" therefore depends on how long a queue the product actually shows
+— a 5-track list and a 50-track list have different answers.
+
+That measurement settled a product question. The app used to hand back 50
+tracks; it now hands back 20. A shorter queue is not a better ranking — it is
+the same list, truncated — but the recommender's edge is concentrated at the
+top and thins out with depth. Per-slot precision runs 1.80x random at 5 and
+only 1.32x by 50, while the chance of hitting anything the listener likes
+climbs from 24% to 76%. Twenty keeps a 56% hit rate at 1.48x random, which is
+the better end of that trade.
+
+![Ranking quality](figures/fig6_ranking_quality.png)
+
+### What the tag policy is actually doing
+
+One number reframes that 0.201. **26.6% of the tag policy's top-10 is the seed's
+own artist** — against 1.4–3.5% for every other policy. Artist names survive as
+raw Last.fm tags (`bts`, `seokjin`) and pass the discriminative-tag test, so tag
+matching partly degenerates into artist matching.
+
+That matters because `track.getSimilar` is artist-deduplicated: only 2.2% of the
+labels are same-artist, so those slots are scored as misses almost regardless of
+what is in them. The recommender still keeps them — another song by an artist you
+just played is usually a good suggestion, and removing it would be a worse
+product to make a benchmark easier — so the benchmark reports both readings:
+
+| Policy | Same-artist share of top-10 | NDCG@10 as shipped | NDCG@10 artist-blind |
+|---|---:|---:|---:|
+| `random` | 1.4% | 0.034 | 0.034 |
+| `popularity` | 2.5% | 0.072 | 0.071 |
+| `tags` | **26.6%** | 0.067 | 0.070 |
+| `acoustic` | 2.5% | 0.047 | 0.045 |
+| `hybrid` | 3.5% | 0.058 | 0.056 |
+
+The aggregate effect is small — `tags` gains 0.003 when its artist is removed
+from both sides. So this is a finding about *what tag overlap does*, not a
+correction to the numbers above: whatever the tag policy scores, it scores while
+spending a quarter of the list on recommendations these labels cannot credit.
+
+The aggregate hides the actual structure, because it is dominated by the head
+where the labels are dense. Split by popularity, the ordering inverts:
+
+| Policy | Q1 coldest | Q2 | Q3 | Q4 | Q5 hottest |
+|---|---:|---:|---:|---:|---:|
+| `random` | 0.016 | 0.036 | 0.039 | 0.039 | 0.040 |
+| `popularity` | 0.007 | 0.024 | 0.066 | 0.110 | 0.151 |
+| `tags` | **0.000** | 0.008 | 0.023 | 0.096 | **0.207** |
+| `acoustic` | 0.036 | 0.049 | 0.055 | 0.054 | 0.041 |
+| `hybrid` | **0.037** | 0.057 | 0.059 | 0.062 | 0.075 |
+
+Three things happen at the cold end, and they are the whole argument:
+
+1. **The tag policy scores exactly zero in Q1** — not weak, absent. It can rank
+   0% of the coldest seeds, because none of them has a discriminative tag.
+2. **Ranking by popularity falls below random** in Q1 (0.007 against 0.016).
+   For an obscure seed the relevant tracks are themselves obscure, so a global
+   popularity ordering is actively worse than chance.
+3. **Only the acoustic and hybrid policies stay above the floor across the whole
+   distribution.** Their coverage is 85–89% in every quintile, because audio
+   features do not depend on anyone having listened to the track first.
+
+So the honest summary is not "content beats popularity" — it does not. It is
+that popularity and tags win a benchmark whose labels are 2.4× more popular
+than the corpus, and both fail exactly where a recommender has to earn its
+keep. The acoustic signal is the only one still standing in the tail, and it is
+weak there in absolute terms.
+
 ## What is actually established
 
 Honest scope: this repository contains the data foundation, the exploratory
-analysis, and a diagnosed offline benchmark. **It does not yet report ranking
-metrics** — no Recall@K or NDCG numbers are claimed, because the evaluation
-harness is not built. The recommendation logic that ships is the heuristic used
-by the app (feature-distance nearest neighbour, falling back to tag overlap,
-falling back to random).
+analysis, a diagnosed offline benchmark, and ranking results measured against
+it. The recommendation logic evaluated here is the heuristic the app ships
+(feature-distance nearest neighbour, tag overlap as fallback), lifted into
+`src/kpoprec/recommend.py` so the benchmark and the app cannot drift apart. No
+learned model is trained.
 
 | Claim | Status |
 |---|---|
@@ -86,7 +188,9 @@ falling back to random).
 | Acoustic coverage is popularity-independent (9pp spread) | Measured |
 | 8.4% of tracks are unreachable by any content signal | Measured |
 | Sparsity is driven by obscurity, not novelty | Measured — partial coefficients +0.56 popularity vs +0.15 year |
-| Content method beats a popularity baseline | **Not measured** |
+| Content method beats a popularity baseline | Measured — no at K=10; tag overlap edges ahead at K=5 |
+| Tags are the strongest signal where they exist | Measured — 0.201, 2.8x the baseline |
+| Only acoustic signal stays above the random floor in the cold tail | Measured |
 
 ## Limitations
 
@@ -115,6 +219,12 @@ These are load-bearing, not boilerplate.
 5. **Corpus size is ~1.3k tracks**, which bounds both label density and
    candidate-pool realism. Brute-force similarity is entirely adequate at this
    scale; an ANN index would be premature.
+6. **The acoustic policy's feature weights were never tuned.** They are the
+   hand-set perceptual weights the app shipped with — mood and energy at 1.0,
+   production traits lower. So "acoustic ranking is weak in absolute terms" is
+   a statement about *this* weighting, not about acoustic features as such.
+   Learning the weights against the labels is the obvious next experiment, and
+   is not done here.
 
 Full diagnostics: [`reports/gt_diagnostics.md`](reports/gt_diagnostics.md) ·
 [`reports/tag_sparsity_summary.md`](reports/tag_sparsity_summary.md)
@@ -125,8 +235,9 @@ Full diagnostics: [`reports/gt_diagnostics.md`](reports/gt_diagnostics.md) ·
 git clone https://github.com/snuuym/kpop-rec.git
 cd kpop-rec
 make install
-make test      # 64 tests, no network or credentials needed
+make test      # 89 tests, no network or credentials needed
 make eval      # runs the full analysis on the bundled sample
+make bench     # ranks the sample and scores it against the sample labels
 ```
 
 `make eval` runs against `data/songs.sample.json` (200 tracks, stratified across
@@ -136,6 +247,12 @@ headline finding closely — 74.0% zero-tag against 72.7% on the full corpus, a
 98-point coverage spread against 94, and the same central regression result
 (partial coefficients +0.54 popularity / +0.15 year, against +0.56 / +0.15 on
 the full corpus).
+
+`make bench` scores five ranking policies against `ground_truth.sample.json`
+and writes `reports/sample/eval_summary.md`. Its absolute numbers sit higher
+than the committed ones because the candidate pool is 200 tracks rather than
+1,267 — what carries over is the ordering of the policies and the shape of the
+per-quintile curve.
 
 To rebuild the full dataset:
 
@@ -158,7 +275,8 @@ stopped rather than starting over.
 | 4 | `build_features.py` | acoustic features via Spotify ID → ReccoBeats |
 | — | `check_gt_density.py` | feasibility probe: is there enough ground truth? |
 | 5 | `build_ground_truth.py` | pseudo-relevance labels + bias diagnostics |
-| 6 | `analyze_tag_sparsity.py` | the EDA and every figure above |
+| 6 | `analyze_tag_sparsity.py` | the EDA and figures 1-5 |
+| 7 | `evaluate.py` | the ranking benchmark and figure 6 |
 
 Stage 2 exists because of stage 1's failure mode, and stage 5's diagnostics
 exist because pseudo ground truth is easy to build and easy to over-trust. The
@@ -169,12 +287,13 @@ isn't committed to before its density is known.
 
 ```
 app/          single-file web UI + local Flask server
-src/kpoprec/  shared library: taxonomy, normalization, Last.fm client, safe I/O
+src/kpoprec/  shared library: taxonomy, normalization, Last.fm client, safe I/O,
+              ranking policies (recommend.py) and metrics (metrics.py)
 scripts/      the six pipeline stages, each a thin CLI
 data/         sample dataset (full library is gitignored — see data/README.md)
 reports/      generated analysis, committed so results are reviewable
 figures/      generated charts
-tests/        64 tests over taxonomy, joins, I/O, and request validation
+tests/        89 tests over taxonomy, joins, I/O, ranking policies and metrics
 ```
 
 Two design notes worth the words:
@@ -190,7 +309,7 @@ Two design notes worth the words:
 
 ## The app
 
-A single HTML file with no build step: pick a seed track, get a 50-track queue,
+A single HTML file with no build step: pick a seed track, get a 20-track queue,
 play it through the Spotify Web Playback SDK, export it to a real playlist.
 
 ![screenshot](docs/demo/demo.png)
