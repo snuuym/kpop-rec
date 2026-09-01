@@ -56,3 +56,7 @@ KpopPlayer.app/
 # figures/ are the full-corpus results and must not be overwritten by a demo run.
 reports/sample/
 figures/sample/
+
+# ── Local-only working notes ────────────────────────────────────────────────
+# Private scratch directory kept on this machine only. Must never be committed.
+kpop-rec-private/
