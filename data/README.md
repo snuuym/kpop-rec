@@ -5,6 +5,7 @@
 | File | Tracked | Description |
 |---|---|---|
 | `songs.sample.json` | yes | 200-track sample of the library, stratified across popularity quintiles |
+| `ground_truth.sample.json` | yes | labels for the sample, restricted to sample-internal positives |
 | `songs.json` | no | full library (~1,270 tracks) |
 | `ground_truth.json` | no | pseudo relevance labels, seed -> positive keys |
 | `ground_truth_no_same_artist.json` | no | same, with same-artist positives removed |
@@ -25,6 +26,20 @@ make all                    # ~40 minutes, rate-limited
 The sample is stratified by popularity rather than taken from the head, because
 the entire analysis turns on how coverage differs between popular and obscure
 tracks. A head-only sample would show none of the effect.
+
+`ground_truth.sample.json` is `ground_truth.json` restricted to the sample: the
+same seeds, keeping only positives that are themselves in the sample. It is
+derived, not separately collected --
+
+```python
+sub = {k: [p for p in gt[k] if p in sample_keys] for k in sample_keys if k in gt}
+```
+
+-- which leaves 162 evaluable seeds with a median of 9 positives each, enough
+for `make bench` to run end to end on a fresh clone. Absolute scores are not
+comparable to the full-corpus run: the candidate pool is 200 tracks rather than
+1,267, so every metric sits higher. The *ordering* of the policies is what
+carries over.
 
 ## Record schema
 

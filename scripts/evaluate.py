@@ -1,0 +1,389 @@
+#!/usr/bin/env python3
+"""Stage 7 - rank the library for every seed and score the result.
+
+This is the benchmark the earlier stages were building toward. It answers the
+one question the analysis could not: does a content-based ranking actually beat
+ranking by popularity, and does the answer change in the long tail?
+
+What is being measured
+----------------------
+Five policies, each scoring the whole library for a seed track:
+
+  random       uniform noise -- the floor
+  popularity   listener count -- the baseline that must be beaten
+  tags         classified-genre and raw-tag overlap
+  acoustic     nearest neighbour by weighted audio-feature distance
+  hybrid       what the app ships: acoustic, with a tag bonus, tags as fallback
+
+Scoring rules live in ``src/kpoprec/recommend.py`` so they cannot drift from the
+app, and metrics in ``src/kpoprec/metrics.py``.
+
+The two-column result
+---------------------
+A policy with no signal for a seed does not rank it badly -- it cannot rank it
+at all. Averaging only over seeds it *can* rank flatters a narrow policy; a tag
+method scored solely where tags exist looks fine, which is precisely the
+illusion this project exists to puncture. Averaging over every seed and scoring
+the blind spots zero answers a different question: what does a user get.
+
+Both are reported. The gap between them is the cost of depending on a signal
+that is not there -- the sparsity finding, in ranking terms.
+
+Usage
+-----
+    python3 scripts/evaluate.py                    # bundled sample, no key
+    python3 scripts/evaluate.py --songs data/songs.json \\
+        --ground-truth data/ground_truth.json --outdir reports --figdir figures
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+import matplotlib
+
+matplotlib.use("Agg")
+
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from kpoprec import config  # noqa: E402
+from kpoprec.io import load_songs  # noqa: E402
+from kpoprec.metrics import METRIC_NAMES, evaluate_ranking, zero_metrics  # noqa: E402
+from kpoprec.normalize import song_key  # noqa: E402
+from kpoprec.recommend import POLICIES, Library, can_serve, score, top_k  # noqa: E402
+
+KS = (5, 10, 20, 50)
+HEADLINE_K = 10
+# Validated with the dataviz palette checker (light surface, categorical):
+# lightness band, chroma floor, CVD separation, normal-vision floor, contrast.
+SERIES_COLORS = {
+    "popularity": "#2F5FA8",
+    "tags": "#C77B00",
+    "acoustic": "#E8547C",
+    "hybrid": "#9B5DE5",
+}
+FLOOR_COLOR = "#6B7280"
+MARKERS = {"popularity": "s", "tags": "^", "acoustic": "o", "hybrid": "D"}
+LINESTYLES = {"popularity": "--", "tags": ":", "acoustic": "-", "hybrid": "-."}
+
+
+def style(ax, title="", xlabel="", ylabel="") -> None:
+    ax.set_title(title, fontsize=12, fontweight="bold", pad=12)
+    ax.set_xlabel(xlabel, fontsize=10)
+    ax.set_ylabel(ylabel, fontsize=10)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.grid(axis="y", alpha=0.25, linewidth=0.7)
+    ax.set_axisbelow(True)
+
+
+# ── Evaluation ──────────────────────────────────────────────────────────────
+
+def run(lib: Library, songs: list[dict], gt: dict[str, list[str]], seed: int) -> pd.DataFrame:
+    """Score every policy on every evaluable seed. One row per seed per policy."""
+    index = {song_key(s): i for i, s in enumerate(songs)}
+    rng = np.random.default_rng(seed)
+    # One fixed permutation for the whole run: ties resolve randomly but
+    # reproducibly, instead of inheriting the library's collection order.
+    tiebreak = rng.permutation(lib.n)
+
+    evaluable = []
+    for key, positives in gt.items():
+        i = index.get(key)
+        if i is None:
+            continue
+        pos = {index[p] for p in positives if p in index and index[p] != i}
+        if pos:
+            evaluable.append((i, pos))
+
+    if not evaluable:
+        sys.exit("[FATAL] no seed has an in-library positive; nothing to evaluate")
+
+    rows = []
+    for i, pos in evaluable:
+        same = lib.same_artist(i)
+        # The artist-blind variant drops the seed's own artist from both sides.
+        # A seed whose every positive is same-artist has nothing left to score,
+        # so it leaves that variant's population rather than scoring zero in it.
+        pos_blind = {j for j in pos if not same[j]}
+        for policy in POLICIES:
+            served = can_serve(policy, lib, i)
+            if served:
+                scores = score(policy, lib, i, rng)
+                ranked = top_k(scores, max(KS), tiebreak)
+                per_k = {k: evaluate_ranking(ranked, pos, k) for k in KS}
+                blind_scores = scores.copy()
+                blind_scores[same] = -np.inf
+                blind_ranked = top_k(blind_scores, max(KS), tiebreak)
+                same_in_top = int(same[ranked[:HEADLINE_K]].sum())
+            else:
+                per_k = {k: zero_metrics() for k in KS}
+                blind_ranked = None
+                same_in_top = 0
+
+            row = {
+                "seed_index": i,
+                "policy": policy,
+                "served": served,
+                "blind_evaluable": bool(pos_blind),
+                "n_positives": len(pos),
+                "same_artist_in_top": same_in_top,
+                "listeners": songs[i].get("listeners") or 0,
+            }
+            for k, m in per_k.items():
+                for name, v in m.items():
+                    row[f"{name}@{k}"] = v
+            if pos_blind:
+                blind = (
+                    {k: evaluate_ranking(blind_ranked, pos_blind, k) for k in KS}
+                    if blind_ranked is not None
+                    else {k: zero_metrics() for k in KS}
+                )
+                for k, m in blind.items():
+                    for name, v in m.items():
+                        row[f"blind_{name}@{k}"] = v
+            rows.append(row)
+
+    df = pd.DataFrame(rows)
+    # Quintiles are assigned over seeds, not policies, so every policy is judged
+    # on the same partition of the catalogue.
+    seeds = df[df.policy == POLICIES[0]][["seed_index", "listeners"]].copy()
+    seeds["quintile"] = pd.qcut(
+        seeds["listeners"].rank(method="first"), 5,
+        labels=["Q1 coldest", "Q2", "Q3", "Q4", "Q5 hottest"],
+    )
+    return df.merge(seeds[["seed_index", "quintile"]], on="seed_index", how="left")
+
+
+def headline(df: pd.DataFrame, k: int, prefix: str = "") -> pd.DataFrame:
+    """Coverage, served-only metrics, and all-seed metrics for each policy.
+
+    ``prefix`` selects the variant: "" for the ranking as shipped, "blind_" for
+    the run with the seed's own artist removed from ranking and labels alike.
+    """
+    out = []
+    for policy in POLICIES:
+        d = df[df.policy == policy]
+        if prefix:
+            d = d[d.blind_evaluable]
+        served = d[d.served]
+        row = {
+            "policy": policy,
+            "coverage": len(served) / len(d) if len(d) else 0.0,
+            "n_served": len(served),
+            "n_seeds": len(d),
+        }
+        for m in METRIC_NAMES:
+            col = f"{prefix}{m}@{k}"
+            row[f"{m}_served"] = served[col].mean() if len(served) else float("nan")
+            row[f"{m}_all"] = d[col].mean()
+        out.append(row)
+    return pd.DataFrame(out)
+
+
+# ── Figure ──────────────────────────────────────────────────────────────────
+
+def figure(df: pd.DataFrame, head: pd.DataFrame, figdir: Path, k: int) -> Path:
+    figdir.mkdir(parents=True, exist_ok=True)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 4.8))
+
+    # 6a - what coverage costs. Two bars per policy, a 2px surface gap between.
+    pol = [p for p in POLICIES if p != "random"]
+    x = np.arange(len(pol))
+    width = 0.38
+    served = [float(head.loc[head.policy == p, f"ndcg_served"].iloc[0]) for p in pol]
+    alls = [float(head.loc[head.policy == p, f"ndcg_all"].iloc[0]) for p in pol]
+    ax1.bar(x - width / 2 - 0.01, served, width, label="on seeds it can rank",
+            color=[SERIES_COLORS[p] for p in pol], alpha=0.45, edgecolor="white", linewidth=2)
+    ax1.bar(x + width / 2 + 0.01, alls, width, label="over every seed",
+            color=[SERIES_COLORS[p] for p in pol], edgecolor="white", linewidth=2)
+    floor = float(head.loc[head.policy == "random", "ndcg_all"].iloc[0])
+    ax1.axhline(floor, color=FLOOR_COLOR, linestyle="--", linewidth=1.4)
+    # Keep clear space at the left edge so the floor label never sits on a bar.
+    ax1.set_xlim(-0.95, len(pol) - 0.4)
+    ax1.text(-0.9, floor, f"random\nfloor {floor:.3f}", va="bottom", ha="left",
+             fontsize=8.5, color=FLOOR_COLOR, linespacing=1.3)
+    for xi, (s, a) in enumerate(zip(served, alls)):
+        ax1.text(xi - width / 2 - 0.01, s, f"{s:.3f}", ha="center", va="bottom", fontsize=8)
+        ax1.text(xi + width / 2 + 0.01, a, f"{a:.3f}", ha="center", va="bottom", fontsize=8)
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(pol)
+    ax1.legend(frameon=False, fontsize=9)
+    style(ax1, f"Fig 6a - What a missing signal costs (NDCG@{k})", "", f"NDCG@{k}")
+
+    # 6b - the tail story, charged for blind spots.
+    g = df.groupby(["policy", "quintile"], observed=True)[f"ndcg@{k}"].mean().unstack()
+    labels = list(g.columns)
+    for p in pol:
+        ax2.plot(range(len(labels)), g.loc[p].values, marker=MARKERS[p],
+                 linestyle=LINESTYLES[p], color=SERIES_COLORS[p], linewidth=2,
+                 markersize=8, markeredgecolor="white", markeredgewidth=1.4, label=p)
+    ax2.plot(range(len(labels)), g.loc["random"].values, linestyle="--", color=FLOOR_COLOR,
+             linewidth=1.4, label="random")
+    ax2.set_xticks(range(len(labels)))
+    ax2.set_xticklabels(labels, fontsize=9)
+    ax2.legend(frameon=False, fontsize=9, ncol=2)
+    style(ax2, f"Fig 6b - NDCG@{k} by popularity quintile (every seed)",
+          "seed popularity", f"NDCG@{k}")
+
+    fig.tight_layout()
+    path = figdir / "fig6_ranking_quality.png"
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+    return path
+
+
+# ── Report ──────────────────────────────────────────────────────────────────
+
+def report(df: pd.DataFrame, head: pd.DataFrame, blind: pd.DataFrame, k: int,
+           n_lib: int, figdir: Path) -> list[str]:
+    n_seeds = int(head["n_seeds"].iloc[0])
+    med_pos = float(df[df.policy == POLICIES[0]]["n_positives"].median())
+    floor = float(head.loc[head.policy == "random", "precision_all"].iloc[0])
+
+    md = [
+        "# Ranking evaluation\n",
+        "> Scored against pseudo-relevance labels from Last.fm `track.getSimilar`.",
+        "> **These are collaborative-filtering output, not observed user preference.**",
+        "> A high score means a content-based ranking reproduces an industrial CF",
+        "> system, which is a real question but not \"does the listener like it\".\n",
+        "## Protocol\n",
+        f"- Seeds evaluated: **{n_seeds}** (every seed with at least one in-library positive)",
+        f"- Candidate pool: the whole library, {n_lib} tracks, minus the seed itself",
+        f"- Positives per seed: median **{med_pos:.0f}**",
+        f"- Reported at K = {k}; the full K sweep is in `eval_by_k.csv`",
+        f"- Random Precision@{k} floor: **{floor:.3f}**",
+        "- Deterministic: fixed RNG seed, stable tie-breaking by library index\n",
+        "The app's random jitter and per-tag diversity cap are excluded. Both act",
+        "after the ranking is chosen and would only add noise to the measurement.\n",
+        "## Headline\n",
+        f"| Policy | Can rank | NDCG@{k} served | NDCG@{k} all seeds | "
+        f"Recall@{k} all | HitRate@{k} all |",
+        "|---|---:|---:|---:|---:|---:|",
+    ]
+    for _, r in head.iterrows():
+        md.append(
+            f"| `{r.policy}` | {r.coverage:.0%} | {r.ndcg_served:.3f} | **{r.ndcg_all:.3f}** | "
+            f"{r.recall_all:.3f} | {r.hit_rate_all:.3f} |"
+        )
+
+    md += [
+        "\n**The two NDCG columns are the point.** *Served* averages only over seeds",
+        "the policy has any signal for; *all seeds* charges it zero where it has none.",
+        "A policy that is accurate but blind scores well on the first and badly on the",
+        "second, and the second is what a user experiences.\n",
+        f"![](../{figdir.name}/fig6_ranking_quality.png)\n",
+        "## Same-artist recommendations\n",
+        "The shipped recommender does **not** drop tracks by the seed's own artist:",
+        "another song by an artist you just played is usually a good suggestion, and",
+        "removing it would be a worse product to make a benchmark easier. But Last.fm's",
+        "`track.getSimilar` is artist-deduplicated -- only 2.2% of the labels are",
+        "same-artist -- so those slots are almost always scored as misses whatever they",
+        "actually contain. The artist-blind column drops the seed's artist from the",
+        "ranking and the labels together, which is the only way to compare policies on",
+        "ground the labels can actually judge.\n",
+        f"| Policy | Same-artist share of top-{k} | NDCG@{k} as shipped | NDCG@{k} artist-blind |",
+        "|---|---:|---:|---:|",
+    ]
+    for policy in POLICIES:
+        d = df[(df.policy == policy) & df.served]
+        share = d["same_artist_in_top"].mean() / k if len(d) else 0.0
+        shipped = float(head.loc[head.policy == policy, "ndcg_all"].iloc[0])
+        b = float(blind.loc[blind.policy == policy, "ndcg_all"].iloc[0])
+        md.append(f"| `{policy}` | {share:.1%} | {shipped:.3f} | {b:.3f} |")
+
+    tag_share = df[(df.policy == "tags") & df.served]["same_artist_in_top"].mean() / k
+    md += [
+        f"\n`tags` is the only policy materially affected: **{tag_share:.0%}** of its",
+        f"top-{k} is the seed's own artist, against 1-4% for everything else. Artist",
+        "names survive as raw Last.fm tags and pass the discriminative-tag test, so tag",
+        "matching partly degenerates into artist matching. That is worth knowing before",
+        "reading its headline number: whatever the tag policy scores, it scores while",
+        "spending a quarter of the list on recommendations these labels cannot credit.\n",
+        "## By popularity quintile\n",
+        "Every seed counted, blind spots charged zero.\n",
+    ]
+
+    g = df.groupby(["policy", "quintile"], observed=True)[f"ndcg@{k}"].mean().unstack()
+    cov = df.groupby(["policy", "quintile"], observed=True)["served"].mean().unstack()
+    md.append("| Policy | " + " | ".join(str(c) for c in g.columns) + " |")
+    md.append("|---" * (len(g.columns) + 1) + "|")
+    for policy in POLICIES:
+        md.append(f"| `{policy}` | " + " | ".join(f"{v:.3f}" for v in g.loc[policy]) + " |")
+    md.append("\nShare of seeds each policy can rank at all:\n")
+    md.append("| Policy | " + " | ".join(str(c) for c in cov.columns) + " |")
+    md.append("|---" * (len(cov.columns) + 1) + "|")
+    for policy in POLICIES:
+        md.append(f"| `{policy}` | " + " | ".join(f"{v:.0%}" for v in cov.loc[policy]) + " |")
+
+    md += [
+        "\n> Q1 and Q2 carry few labels per seed and are flagged unreliable in",
+        "> `gt_diagnostics.md` -- 43% and 64% of their seeds have any positive at all.",
+        "> Read the cold end as indicative, not decisive. That limit is a property of",
+        "> the CF labels, not of the policies being compared.\n",
+    ]
+    return md
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="Benchmark ranking policies")
+    ap.add_argument("--songs", type=Path, default=config.SONGS_SAMPLE_JSON)
+    ap.add_argument("--ground-truth", type=Path,
+                    default=config.DATA_DIR / "ground_truth.sample.json")
+    ap.add_argument("--outdir", type=Path, default=config.REPORTS_DIR / "sample")
+    ap.add_argument("--figdir", type=Path, default=config.FIGURES_DIR / "sample")
+    ap.add_argument("--k", type=int, default=HEADLINE_K)
+    ap.add_argument("--seed", type=int, default=0, help="RNG seed for the random policy")
+    args = ap.parse_args()
+
+    if not args.ground_truth.exists():
+        sys.exit(
+            f"[FATAL] no ground truth at {args.ground_truth}\n"
+            "        Build it with: make gt   (needs LASTFM_API_KEY)"
+        )
+
+    songs = load_songs(args.songs)
+    gt = json.loads(args.ground_truth.read_text())
+    print(f"[load] {len(songs)} tracks, {len(gt)} ground-truth seeds")
+
+    lib = Library(songs)
+    df = run(lib, songs, gt, args.seed)
+    head = headline(df, args.k)
+
+    n_seeds = int(head["n_seeds"].iloc[0])
+    print(f"[eval] {n_seeds} evaluable seeds x {len(POLICIES)} policies")
+    for _, r in head.iterrows():
+        print(f"  {r.policy:<11} coverage {r.coverage:5.0%}  "
+              f"NDCG@{args.k} served {r.ndcg_served:.3f}  all {r.ndcg_all:.3f}")
+
+    args.outdir.mkdir(parents=True, exist_ok=True)
+    fig_path = figure(df, head, args.figdir, args.k)
+
+    by_k = []
+    for k in KS:
+        h = headline(df, k)
+        h.insert(0, "k", k)
+        by_k.append(h)
+    pd.concat(by_k).to_csv(args.outdir / "eval_by_k.csv", index=False)
+
+    df.groupby(["policy", "quintile"], observed=True)[
+        [f"{m}@{args.k}" for m in METRIC_NAMES] + ["served"]
+    ].mean().round(4).to_csv(args.outdir / "eval_by_quintile.csv")
+
+    md = report(df, head, headline(df, args.k, prefix="blind_"), args.k, len(songs), args.figdir)
+    (args.outdir / "eval_summary.md").write_text("\n".join(md) + "\n")
+
+    print(f"\n[done] -> {args.outdir / 'eval_summary.md'}")
+    print(f"[done] -> {args.outdir / 'eval_by_quintile.csv'}")
+    print(f"[done] -> {args.outdir / 'eval_by_k.csv'}")
+    print(f"[done] -> {fig_path}")
+
+
+if __name__ == "__main__":
+    main()

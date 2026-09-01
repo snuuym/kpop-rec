@@ -1,4 +1,4 @@
-.PHONY: help install test lint app library backfill enrich features gt probe eval all clean
+.PHONY: help install test lint app library backfill enrich features gt probe eval eval-full bench bench-full all clean
 
 PY := python3
 SONGS ?= data/songs.json
@@ -12,7 +12,9 @@ help:
 	@echo ""
 	@echo "  make eval       run the analysis on the bundled sample"
 	@echo "                  (no API key needed — start here)"
+	@echo "  make bench      rank-quality benchmark on the bundled sample"
 	@echo "  make eval-full  regenerate the committed reports from the full library"
+	@echo "  make bench-full regenerate the committed benchmark from the full library"
 	@echo ""
 	@echo "  Full pipeline (needs LASTFM_API_KEY; see .env.example):"
 	@echo "  make library    1. pull tracks + sub-genre tags from Last.fm"
@@ -68,7 +70,21 @@ eval:
 eval-full:
 	$(PY) scripts/analyze_tag_sparsity.py --songs $(SONGS)
 
-all: library backfill enrich features gt eval
+# Ranking benchmark on the bundled sample: five policies scored against the
+# sample ground truth. No API key needed.
+bench:
+	$(PY) scripts/evaluate.py
+	@echo
+	@echo "Sample results -> reports/sample/eval_summary.md"
+	@echo "Committed full-corpus results are in reports/eval_summary.md."
+
+# The committed benchmark, over the full library and ground truth.
+bench-full:
+	$(PY) scripts/evaluate.py \
+		--songs $(SONGS) --ground-truth data/ground_truth.json \
+		--outdir reports --figdir figures
+
+all: library backfill enrich features gt eval bench
 
 clean:
 	rm -rf .pytest_cache __pycache__ src/**/__pycache__ tests/__pycache__
