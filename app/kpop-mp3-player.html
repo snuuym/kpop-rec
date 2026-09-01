@@ -363,7 +363,16 @@
 let LASTFM_KEY = "";
 let SPOTIFY_CLIENT_ID = "";
 const LASTFM_BASE = "https://ws.audioscrobbler.com/2.0/";
-const PLAYLIST_SIZE = 50;
+// Queue length. Measured trade-off (see reports/eval_summary.md): the ranking
+// is identical either way -- a shorter queue is the same list, truncated -- but
+// the recommender's edge over random decays with depth. Per-slot precision runs
+// 1.8x random at 5 and only 1.3x by 50, while the chance of hitting anything the
+// listener likes climbs from 24% to 76%. 20 keeps 56% hit rate at 1.48x random.
+const PLAYLIST_SIZE = 20;
+// The diversity cap is suspended for the opening stretch so it cannot starve a
+// short queue. Kept proportional to PLAYLIST_SIZE rather than a bare 10, which
+// at 20 tracks would have exempted half the list.
+const DIVERSITY_GRACE = Math.ceil(PLAYLIST_SIZE / 5);
 
 async function loadConfig() {
   try {
@@ -385,7 +394,7 @@ const SPOTIFY_SCOPES = "streaming user-read-email user-read-private user-modify-
 
 /* ── State ── */
 let LIBRARY   = [];   // loaded from songs.json
-let playlist  = [];   // current 50-track playlist
+let playlist  = [];   // current PLAYLIST_SIZE-track playlist
 let currentIdx = 0;
 let isPlaying  = false;
 let elapsedSec = 0;
@@ -660,7 +669,7 @@ function buildPlaylist(tags, seedSong) {
     if (result.length >= PLAYLIST_SIZE) break;
     const primaryTag = (song.tags && song.tags[0]) || 'K-pop';
     tagCounts[primaryTag] = (tagCounts[primaryTag] || 0) + 1;
-    if (tagCounts[primaryTag] <= maxPerTag || result.length < 10) {
+    if (tagCounts[primaryTag] <= maxPerTag || result.length < DIVERSITY_GRACE) {
       result.push(song);
     }
   }
