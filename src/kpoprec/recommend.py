@@ -100,6 +100,35 @@ def classified_tags(song: dict) -> set[str]:
     return set(song.get("tags") or [])
 
 
+# ── Popularity strata ───────────────────────────────────────────────────────
+
+QUINTILE_LABELS = ("Q1 coldest", "Q2", "Q3", "Q4", "Q5 hottest")
+
+
+def quintile_of(listeners: np.ndarray) -> np.ndarray:
+    """Popularity quintile index (0-4) for every track, by listener count.
+
+    Cut over the **whole library**, never over whatever subset a given run
+    happens to be able to evaluate. The distinction is easy to miss and changes
+    what the strata mean: ground truth covers 43% of the coldest fifth, so
+    cutting quintiles over the evaluable seeds alone silently redefines "Q1" as
+    "the coldest fifth of the tracks that have labels" -- a warmer population
+    than the one the project claims to be about. Score a deliberately cold
+    forty-seed annotation sample that way and it is worse than misleading: the
+    cut invents a "Q5 hottest" out of forty obscure tracks.
+
+    Ties are broken by position, matching ``rank(method="first")``, so the five
+    bins are equal-sized even where many tracks share a listener count.
+    """
+    n = len(listeners)
+    if n == 0:
+        return np.empty(0, dtype=int)
+    order = np.lexsort((np.arange(n), listeners))
+    rank = np.empty(n, dtype=int)
+    rank[order] = np.arange(n)
+    return (rank * len(QUINTILE_LABELS)) // n
+
+
 class Library:
     """Precomputed views of the library that every policy reads.
 
@@ -116,6 +145,7 @@ class Library:
         self.cls_tags = [classified_tags(s) for s in songs]
         self.listeners = np.array([s.get("listeners") or 0 for s in songs], dtype=float)
         self.artist = np.array([str(s.get("artist", "")).strip().lower() for s in songs])
+        self.quintile = quintile_of(self.listeners)
 
     def same_artist(self, i: int) -> np.ndarray:
         """Mask of tracks by the seed's own artist, the seed included.
@@ -152,6 +182,18 @@ def score_popularity(lib: Library, i: int) -> np.ndarray:
     s = lib.listeners.astype(float).copy()
     s[i] = -np.inf
     return s
+
+
+def policy_rng(run_seed: int, i: int) -> np.random.Generator:
+    """The random policy's generator for one seed.
+
+    Derived from the seed's own index rather than drawn from a generator shared
+    across the run, so the floor does not depend on the order the harness
+    happens to visit seeds in. That order is a dictionary's, and it changed once
+    already; a floor that moves when the iteration order does is a floor the
+    other four policies cannot be read against.
+    """
+    return np.random.default_rng([run_seed, i])
 
 
 def score_random(lib: Library, i: int, rng: np.random.Generator) -> np.ndarray:

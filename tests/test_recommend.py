@@ -190,3 +190,47 @@ def test_same_artist_tracks_are_kept_in_the_shipped_ranking():
         song("other", "IVE", all_tags=["trot"]),
     ])
     assert top_k(score_tags(lib, 0), 1, np.arange(3))[0] == 1
+
+
+# ── Popularity strata ───────────────────────────────────────────────────────
+
+def test_quintiles_are_equal_sized_and_ordered_by_popularity():
+    lib = Library([song(f"s{i}", listeners=i) for i in range(100)])
+    counts = np.bincount(lib.quintile, minlength=5)
+    assert list(counts) == [20] * 5
+    assert lib.quintile[0] == 0 and lib.quintile[-1] == 4
+
+
+def test_quintiles_split_ties_instead_of_collapsing_them():
+    """Most of the cold end shares a listener count. Binning by value would put
+    every tied track in one quintile and leave the others empty."""
+    lib = Library([song(f"s{i}", listeners=7) for i in range(10)])
+    assert list(np.bincount(lib.quintile, minlength=5)) == [2] * 5
+
+
+def test_quintiles_describe_the_library_not_the_evaluated_subset():
+    """The cut must not move when only some seeds are evaluable. If it did, Q1
+    would silently mean 'the coldest fifth of whatever had labels'."""
+    songs = [song(f"s{i}", listeners=i) for i in range(100)]
+    full = Library(songs)
+    assert full.quintile[5] == 0
+    # The coldest ten tracks, scored on their own, are still all Q1 -- they do
+    # not get re-spread across five strata just because they are the only ones
+    # in front of us.
+    assert [int(q) for q in full.quintile[:10]] == [0] * 10
+
+
+def test_random_floor_does_not_depend_on_the_order_seeds_are_visited():
+    """The floor is what every other policy is read against. Drawing it from one
+    generator shared across the run makes it a function of dictionary iteration
+    order, so the same corpus yields a different floor after an unrelated
+    refactor -- which is exactly what happened."""
+    from kpoprec.recommend import policy_rng, score_random
+    lib = Library([song(f"s{i}", listeners=i) for i in range(30)])
+    forwards = {i: score_random(lib, i, policy_rng(0, i)) for i in range(5)}
+    backwards = {i: score_random(lib, i, policy_rng(0, i)) for i in reversed(range(5))}
+    for i in range(5):
+        assert np.array_equal(forwards[i], backwards[i])
+    # Still different noise per seed, and still reproducible across runs.
+    assert not np.array_equal(forwards[0], forwards[1])
+    assert np.array_equal(forwards[3], score_random(lib, 3, policy_rng(0, 3)))
