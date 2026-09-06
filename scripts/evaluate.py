@@ -56,11 +56,21 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from kpoprec import config  # noqa: E402
 from kpoprec.io import load_songs  # noqa: E402
 from kpoprec.metrics import METRIC_NAMES, evaluate_ranking, zero_metrics  # noqa: E402
-from kpoprec.normalize import song_key  # noqa: E402
-from kpoprec.recommend import POLICIES, Library, can_serve, score, top_k  # noqa: E402
+from kpoprec.pooling import evaluable_seeds  # noqa: E402
+from kpoprec.recommend import (  # noqa: E402
+    POLICIES,
+    QUINTILE_LABELS,
+    Library,
+    can_serve,
+    policy_rng,
+    score,
+    top_k,
+)
 
 KS = (5, 10, 20, 50)
 HEADLINE_K = 10
+# Repeated random draws must not collide with each other's generator streams.
+_DRAW_STRIDE = 1_000_003
 # Validated with the dataviz palette checker (light surface, categorical):
 # lightness band, chroma floor, CVD separation, normal-vision floor, contrast.
 SERIES_COLORS = {
@@ -85,28 +95,54 @@ def style(ax, title="", xlabel="", ylabel="") -> None:
 
 # ── Evaluation ──────────────────────────────────────────────────────────────
 
-def run(lib: Library, songs: list[dict], gt: dict[str, list[str]], seed: int) -> pd.DataFrame:
+def _average_draws(policy, lib, i, pos, pos_blind, same, tiebreak, seed, draws):
+    """Score one seed under one policy, averaged over ``draws`` random draws.
+
+    Deterministic policies use a single draw and are unaffected; only ``random``
+    asks for more. Returns metrics as shipped, metrics with the seed's own
+    artist removed from both ranking and labels, and the same-artist share of
+    the top ``HEADLINE_K``.
+    """
+    per_k = {k: dict.fromkeys(METRIC_NAMES, 0.0) for k in KS}
+    blind_per_k = {k: dict.fromkeys(METRIC_NAMES, 0.0) for k in KS}
+    same_in_top = 0.0
+
+    for d in range(draws):
+        scores = score(policy, lib, i, policy_rng(seed + d * _DRAW_STRIDE, i))
+        ranked = top_k(scores, max(KS), tiebreak)
+        same_in_top += int(same[ranked[:HEADLINE_K]].sum())
+        for k in KS:
+            for name, v in evaluate_ranking(ranked, pos, k).items():
+                per_k[k][name] += v
+        if pos_blind:
+            blind_scores = scores.copy()
+            blind_scores[same] = -np.inf
+            blind_ranked = top_k(blind_scores, max(KS), tiebreak)
+            for k in KS:
+                for name, v in evaluate_ranking(blind_ranked, pos_blind, k).items():
+                    blind_per_k[k][name] += v
+
+    for table in (per_k, blind_per_k):
+        for k in KS:
+            for name in METRIC_NAMES:
+                table[k][name] /= draws
+    return per_k, blind_per_k, same_in_top / draws
+
+
+def run(lib: Library, songs: list[dict], gt: dict[str, list[str]], seed: int,
+        repeats: int = 1) -> pd.DataFrame:
     """Score every policy on every evaluable seed. One row per seed per policy."""
-    index = {song_key(s): i for i, s in enumerate(songs)}
     rng = np.random.default_rng(seed)
     # One fixed permutation for the whole run: ties resolve randomly but
     # reproducibly, instead of inheriting the library's collection order.
     tiebreak = rng.permutation(lib.n)
 
-    evaluable = []
-    for key, positives in gt.items():
-        i = index.get(key)
-        if i is None:
-            continue
-        pos = {index[p] for p in positives if p in index and index[p] != i}
-        if pos:
-            evaluable.append((i, pos))
-
+    evaluable = evaluable_seeds(gt, songs)
     if not evaluable:
         sys.exit("[FATAL] no seed has an in-library positive; nothing to evaluate")
 
     rows = []
-    for i, pos in evaluable:
+    for i, pos in sorted(evaluable.items()):
         same = lib.same_artist(i)
         # The artist-blind variant drops the seed's own artist from both sides.
         # A seed whose every positive is same-artist has nothing left to score,
@@ -115,17 +151,20 @@ def run(lib: Library, songs: list[dict], gt: dict[str, list[str]], seed: int) ->
         for policy in POLICIES:
             served = can_serve(policy, lib, i)
             if served:
-                scores = score(policy, lib, i, rng)
-                ranked = top_k(scores, max(KS), tiebreak)
-                per_k = {k: evaluate_ranking(ranked, pos, k) for k in KS}
-                blind_scores = scores.copy()
-                blind_scores[same] = -np.inf
-                blind_ranked = top_k(blind_scores, max(KS), tiebreak)
-                same_in_top = int(same[ranked[:HEADLINE_K]].sum())
+                # The random policy is a distribution, not a ranking, and one
+                # draw of it is a noisy estimate of the floor -- noisiest in Q1,
+                # where only 110 seeds are evaluable. Since the floor is what
+                # every other policy is read against, and the project's central
+                # cold-tail claim is "popularity scores below it", it is
+                # averaged over repeats rather than sampled once.
+                draws = repeats if policy == "random" else 1
+                per_k, blind_per_k, same_in_top = _average_draws(
+                    policy, lib, i, pos, pos_blind, same, tiebreak, seed, draws
+                )
             else:
                 per_k = {k: zero_metrics() for k in KS}
-                blind_ranked = None
-                same_in_top = 0
+                blind_per_k = {k: zero_metrics() for k in KS}
+                same_in_top = 0.0
 
             row = {
                 "seed_index": i,
@@ -140,25 +179,22 @@ def run(lib: Library, songs: list[dict], gt: dict[str, list[str]], seed: int) ->
                 for name, v in m.items():
                     row[f"{name}@{k}"] = v
             if pos_blind:
-                blind = (
-                    {k: evaluate_ranking(blind_ranked, pos_blind, k) for k in KS}
-                    if blind_ranked is not None
-                    else {k: zero_metrics() for k in KS}
-                )
-                for k, m in blind.items():
+                for k, m in blind_per_k.items():
                     for name, v in m.items():
                         row[f"blind_{name}@{k}"] = v
             rows.append(row)
 
     df = pd.DataFrame(rows)
-    # Quintiles are assigned over seeds, not policies, so every policy is judged
-    # on the same partition of the catalogue.
-    seeds = df[df.policy == POLICIES[0]][["seed_index", "listeners"]].copy()
-    seeds["quintile"] = pd.qcut(
-        seeds["listeners"].rank(method="first"), 5,
-        labels=["Q1 coldest", "Q2", "Q3", "Q4", "Q5 hottest"],
+    # Quintiles come from the library, not from the evaluable seeds. Cutting
+    # them over the seeds that happen to have labels would make Q1 mean "the
+    # coldest fifth of the labelled tracks", which is a warmer set than the
+    # coldest fifth of the catalogue -- ground truth reaches only 43% of it.
+    # Every policy is then judged on the same, catalogue-wide partition.
+    df["quintile"] = pd.Categorical(
+        [QUINTILE_LABELS[q] for q in lib.quintile[df["seed_index"].to_numpy()]],
+        categories=QUINTILE_LABELS, ordered=True,
     )
-    return df.merge(seeds[["seed_index", "quintile"]], on="seed_index", how="left")
+    return df
 
 
 def headline(df: pd.DataFrame, k: int, prefix: str = "") -> pd.DataFrame:
@@ -323,10 +359,14 @@ def report(df: pd.DataFrame, head: pd.DataFrame, blind: pd.DataFrame, k: int,
         md.append(f"| `{policy}` | " + " | ".join(f"{v:.0%}" for v in cov.loc[policy]) + " |")
 
     md += [
-        "\n> Q1 and Q2 carry few labels per seed and are flagged unreliable in",
-        "> `gt_diagnostics.md` -- 43% and 64% of their seeds have any positive at all.",
-        "> Read the cold end as indicative, not decisive. That limit is a property of",
-        "> the CF labels, not of the policies being compared.\n",
+        "\n> Quintiles are cut over the whole library, so Q1 is the coldest fifth of",
+        "> the catalogue rather than the coldest fifth of the tracks that have labels.",
+        "> The two differ: ground truth reaches 43% of Q1 and 64% of Q2, and the",
+        "> seeds it misses never appear in the table above at all. So the cold end is",
+        "> not merely measured with few labels -- it is measured on the most popular",
+        "> part of itself. Read it as indicative, not decisive. That limit belongs to",
+        "> the CF labels, not to the policies being compared, and the only way past it",
+        "> is human judgement sampled where the labels are missing: `make pool`.\n",
     ]
     return md
 
@@ -340,6 +380,8 @@ def main() -> None:
     ap.add_argument("--figdir", type=Path, default=config.FIGURES_DIR / "sample")
     ap.add_argument("--k", type=int, default=HEADLINE_K)
     ap.add_argument("--seed", type=int, default=0, help="RNG seed for the random policy")
+    ap.add_argument("--random-repeats", type=int, default=20,
+                    help="draws to average the random floor over; 1 reproduces a single sample")
     args = ap.parse_args()
 
     if not args.ground_truth.exists():
@@ -353,7 +395,7 @@ def main() -> None:
     print(f"[load] {len(songs)} tracks, {len(gt)} ground-truth seeds")
 
     lib = Library(songs)
-    df = run(lib, songs, gt, args.seed)
+    df = run(lib, songs, gt, args.seed, args.random_repeats)
     head = headline(df, args.k)
 
     n_seeds = int(head["n_seeds"].iloc[0])

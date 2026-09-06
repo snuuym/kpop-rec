@@ -79,7 +79,7 @@ difference as an empty result rather than a poor one.
 
 | Policy | Can rank | NDCG@10 where it can | NDCG@10 over every seed |
 |---|---:|---:|---:|
-| `random` | 100% | 0.034 | 0.034 |
+| `random` | 100% | 0.036 | 0.036 |
 | `popularity` | 100% | 0.072 | **0.072** |
 | `tags` | 33% | **0.201** | 0.067 |
 | `acoustic` | 87% | 0.054 | 0.047 |
@@ -100,7 +100,7 @@ rather than quoting the K that flatters the conclusion:
 | `tags` | **0.076** | 0.067 | 0.062 | 0.058 |
 | `hybrid` | 0.062 | 0.058 | 0.056 | 0.059 |
 | `acoustic` | 0.048 | 0.047 | 0.045 | 0.047 |
-| `random` | 0.034 | 0.034 | 0.036 | 0.041 |
+| `random` | 0.036 | 0.036 | 0.036 | 0.041 |
 
 At K=5 tag overlap does beat the baseline, 0.076 against 0.062. It loses the
 lead by K=10 and keeps losing it: tags concentrate their hits at the very top
@@ -111,9 +111,9 @@ policy "wins" therefore depends on how long a queue the product actually shows
 That measurement settled a product question. The app used to hand back 50
 tracks; it now hands back 20. A shorter queue is not a better ranking — it is
 the same list, truncated — but the recommender's edge is concentrated at the
-top and thins out with depth. Per-slot precision runs 1.80x random at 5 and
-only 1.32x by 50, while the chance of hitting anything the listener likes
-climbs from 24% to 76%. Twenty keeps a 56% hit rate at 1.48x random, which is
+top and thins out with depth. Per-slot precision runs 1.72x random at 5 and
+only 1.35x by 50, while the chance of hitting anything the listener likes
+climbs from 24% to 76%. Twenty keeps a 56% hit rate at 1.52x random, which is
 the better end of that trade.
 
 ![Ranking quality](figures/fig6_ranking_quality.png)
@@ -133,7 +133,7 @@ product to make a benchmark easier — so the benchmark reports both readings:
 
 | Policy | Same-artist share of top-10 | NDCG@10 as shipped | NDCG@10 artist-blind |
 |---|---:|---:|---:|
-| `random` | 1.4% | 0.034 | 0.034 |
+| `random` | 1.4% | 0.036 | 0.035 |
 | `popularity` | 2.5% | 0.072 | 0.071 |
 | `tags` | **26.6%** | 0.067 | 0.070 |
 | `acoustic` | 2.5% | 0.047 | 0.045 |
@@ -149,22 +149,33 @@ where the labels are dense. Split by popularity, the ordering inverts:
 
 | Policy | Q1 coldest | Q2 | Q3 | Q4 | Q5 hottest |
 |---|---:|---:|---:|---:|---:|
-| `random` | 0.016 | 0.036 | 0.039 | 0.039 | 0.040 |
-| `popularity` | 0.007 | 0.024 | 0.066 | 0.110 | 0.151 |
-| `tags` | **0.000** | 0.008 | 0.023 | 0.096 | **0.207** |
-| `acoustic` | 0.036 | 0.049 | 0.055 | 0.054 | 0.041 |
-| `hybrid` | **0.037** | 0.057 | 0.059 | 0.062 | 0.075 |
+| `random` | 0.022 | 0.024 | 0.040 | 0.041 | 0.039 |
+| `popularity` | 0.006 | 0.011 | 0.044 | 0.094 | 0.144 |
+| `tags` | **0.000** | **0.000** | 0.017 | 0.061 | **0.196** |
+| `acoustic` | 0.035 | 0.034 | 0.057 | 0.055 | 0.043 |
+| `hybrid` | **0.037** | 0.036 | 0.065 | 0.060 | 0.073 |
+
+Quintiles are cut over the whole 1,267-track library, not over the 1,021 seeds
+that happen to have labels. The distinction matters more than it sounds: label
+coverage runs 43% / 63% / 100% / 99% / 98% across the five, so cutting over the
+labelled subset would quietly redefine Q1 as *the coldest fifth of the tracks
+Last.fm could describe* — a warmer population than the one the project is about,
+and one that flatters every method in the table.
 
 Three things happen at the cold end, and they are the whole argument:
 
-1. **The tag policy scores exactly zero in Q1** — not weak, absent. It can rank
-   0% of the coldest seeds, because none of them has a discriminative tag.
-2. **Ranking by popularity falls below random** in Q1 (0.007 against 0.016).
-   For an obscure seed the relevant tracks are themselves obscure, so a global
-   popularity ordering is actively worse than chance.
+1. **The tag policy scores exactly zero in the coldest two quintiles** — not
+   weak, absent. It can rank 0% of those seeds, because none of them has a
+   discriminative tag.
+2. **Ranking by popularity falls below random** in Q1 (0.006 against 0.022) and
+   again in Q2 (0.011 against 0.024). For an obscure seed the relevant tracks
+   are themselves obscure, so a global popularity ordering is actively worse
+   than chance. The floor here is averaged over 20 draws rather than sampled
+   once: a single draw of Q1's 110 evaluable seeds swings by ±0.013, which is
+   wider than the gap being claimed.
 3. **Only the acoustic and hybrid policies stay above the floor across the whole
-   distribution.** Their coverage is 85–89% in every quintile, because audio
-   features do not depend on anyone having listened to the track first.
+   distribution.** They can rank 80–94% of seeds in every quintile, because
+   audio features do not depend on anyone having listened to the track first.
 
 So the honest summary is not "content beats popularity" — it does not. It is
 that popularity and tags win a benchmark whose labels are 2.4× more popular
