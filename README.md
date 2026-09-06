@@ -172,6 +172,44 @@ than the corpus, and both fail exactly where a recommender has to earn its
 keep. The acoustic signal is the only one still standing in the tail, and it is
 weak there in absolute terms.
 
+## Judging the cold end
+
+Everything above is scored against CF labels that reach 43% of the coldest
+quintile, so the cold-end column is computed on the warmest part of the cold
+end. That is not a metric problem and no metric fixes it — the labels are
+absent. The only remedy is to look at those tracks by hand, and `make pool`
+builds the task for doing so:
+
+```bash
+make pool        # bundled sample
+make pool-full   # 40 seeds drawn from Q1 and Q2 of the full library
+```
+
+Two decisions make the result usable as evidence rather than as a second
+opinion about the baseline.
+
+**The pool is the union of every policy's top 10, not one policy's.** Judge a
+single ranking and its rivals are scored on candidates nobody assessed, so the
+policy the pool came from wins by construction. Pooling across all five means
+each policy's own top 10 is fully judged. Below that depth the judgements
+genuinely run out, and `evaluate_ranking(judged=...)` condenses those positions
+away rather than scoring an unexamined track as a miss — counting silence as
+irrelevance is what turns incomplete judgements into a biased benchmark.
+
+**The annotator is shown title and artist only.** No listener counts, no tags,
+no policy attribution, and the candidates arrive shuffled. Popularity is the
+baseline under test; someone who can tell which candidate is the famous one is
+no longer independent evidence about whether cold-start ranking works. The
+provenance lives in a separate key file that is read only when scoring.
+
+Seeds are sampled uniformly from the requested quintiles — including seeds no
+content policy can rank and seeds the CF labels never reached. Both belong in
+the sample: how often the cold end cannot be served at all is one of the things
+being measured.
+
+**The judgements have not been collected.** What exists is the task, the
+sampling, and the scoring path.
+
 ## What is actually established
 
 Honest scope: this repository contains the data foundation, the exploratory
@@ -190,6 +228,7 @@ learned model is trained.
 | Sparsity is driven by obscurity, not novelty | Measured — partial coefficients +0.56 popularity vs +0.15 year |
 | Content method beats a popularity baseline | Measured — no at K=10; tag overlap edges ahead at K=5 |
 | Tags are the strongest signal where they exist | Measured — 0.201, 2.8x the baseline |
+| Cold-tail behaviour under human judgement | **Not established** — pooled task built, unjudged |
 | Only acoustic signal stays above the random floor in the cold tail | Measured |
 
 ## Limitations
@@ -202,9 +241,13 @@ These are load-bearing, not boilerplate.
    reproduces an industrial CF system* — a real question, but not "does the
    user like it".
 2. **The coldest quintile cannot be evaluated offline.** Only 43% of Q1 seeds
-   get any in-library positive at all, against 100% for Q3–Q5. The part of the
+   get any in-library positive at all, against ~100% for Q3–Q5. The seeds it
+   misses are not scored badly — they do not appear in the tables at all, so
+   the cold end is measured on the most popular 43% of itself. The part of the
    catalogue this project is about is exactly the part the benchmark cannot
-   score. Closing that needs human relevance judgements, not more CF labels.
+   score. Closing that needs human relevance judgements, not more CF labels:
+   `make pool` builds the task (see *Judging the cold end*), and the judgements
+   themselves are not yet collected.
 3. **Positives skew 2.4× more popular than the corpus median**, so a pure
    popularity baseline will be strong and must be reported alongside any
    content-based method.
@@ -235,7 +278,7 @@ Full diagnostics: [`reports/gt_diagnostics.md`](reports/gt_diagnostics.md) ·
 git clone https://github.com/snuuym/kpop-rec.git
 cd kpop-rec
 make install
-make test      # 89 tests, no network or credentials needed
+make test      # 113 tests, no network or credentials needed
 make eval      # runs the full analysis on the bundled sample
 make bench     # ranks the sample and scores it against the sample labels
 ```

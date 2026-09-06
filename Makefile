@@ -1,4 +1,4 @@
-.PHONY: help install test lint app library backfill enrich features gt probe eval eval-full bench bench-full all clean
+.PHONY: help install test lint app library backfill enrich features gt probe eval eval-full bench bench-full pool pool-full all clean
 
 PY := python3
 SONGS ?= data/songs.json
@@ -15,6 +15,8 @@ help:
 	@echo "  make bench      rank-quality benchmark on the bundled sample"
 	@echo "  make eval-full  regenerate the committed reports from the full library"
 	@echo "  make bench-full regenerate the committed benchmark from the full library"
+	@echo "  make pool       build a cold-end annotation task to judge by hand"
+	@echo "  make pool-full  the same, over the full library"
 	@echo ""
 	@echo "  Full pipeline (needs LASTFM_API_KEY; see .env.example):"
 	@echo "  make library    1. pull tracks + sub-genre tags from Last.fm"
@@ -77,6 +79,20 @@ bench:
 	@echo
 	@echo "Sample results -> reports/sample/eval_summary.md"
 	@echo "Committed full-corpus results are in reports/eval_summary.md."
+
+# The pool of candidates to judge by hand, sampled from the two quintiles the
+# Last.fm labels cannot reach. Writes the task, a provenance key used only when
+# scoring, and a markdown worksheet.
+pool:
+	$(PY) scripts/build_pool.py
+	@echo
+	@echo "Sample worksheet -> reports/sample/annotation_pool.md"
+
+pool-full:
+	$(PY) scripts/build_pool.py \
+		--songs $(SONGS) --ground-truth data/ground_truth.json \
+		--out data/annotation_pool.json --key data/annotation_pool_key.json \
+		--sheet reports/annotation_pool.md
 
 # The committed benchmark, over the full library and ground truth.
 bench-full:

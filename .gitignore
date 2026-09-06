@@ -19,6 +19,12 @@ data/*_cache.json
 data/*.bak
 data/*.tmp
 
+# Annotation pools: regenerable with `make pool`, and built from the same tracks
+# the library file above is not redistributed for. The finished judgements are
+# hand-made work and worth committing on purpose — `git add -f` them.
+data/annotation_pool*.json
+reports/annotation_pool.md
+
 # The sample IS tracked; keep it out of the wildcards above.
 !data/songs.sample.json
 
