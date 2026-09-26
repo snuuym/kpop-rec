@@ -36,10 +36,15 @@ CREATE TABLE tracks (
     url        TEXT,
     spotify_id TEXT,
     mbid       TEXT,
-    year       INTEGER,
+    year       INTEGER,           -- MusicBrainz: the earliest known release
+    year_spotify INTEGER,         -- Spotify: the album this copy sits on; a
+                                  -- reissue or compilation reads later
     listeners  INTEGER,
     playcount  INTEGER,
-    tag_source TEXT CHECK (tag_source IN ('backfill'))
+    tag_source TEXT CHECK (tag_source IN ('backfill')),
+    -- How the track entered the library. NULL means the Last.fm tag pull, as
+    -- in songs.json where the field is simply absent (see track_source).
+    source     TEXT CHECK (source IN ('lastfm_tag', 'spotify_playlist'))
 );
 CREATE INDEX tracks_song_key ON tracks (song_key);
 CREATE INDEX tracks_artist ON tracks (artist_id);
@@ -162,6 +167,11 @@ SELECT song_key, MAX(track_id) AS track_id
 FROM tracks
 GROUP BY song_key;
 
+-- The source of every track, with the absent field read as the Last.fm pull.
+CREATE VIEW track_source AS
+SELECT track_id, COALESCE(source, 'lastfm_tag') AS source
+FROM tracks;
+
 CREATE VIEW effective_tags AS
 SELECT track_id, ord, tag_norm AS tag
 FROM track_tags
@@ -187,15 +197,22 @@ LEFT JOIN (SELECT track_id, COUNT(*) AS n FROM track_genres
 LEFT JOIN audio_features f
        ON f.track_id = t.track_id AND f.danceability IS NOT NULL;
 
--- recommend.quintile_of, exactly: rank by listeners (missing = 0) with ties
--- broken by library position, then floor(rank * 5 / n). Not NTILE(5): when n
--- is not a multiple of five NTILE hands the spare tracks to the first groups,
--- and at n = 1,267 that moves one track into a different quintile.
+-- recommend.quintile_of, exactly: rank by listeners with ties broken by
+-- library position, then floor(rank * 5 / n). Not NTILE(5): when n is not a
+-- multiple of five NTILE hands the spare tracks to the first groups, and at
+-- n = 1,267 that moves one track into a different quintile.
+--
+-- A track with no listener count has no row here at all. Last.fm not finding
+-- a track says nothing about its popularity, so it belongs to no stratum
+-- (quintile_of gives it UNKNOWN); a join against this view drops it, and the
+-- benchmark's tables leave such seeds out in exactly the same way.
 CREATE VIEW track_quintile AS
 SELECT track_id,
-       (ROW_NUMBER() OVER (ORDER BY COALESCE(listeners, 0), track_id) - 1) * 5
+       (ROW_NUMBER() OVER (ORDER BY listeners, track_id) - 1) * 5
            / COUNT(*) OVER () AS quintile
-FROM tracks;
+FROM tracks
+WHERE listeners IS NOT NULL;
+
 -- ── Derived: labels ─────────────────────────────────────────────────────────
 
 CREATE VIEW evaluable_seed AS

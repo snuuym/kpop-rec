@@ -149,8 +149,9 @@ def diagnose(gt: dict, lib: dict, songs: list[dict], md: list) -> None:
     # Cut any other way, this table and the evaluation report would describe
     # different tracks under the same quintile names.
     listeners = np.array([s.get("listeners") or 0 for s in songs], dtype=float)
-    if np.count_nonzero(listeners) > 100:
-        quintile = quintile_of(listeners)
+    known = np.array([s.get("listeners") is not None for s in songs])
+    if known.sum() > 100:
+        quintile = quintile_of(listeners, known)
         evaluable = evaluable_seeds(gt, songs)
         md += [
             "## Diagnostic 3 — evaluation reliability by popularity quintile\n",

@@ -56,6 +56,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from kpoprec import config  # noqa: E402
 from kpoprec.io import load_songs  # noqa: E402
 from kpoprec.normalize import normalize_tag  # noqa: E402
+from kpoprec.playlist import SOURCE_LASTFM, source_of  # noqa: E402
 from kpoprec.recommend import quintile_of  # noqa: E402
 from kpoprec.taxonomy import NON_DISCRIMINATIVE_TAGS, is_effective  # noqa: E402
 
@@ -100,6 +101,7 @@ def to_frame(path: Path) -> pd.DataFrame:
             "listeners": s.get("listeners"),
             "playcount": s.get("playcount"),
             "tag_source": s.get("tag_source"),
+            "source": source_of(s),
         })
 
     df = pd.DataFrame(rows)
@@ -180,7 +182,11 @@ def selection_bias_check(df: pd.DataFrame, md: list) -> None:
     if "tag_source" not in df.columns or df["tag_source"].notna().sum() == 0:
         return
 
-    d = df.dropna(subset=["listeners"])
+    # Only the Last.fm pull has a first pass to compare against. Playlist tracks
+    # are all tagged by the backfill stage because Phase B never saw them, so
+    # letting them in would fill the "backfill" group with tracks that were not
+    # left behind by an interrupted run.
+    d = df[df["source"] == SOURCE_LASTFM].dropna(subset=["listeners"])
     original = d[d["tag_source"].isna()]["listeners"]
     backfilled = d[d["tag_source"] == "backfill"]["listeners"]
     if len(original) < 30 or len(backfilled) < 30:

@@ -378,6 +378,11 @@ def main() -> None:
     meta = dict(conn.execute("SELECT key, value FROM meta").fetchall())
 
     rep = args.reports
+    try:
+        conn.execute("SELECT 1 FROM track_source LIMIT 1")
+    except sqlite3.OperationalError:
+        sys.exit(f"[FATAL] {args.db.name} was built from an older schema -- rebuild it with "
+                 "`make db` (or `make db-full`)")
     sections = [
         ("tag_sparsity_summary.md", sparsity(conn, read(rep / "tag_sparsity_summary.md"))),
         ("tag_vocabulary.csv", vocabulary(conn, rep / "tag_vocabulary.csv")),

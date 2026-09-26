@@ -51,9 +51,10 @@ CHECKS_DIR = SQL_DIR / "checks"
 SONG_FIELDS = {
     "title", "artist", "tags", "all_tags", "dur", "durStr", "url",
     "spotify_id", "features", "listeners", "playcount", "mbid", "year",
-    "tag_source",
+    "tag_source", "source", "year_spotify",
 }
-_SCALARS = ("url", "spotify_id", "mbid", "year", "listeners", "playcount", "tag_source")
+_SCALARS = ("url", "spotify_id", "mbid", "year", "year_spotify", "listeners",
+            "playcount", "tag_source", "source")
 
 
 def connect(path: str | Path = ":memory:") -> sqlite3.Connection:

@@ -40,6 +40,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from kpoprec import config  # noqa: E402
 from kpoprec.io import load_songs, read_json, write_json  # noqa: E402
+from kpoprec.playlist import SOURCE_PLAYLIST, source_of  # noqa: E402
 
 RATE_LIMITED = "__RATELIMIT__"
 TOKEN_EXPIRED = "__EXPIRED__"
@@ -139,10 +140,7 @@ def recco_features(uuids: list[str]) -> dict[str, dict]:
 
 def resolve_spotify_ids(songs, cache, cache_path, client_id, client_secret) -> bool:
     """Step 1. Returns True if the run was cut short by rate limiting."""
-    todo = [
-        s for s in songs
-        if f"{s['artist'].lower()}::{s['title'].lower()}" not in cache["spotify_id"]
-    ]
+    todo = [s for s in songs if cache_key(s) not in cache["spotify_id"]]
     print(
         f"Step 1/3: resolving Spotify track IDs "
         f"({len(todo)} remaining, {len(songs) - len(todo)} cached) ..."
@@ -155,7 +153,7 @@ def resolve_spotify_ids(songs, cache, cache_path, client_id, client_secret) -> b
 
     token = spotify_token(client_id, client_secret)
     for i, s in enumerate(todo, 1):
-        key = f"{s['artist'].lower()}::{s['title'].lower()}"
+        key = cache_key(s)
         sid = spotify_search_id(token, s["title"], s["artist"])
         if sid == TOKEN_EXPIRED:
             token = spotify_token(client_id, client_secret)
@@ -176,6 +174,53 @@ def resolve_spotify_ids(songs, cache, cache_path, client_id, client_secret) -> b
     return False
 
 
+def cache_key(song: dict) -> str:
+    return f"{song['artist'].lower()}::{song['title'].lower()}"
+
+
+def seed_supplied_ids(songs: list[dict], cache: dict) -> int:
+    """Put Spotify ids the library already carries into the lookup cache.
+
+    Returns how many were new to it. An id the cache already holds is left alone.
+
+    Tracks from the playlist import arrive with their id, which is Spotify's own
+    answer. Left out of the cache they would look unresolved, be searched for
+    (a guess, from title and artist) and -- with no client secret set -- be
+    skipped and then stripped of the id by the merge below.
+    """
+    seeded = 0
+    for s in songs:
+        sid = s.get("spotify_id")
+        if sid and cache_key(s) not in cache["spotify_id"]:
+            cache["spotify_id"][cache_key(s)] = sid
+            seeded += 1
+    return seeded
+
+
+def merge_features(songs: list[dict], cache: dict) -> int:
+    """Write ids and features from the cache back onto the records.
+
+    Returns how many tracks ended up with features. A track ReccoBeats has no
+    features for loses its ``spotify_id`` as well, as it always has -- except
+    when the id came from a playlist. That id was never a search result to
+    discard, and the demo plays a track by it whether or not features exist.
+    """
+    enriched = 0
+    for s in songs:
+        sid = cache["spotify_id"].get(cache_key(s))
+        uuid = cache["recco_uuid"].get(sid) if sid else None
+        feats = cache["features"].get(uuid) if uuid else None
+        if feats and feats.get("danceability") is not None:
+            s["spotify_id"] = sid
+            s["features"] = feats
+            enriched += 1
+        else:
+            s.pop("features", None)
+            if source_of(s) != SOURCE_PLAYLIST:
+                s.pop("spotify_id", None)
+    return enriched
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Attach audio features to the library")
     ap.add_argument("--songs", type=Path, default=config.SONGS_JSON)
@@ -188,6 +233,10 @@ def main() -> None:
     }
     for k in ("spotify_id", "recco_uuid", "features"):
         cache.setdefault(k, {})
+
+    seeded = seed_supplied_ids(songs, cache)
+    if seeded:
+        print(f"[ids] {seeded} tracks already carry a Spotify id; not searching for those")
 
     client_id, client_secret = config.spotify_credentials()
     if not client_id and client_secret:
@@ -214,19 +263,7 @@ def main() -> None:
     write_json(args.cache, cache)
 
     # ── Merge ───────────────────────────────────────────────────────────────
-    enriched = 0
-    for s in songs:
-        key = f"{s['artist'].lower()}::{s['title'].lower()}"
-        sid = cache["spotify_id"].get(key)
-        uuid = cache["recco_uuid"].get(sid) if sid else None
-        feats = cache["features"].get(uuid) if uuid else None
-        if feats and feats.get("danceability") is not None:
-            s["spotify_id"] = sid
-            s["features"] = feats
-            enriched += 1
-        else:
-            s.pop("features", None)
-            s.pop("spotify_id", None)
+    enriched = merge_features(songs, cache)
 
     write_json(args.songs, songs, indent=2)
 
@@ -234,10 +271,7 @@ def main() -> None:
     print(f"\nDone. {enriched}/{n} tracks enriched ({100 * enriched // n}% coverage).")
     print("Tracks without features fall back to tag-based recommendation.")
     if rate_limited:
-        remaining = sum(
-            1 for s in songs
-            if f"{s['artist'].lower()}::{s['title'].lower()}" not in cache["spotify_id"]
-        )
+        remaining = sum(1 for s in songs if cache_key(s) not in cache["spotify_id"])
         print(f"\nNOTE: step 1 stopped early — {remaining} tracks still unresolved.")
         print("Re-run later; Spotify's penalty window resets within a few hours.")
 

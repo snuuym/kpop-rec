@@ -63,6 +63,7 @@ from kpoprec.recommend import (  # noqa: E402
     Library,
     can_serve,
     draw_rng,
+    quintile_label,
     run_tiebreak,
     score,
     top_k,
@@ -190,7 +191,7 @@ def run(lib: Library, songs: list[dict], gt: dict[str, list[str]], seed: int,
     # coldest fifth of the catalogue -- ground truth reaches only 43% of it.
     # Every policy is then judged on the same, catalogue-wide partition.
     df["quintile"] = pd.Categorical(
-        [QUINTILE_LABELS[q] for q in lib.quintile[df["seed_index"].to_numpy()]],
+        [quintile_label(q) for q in lib.quintile[df["seed_index"].to_numpy()]],
         categories=QUINTILE_LABELS, ordered=True,
     )
     return df
@@ -346,6 +347,14 @@ def report(df: pd.DataFrame, head: pd.DataFrame, blind: pd.DataFrame, k: int,
         "## By popularity quintile\n",
         "Every seed counted, blind spots charged zero.\n",
     ]
+
+    n_unknown = int(per_seed["quintile"].isna().sum())
+    if n_unknown:
+        md.append(
+            f"{n_unknown} of the {len(per_seed)} seeds have no listener count -- Last.fm "
+            "did not find the track -- so they belong to no stratum and are left out of "
+            "the two tables below. Every table above still counts them.\n"
+        )
 
     g = df.groupby(["policy", "quintile"], observed=True)[f"ndcg@{k}"].mean().unstack()
     cov = df.groupby(["policy", "quintile"], observed=True)["served"].mean().unstack()

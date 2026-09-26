@@ -56,11 +56,28 @@ def test_the_json_survives_a_round_trip(sample):
 
 
 def test_an_unknown_field_stops_the_load():
-    """New pipeline fields (the playlist import will add some) must be added to
-    the schema on purpose. Silently dropping one would make the database
-    disagree with the JSON while claiming to mirror it."""
-    with pytest.raises(ValueError, match="source"):
-        tiny([dict(song("a"), source="spotify_playlist")])
+    """A new pipeline field must be added to the schema on purpose -- the
+    playlist import added `source` and `year_spotify` that way. Silently
+    dropping one would make the database disagree with the JSON while claiming
+    to mirror it."""
+    with pytest.raises(ValueError, match="explicit"):
+        tiny([dict(song("a"), explicit=True)])
+
+
+def test_the_playlist_fields_survive_a_round_trip():
+    """`source` and `year_spotify` are on the record only for imported tracks,
+    and absent means the Last.fm pull. Neither may be invented on the way out."""
+    songs = [
+        dict(song("old"), listeners=10),
+        dict(song("new"), source="spotify_playlist", year_spotify=2022, spotify_id="x" * 22),
+    ]
+    songs = [dict(s, dur=200, durStr="3:20") for s in songs]
+    songs = [{k: v for k, v in s.items() if k != "features"} for s in songs]
+    conn = db.connect()
+    db.build(conn, songs, {}, repeats=1)
+    assert db.export_songs(conn) == songs
+    got = {r["track_id"]: r["source"] for r in conn.execute("SELECT * FROM track_source")}
+    assert got == {0: "lastfm_tag", 1: "spotify_playlist"}
 
 
 # ── Definitions ─────────────────────────────────────────────────────────────
@@ -75,6 +92,18 @@ def test_quintiles_are_the_benchmarks_not_ntile(n):
     conn = tiny([song(f"t{i}", listeners=int(v)) for i, v in enumerate(listeners)])
     got = [q for _, q in conn.execute("SELECT track_id, quintile FROM track_quintile ORDER BY track_id")]
     assert got == list(quintile_of(listeners.astype(float)))
+
+
+def test_a_track_with_no_listener_count_has_no_stratum_in_sql_either():
+    """Same rule as recommend.quintile_of: unknown popularity is not zero. The
+    view gives such a track no row, and the known tracks are cut as if it were
+    not there."""
+    known = [song(f"k{i}", listeners=i + 1) for i in range(20)]
+    conn = tiny(known[:10] + [dict(song("u"), listeners=None)] + known[10:])
+    rows = {r["track_id"]: r["quintile"] for r in conn.execute("SELECT * FROM track_quintile")}
+    assert 10 not in rows
+    lib = Library(known)
+    assert [rows[i] for i in sorted(rows)] == list(lib.quintile)
 
 
 def test_a_duplicated_join_key_resolves_to_its_last_track():

@@ -8,9 +8,12 @@ import pytest
 
 from kpoprec.recommend import (
     FEATURE_KEYS,
+    QUINTILE_LABELS,
+    UNKNOWN,
     Library,
     can_serve,
     feature_vec,
+    quintile_label,
     score_acoustic,
     score_popularity,
     score_tags,
@@ -218,6 +221,32 @@ def test_quintiles_describe_the_library_not_the_evaluated_subset():
     # not get re-spread across five strata just because they are the only ones
     # in front of us.
     assert [int(q) for q in full.quintile[:10]] == [0] * 10
+
+
+def test_a_track_with_no_listener_count_belongs_to_no_stratum():
+    """Last.fm not finding a track says nothing about how popular it is -- most
+    often the title simply did not match. Filed as zero listeners it would land
+    in the coldest fifth and inflate exactly the stratum the project is about."""
+    songs = [song(f"s{i}", listeners=i + 1) for i in range(100)]
+    songs += [dict(song(f"u{i}"), listeners=None) for i in range(3)]
+    lib = Library(songs)
+    assert [int(q) for q in lib.quintile[100:]] == [UNKNOWN] * 3
+    # The known tracks are cut exactly as they would be without the unknowns.
+    assert list(lib.quintile[:100]) == list(Library(songs[:100]).quintile)
+    assert list(np.bincount(lib.quintile[lib.quintile >= 0], minlength=5)) == [20] * 5
+
+
+def test_an_unknown_stratum_is_never_mistaken_for_the_last_label():
+    """UNKNOWN is -1, and QUINTILE_LABELS[-1] is 'Q5 hottest'. Indexing the
+    labels directly would quietly file every unknown seed under the hottest
+    fifth; the helper refuses to."""
+    assert quintile_label(UNKNOWN) is None
+    assert [quintile_label(q) for q in range(5)] == list(QUINTILE_LABELS)
+
+
+def test_popularity_still_ranks_a_track_with_no_count_last():
+    lib = Library([song("seed", listeners=50), dict(song("u"), listeners=None), song("hot", listeners=90)])
+    assert list(top_k(score_popularity(lib, 0), 2, np.arange(3))) == [2, 1]
 
 
 def test_random_floor_does_not_depend_on_the_order_seeds_are_visited():

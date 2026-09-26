@@ -1,4 +1,4 @@
-.PHONY: help install test lint app library backfill enrich features gt probe eval eval-full bench bench-full pool pool-full db db-full sqlcheck sqlcheck-full all clean
+.PHONY: help install test lint app library backfill enrich features gt probe eval eval-full bench bench-full pool pool-full import-playlists db db-full sqlcheck sqlcheck-full all clean
 
 PY := python3
 SONGS ?= data/songs.json
@@ -25,6 +25,7 @@ help:
 	@echo "  make backfill   2. fill tags the first pass missed"
 	@echo "  make enrich     3. add listeners / playcount / year"
 	@echo "  make features   4. add ReccoBeats audio features"
+	@echo "  make import-playlists  add your Spotify playlists (needs SPOTIFY_CLIENT_ID + _PLAYLIST_IDS)"
 	@echo "  make probe      -  check ground-truth density before committing to it"
 	@echo "  make gt         5. build pseudo ground truth + diagnostics"
 	@echo "  make all        run 1-5 end to end (~40 min, rate-limited)"
@@ -51,6 +52,12 @@ enrich:
 
 features:
 	$(PY) scripts/build_features.py --songs $(SONGS)
+
+# Adds the owner's own Spotify playlists to the library, tagged
+# source=spotify_playlist. Run before backfill / enrich / features / gt, which
+# then fill in only the new tracks.
+import-playlists:
+	$(PY) scripts/import_playlists.py --songs $(SONGS)
 
 probe:
 	$(PY) scripts/check_gt_density.py --songs $(SONGS)

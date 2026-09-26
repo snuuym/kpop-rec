@@ -104,9 +104,25 @@ def classified_tags(song: dict) -> set[str]:
 
 QUINTILE_LABELS = ("Q1 coldest", "Q2", "Q3", "Q4", "Q5 hottest")
 
+# The quintile of a track whose popularity is not known. Not a fifth stratum
+# and not "coldest": QUINTILE_LABELS[UNKNOWN] would quietly index the last
+# label, so every consumer has to test for it (see ``quintile_label``).
+UNKNOWN = -1
 
-def quintile_of(listeners: np.ndarray) -> np.ndarray:
+
+def quintile_label(q: int) -> str | None:
+    """The stratum's name, or ``None`` for a track with no listener count."""
+    return None if q == UNKNOWN else QUINTILE_LABELS[q]
+
+
+def quintile_of(listeners: np.ndarray, known: np.ndarray | None = None) -> np.ndarray:
     """Popularity quintile index (0-4) for every track, by listener count.
+
+    ``known`` marks the tracks whose listener count is actually known. The rest
+    get ``UNKNOWN`` and take no part in the cut. Last.fm not finding a track
+    says nothing about how popular it is -- usually the title just did not
+    match -- so counting it as zero listeners would file it under the coldest
+    fifth and inflate exactly the stratum this project is about.
 
     Cut over the **whole library**, never over whatever subset a given run
     happens to be able to evaluate. The distinction is easy to miss and changes
@@ -120,13 +136,16 @@ def quintile_of(listeners: np.ndarray) -> np.ndarray:
     Ties are broken by position, matching ``rank(method="first")``, so the five
     bins are equal-sized even where many tracks share a listener count.
     """
-    n = len(listeners)
+    out = np.full(len(listeners), UNKNOWN, dtype=int)
+    idx = np.arange(len(listeners)) if known is None else np.flatnonzero(known)
+    n = len(idx)
     if n == 0:
-        return np.empty(0, dtype=int)
-    order = np.lexsort((np.arange(n), listeners))
+        return out
+    order = np.lexsort((np.arange(n), np.asarray(listeners)[idx]))
     rank = np.empty(n, dtype=int)
     rank[order] = np.arange(n)
-    return (rank * len(QUINTILE_LABELS)) // n
+    out[idx] = (rank * len(QUINTILE_LABELS)) // n
+    return out
 
 
 class Library:
@@ -143,9 +162,13 @@ class Library:
         self.has_feat = np.array([has_features(s) for s in songs], dtype=bool)
         self.eff_tags = [effective_tags(s) for s in songs]
         self.cls_tags = [classified_tags(s) for s in songs]
+        # Scoring reads a number for every track, so a missing count is 0 there
+        # (the popularity policy ranks such a track last). Strata do not: they
+        # read ``has_listeners``, and a track without a count belongs to none.
+        self.has_listeners = np.array([s.get("listeners") is not None for s in songs], dtype=bool)
         self.listeners = np.array([s.get("listeners") or 0 for s in songs], dtype=float)
         self.artist = np.array([str(s.get("artist", "")).strip().lower() for s in songs])
-        self.quintile = quintile_of(self.listeners)
+        self.quintile = quintile_of(self.listeners, self.has_listeners)
 
     def same_artist(self, i: int) -> np.ndarray:
         """Mask of tracks by the seed's own artist, the seed included.

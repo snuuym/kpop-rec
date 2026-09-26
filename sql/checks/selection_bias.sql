@@ -8,7 +8,10 @@ WITH ordered AS (
                               ORDER BY listeners)                   AS rn,
            COUNT(*) OVER (PARTITION BY COALESCE(tag_source, 'first_pass')) AS n
     FROM tracks
+    -- Only the Last.fm pull has a first pass to compare against; playlist
+    -- tracks are all tagged by the backfill and would pollute that group.
     WHERE listeners IS NOT NULL
+      AND track_id IN (SELECT track_id FROM track_source WHERE source = 'lastfm_tag')
 ),
 medians AS (
     SELECT pass, MAX(n) AS n_tracks, AVG(listeners) AS median_listeners

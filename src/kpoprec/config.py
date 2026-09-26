@@ -25,6 +25,10 @@ SONGS_SAMPLE_JSON = DATA_DIR / "songs.sample.json"
 GROUND_TRUTH_JSON = DATA_DIR / "ground_truth.json"
 GROUND_TRUTH_NSA_JSON = DATA_DIR / "ground_truth_no_same_artist.json"
 
+# What the Spotify playlist import read, kept so a merge can be repeated
+# without authorizing again. Gitignored: it is one person's listening.
+PLAYLIST_SNAPSHOT = DATA_DIR / "playlist_tracks.json"
+
 # Resumable-run caches. Gitignored: they are large and purely derived.
 TAGS_CACHE = DATA_DIR / "tags_cache.json"
 ENRICH_CACHE = DATA_DIR / "enrich_cache.json"
