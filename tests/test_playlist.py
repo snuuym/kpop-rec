@@ -45,18 +45,18 @@ def entry(title, artist="NewJeans", sid=None, *, release="2022-08-01", ms=180_00
 # ── Playlist ids ────────────────────────────────────────────────────────────
 
 @pytest.mark.parametrize("text", [
-    "0QoR5GvimTH4ELGkMD33N2",
-    "https://open.spotify.com/playlist/0QoR5GvimTH4ELGkMD33N2?si=67a89c7e31664bd6",
-    "open.spotify.com/playlist/0QoR5GvimTH4ELGkMD33N2",
-    "https://open.spotify.com/intl-ko/playlist/0QoR5GvimTH4ELGkMD33N2",
-    "spotify:playlist:0QoR5GvimTH4ELGkMD33N2",
-    "  0QoR5GvimTH4ELGkMD33N2\n",
+    "ABCDEFGHIJKLMNOPQRSTUV",
+    "https://open.spotify.com/playlist/ABCDEFGHIJKLMNOPQRSTUV?si=0123456789abcdef",
+    "open.spotify.com/playlist/ABCDEFGHIJKLMNOPQRSTUV",
+    "https://open.spotify.com/intl-ko/playlist/ABCDEFGHIJKLMNOPQRSTUV",
+    "spotify:playlist:ABCDEFGHIJKLMNOPQRSTUV",
+    "  ABCDEFGHIJKLMNOPQRSTUV\n",
 ])
 def test_playlist_id_from_any_way_of_writing_it(text):
-    assert playlist.parse_playlist_id(text) == "0QoR5GvimTH4ELGkMD33N2"
+    assert playlist.parse_playlist_id(text) == "ABCDEFGHIJKLMNOPQRSTUV"
 
 
-@pytest.mark.parametrize("text", ["", "not an id", "https://open.spotify.com/track/0QoR5GvimTH4ELGkMD33N2"])
+@pytest.mark.parametrize("text", ["", "not an id", "https://open.spotify.com/track/ABCDEFGHIJKLMNOPQRSTUV"])
 def test_something_that_is_not_a_playlist_is_refused(text):
     with pytest.raises(ValueError):
         playlist.parse_playlist_id(text)
