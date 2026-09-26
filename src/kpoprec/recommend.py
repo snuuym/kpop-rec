@@ -196,6 +196,25 @@ def policy_rng(run_seed: int, i: int) -> np.random.Generator:
     return np.random.default_rng([run_seed, i])
 
 
+# Repeated random draws must not collide with each other's generator streams.
+_DRAW_STRIDE = 1_000_003
+
+
+def draw_rng(run_seed: int, draw: int, i: int) -> np.random.Generator:
+    """The generator for draw ``draw`` of the random floor on seed ``i``.
+
+    The benchmark averages the floor over several draws. Anything that needs
+    to reproduce its rankings -- the SQL cross-check does -- must derive the
+    draws the same way, so the derivation lives here rather than in a script.
+    """
+    return policy_rng(run_seed + draw * _DRAW_STRIDE, i)
+
+
+def run_tiebreak(run_seed: int, n: int) -> np.ndarray:
+    """The run's single tie-break permutation; see ``top_k``."""
+    return np.random.default_rng(run_seed).permutation(n)
+
+
 def score_random(lib: Library, i: int, rng: np.random.Generator) -> np.ndarray:
     """Uniform noise. The floor any method must clear to mean anything."""
     s = rng.random(lib.n)

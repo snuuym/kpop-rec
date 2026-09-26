@@ -84,7 +84,7 @@ Share of seeds each policy can rank at all:
 
 > Quintiles are cut over the whole library, so Q1 is the coldest fifth of
 > the catalogue rather than the coldest fifth of the tracks that have labels.
-> The two differ: ground truth reaches 43% of Q1 and 64% of Q2, and the
+> The two differ: ground truth reaches 43% of Q1 and 63% of Q2, and the
 > seeds it misses never appear in the table above at all. So the cold end is
 > not merely measured with few labels -- it is measured on the most popular
 > part of itself. Read it as indicative, not decisive. That limit belongs to

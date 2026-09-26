@@ -52,6 +52,8 @@ from kpoprec import config  # noqa: E402
 from kpoprec.io import load_songs, read_json, write_json  # noqa: E402
 from kpoprec.lastfm import RATE_LIMITED, LastFM  # noqa: E402
 from kpoprec.normalize import key_of, norm  # noqa: E402
+from kpoprec.pooling import evaluable_seeds  # noqa: E402
+from kpoprec.recommend import quintile_of  # noqa: E402
 
 # Above this share of same-artist positives, the benchmark is measuring artist
 # recognition rather than musical similarity.
@@ -61,7 +63,7 @@ CONTAMINATION_WARN = 0.15
 POPULARITY_SKEW_WARN = 1.5
 
 
-def diagnose(gt: dict, lib: dict, md: list) -> None:
+def diagnose(gt: dict, lib: dict, songs: list[dict], md: list) -> None:
     n_pos = [len(v) for v in gt.values()]
     covered = [k for k, v in gt.items() if v]
     random_precision = np.mean(n_pos) / len(lib) * 100
@@ -142,27 +144,28 @@ def diagnose(gt: dict, lib: dict, md: list) -> None:
         print(f"[diag] positives/library median listeners = {ratio:.2f}")
 
     # ── 3. Per-quintile evaluability ────────────────────────────────────────
-    with_listeners = [(k, v) for k, v in lib.items() if v.get("listeners")]
-    if len(with_listeners) > 100:
-        with_listeners.sort(key=lambda kv: kv[1]["listeners"])
+    # The benchmark's own strata: recommend.quintile_of over the whole library,
+    # and a track counts as covered when pooling.evaluable_seeds can score it.
+    # Cut any other way, this table and the evaluation report would describe
+    # different tracks under the same quintile names.
+    listeners = np.array([s.get("listeners") or 0 for s in songs], dtype=float)
+    if np.count_nonzero(listeners) > 100:
+        quintile = quintile_of(listeners)
+        evaluable = evaluable_seeds(gt, songs)
         md += [
             "## Diagnostic 3 — evaluation reliability by popularity quintile\n",
-            "| Quintile | Seeds | With positives | Mean positives | Reliability |",
+            "| Quintile | Tracks | With positives | Mean positives | Reliability |",
             "|---|---:|---:|---:|---|",
         ]
-        for i, chunk in enumerate(
-            np.array_split([k for k, _ in with_listeners], 5), 1
-        ):
-            ks = [k for k in chunk if k in gt]
-            if not ks:
-                continue
-            cov = np.mean([bool(gt[k]) for k in ks])
-            mean = np.mean([len(gt[k]) for k in ks])
+        for q in range(5):
+            idx = np.flatnonzero(quintile == q)
+            cov = np.mean([i in evaluable for i in idx])
+            mean = np.mean([len(evaluable.get(i, ())) for i in idx])
             verdict = (
                 "Reliable" if cov > 0.8
                 else ("Treat with caution" if cov > 0.5 else "**Not reliable**")
             )
-            md += [f"| Q{i} | {len(ks)} | {cov * 100:.0f}% | {mean:.1f} | {verdict} |"]
+            md += [f"| Q{q + 1} | {len(idx)} | {cov * 100:.0f}% | {mean:.1f} | {verdict} |"]
         md += [
             "\n> Quintiles with low coverage are blind spots of the offline "
             "benchmark and must be labelled as such wherever results are "
@@ -231,7 +234,7 @@ def main() -> None:
     write_json(config.GROUND_TRUTH_NSA_JSON, gt_nsa, indent=1)
 
     md: list[str] = []
-    diagnose(gt, lib, md)
+    diagnose(gt, lib, songs, md)
     n_cov = sum(1 for v in gt_nsa.values() if v)
     md += [
         "\n---\n## Density after removing same-artist positives\n",

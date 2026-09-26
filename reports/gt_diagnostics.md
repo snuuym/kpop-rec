@@ -24,20 +24,20 @@
 
 | | median listeners |
 |---|---:|
-| Whole library | 92,948 |
+| Whole library | 93,286 |
 | Positive samples | 225,243 |
 
 Positives are about **2.4x** as popular as the corpus median. The CF labels lean heavily toward the head, so a popularity baseline will be strong and must be reported. If a content-based method cannot beat it, that is the finding.
 
 ## Diagnostic 3 — evaluation reliability by popularity quintile
 
-| Quintile | Seeds | With positives | Mean positives | Reliability |
+| Quintile | Tracks | With positives | Mean positives | Reliability |
 |---|---:|---:|---:|---|
-| Q1 | 252 | 43% | 10.9 | **Not reliable** |
-| Q2 | 252 | 64% | 20.2 | Treat with caution |
-| Q3 | 252 | 100% | 49.2 | Reliable |
-| Q4 | 251 | 100% | 53.1 | Reliable |
-| Q5 | 251 | 100% | 47.9 | Reliable |
+| Q1 | 254 | 43% | 11.1 | **Not reliable** |
+| Q2 | 253 | 63% | 19.8 | Treat with caution |
+| Q3 | 254 | 100% | 49.4 | Reliable |
+| Q4 | 253 | 99% | 52.6 | Reliable |
+| Q5 | 253 | 98% | 47.1 | Reliable |
 
 > Quintiles with low coverage are blind spots of the offline benchmark and must be labelled as such wherever results are reported. Closing them requires human relevance judgements, not more CF labels.
 

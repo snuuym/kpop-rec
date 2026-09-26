@@ -56,6 +56,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from kpoprec import config  # noqa: E402
 from kpoprec.io import load_songs  # noqa: E402
 from kpoprec.normalize import normalize_tag  # noqa: E402
+from kpoprec.recommend import quintile_of  # noqa: E402
 from kpoprec.taxonomy import NON_DISCRIMINATIVE_TAGS, is_effective  # noqa: E402
 
 # Last.fm tagging turns out to be near-binary: a track has either zero
@@ -261,9 +262,13 @@ def tag_vocabulary(df: pd.DataFrame, outdir: Path, md: list, top: int = 25) -> N
     for tags in df["raw_tags"]:
         dfreq.update(set(tags))
     n = len(df)
+    # Ties broken by name. Counter.most_common keeps first-seen order, and the
+    # set above iterates in hash order, which changes with every interpreter
+    # run -- so without this the committed CSV reshuffles on each regeneration.
+    ranked = sorted(dfreq.items(), key=lambda kv: (-kv[1], kv[0]))
 
     lines = ["| Tag | Tracks | Share | Root tag |", "|---|---:|---:|:---:|"]
-    for tag, c in dfreq.most_common(top):
+    for tag, c in ranked[:top]:
         root = "yes" if tag in NON_DISCRIMINATIVE_TAGS else ""
         lines.append(f"| `{tag}` | {c} | {c / n * 100:.1f}% | {root} |")
 
@@ -278,7 +283,7 @@ def tag_vocabulary(df: pd.DataFrame, outdir: Path, md: list, top: int = 25) -> N
         "\n".join(lines),
         "",
     ]
-    pd.DataFrame(dfreq.most_common(), columns=["tag", "doc_freq"]).to_csv(
+    pd.DataFrame(ranked, columns=["tag", "doc_freq"]).to_csv(
         outdir / "tag_vocabulary.csv", index=False
     )
     print(f"[vocab] {len(dfreq)} unique tags, {singleton} appear only once")
@@ -350,9 +355,9 @@ def fig3_popularity(df: pd.DataFrame, figdir: Path, md: list) -> bool:
 
     d = d.copy()
     d["log_listeners"] = np.log10(d["listeners"])
-    d["pop_q"] = pd.qcut(
-        d["listeners"], 5,
-        labels=["Q1 coldest", "Q2", "Q3", "Q4", "Q5 hottest"], duplicates="drop",
+    d["pop_q"] = pd.Categorical.from_codes(
+        quintile_of(d["listeners"].to_numpy(float)),
+        ["Q1 coldest", "Q2", "Q3", "Q4", "Q5 hottest"],
     )
     g = d.groupby("pop_q", observed=True)
 
@@ -520,9 +525,12 @@ def fig5_signal_comparison(df: pd.DataFrame, figdir: Path, md: list) -> None:
         return
 
     d = d.copy()
-    d["q"] = pd.qcut(
-        d["listeners"], 5,
-        labels=["Q1\ncoldest", "Q2", "Q3", "Q4", "Q5\nhottest"], duplicates="drop",
+    # The benchmark's quintiles, not pd.qcut's value-based bins. The two split
+    # ties at a bin edge differently, and a coverage table and a ranking table
+    # that cut the library differently are not describing the same Q1.
+    d["q"] = pd.Categorical.from_codes(
+        quintile_of(d["listeners"].to_numpy(float)),
+        ["Q1\ncoldest", "Q2", "Q3", "Q4", "Q5\nhottest"],
     )
     g = d.groupby("q", observed=True)
     tag_cov = g["n_eff"].apply(lambda x: (x > 0).mean() * 100)

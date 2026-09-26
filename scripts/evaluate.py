@@ -62,15 +62,14 @@ from kpoprec.recommend import (  # noqa: E402
     QUINTILE_LABELS,
     Library,
     can_serve,
-    policy_rng,
+    draw_rng,
+    run_tiebreak,
     score,
     top_k,
 )
 
 KS = (5, 10, 20, 50)
 HEADLINE_K = 10
-# Repeated random draws must not collide with each other's generator streams.
-_DRAW_STRIDE = 1_000_003
 # Validated with the dataviz palette checker (light surface, categorical):
 # lightness band, chroma floor, CVD separation, normal-vision floor, contrast.
 SERIES_COLORS = {
@@ -108,7 +107,7 @@ def _average_draws(policy, lib, i, pos, pos_blind, same, tiebreak, seed, draws):
     same_in_top = 0.0
 
     for d in range(draws):
-        scores = score(policy, lib, i, policy_rng(seed + d * _DRAW_STRIDE, i))
+        scores = score(policy, lib, i, draw_rng(seed, d, i))
         ranked = top_k(scores, max(KS), tiebreak)
         same_in_top += int(same[ranked[:HEADLINE_K]].sum())
         for k in KS:
@@ -132,10 +131,9 @@ def _average_draws(policy, lib, i, pos, pos_blind, same, tiebreak, seed, draws):
 def run(lib: Library, songs: list[dict], gt: dict[str, list[str]], seed: int,
         repeats: int = 1) -> pd.DataFrame:
     """Score every policy on every evaluable seed. One row per seed per policy."""
-    rng = np.random.default_rng(seed)
     # One fixed permutation for the whole run: ties resolve randomly but
     # reproducibly, instead of inheriting the library's collection order.
-    tiebreak = rng.permutation(lib.n)
+    tiebreak = run_tiebreak(seed, lib.n)
 
     evaluable = evaluable_seeds(gt, songs)
     if not evaluable:
@@ -172,6 +170,7 @@ def run(lib: Library, songs: list[dict], gt: dict[str, list[str]], seed: int,
                 "served": served,
                 "blind_evaluable": bool(pos_blind),
                 "n_positives": len(pos),
+                "n_same_artist_positives": len(pos) - len(pos_blind),
                 "same_artist_in_top": same_in_top,
                 "listeners": songs[i].get("listeners") or 0,
             }
@@ -278,9 +277,11 @@ def figure(df: pd.DataFrame, head: pd.DataFrame, figdir: Path, k: int) -> Path:
 # ── Report ──────────────────────────────────────────────────────────────────
 
 def report(df: pd.DataFrame, head: pd.DataFrame, blind: pd.DataFrame, k: int,
-           n_lib: int, figdir: Path) -> list[str]:
+           lib: Library, figdir: Path) -> list[str]:
     n_seeds = int(head["n_seeds"].iloc[0])
-    med_pos = float(df[df.policy == POLICIES[0]]["n_positives"].median())
+    per_seed = df[df.policy == POLICIES[0]]
+    med_pos = float(per_seed["n_positives"].median())
+    label_same = per_seed["n_same_artist_positives"].sum() / per_seed["n_positives"].sum()
     floor = float(head.loc[head.policy == "random", "precision_all"].iloc[0])
 
     md = [
@@ -291,7 +292,7 @@ def report(df: pd.DataFrame, head: pd.DataFrame, blind: pd.DataFrame, k: int,
         "> system, which is a real question but not \"does the listener like it\".\n",
         "## Protocol\n",
         f"- Seeds evaluated: **{n_seeds}** (every seed with at least one in-library positive)",
-        f"- Candidate pool: the whole library, {n_lib} tracks, minus the seed itself",
+        f"- Candidate pool: the whole library, {lib.n} tracks, minus the seed itself",
         f"- Positives per seed: median **{med_pos:.0f}**",
         f"- Reported at K = {k}; the full K sweep is in `eval_by_k.csv`",
         f"- Random Precision@{k} floor: **{floor:.3f}**",
@@ -319,7 +320,7 @@ def report(df: pd.DataFrame, head: pd.DataFrame, blind: pd.DataFrame, k: int,
         "The shipped recommender does **not** drop tracks by the seed's own artist:",
         "another song by an artist you just played is usually a good suggestion, and",
         "removing it would be a worse product to make a benchmark easier. But Last.fm's",
-        "`track.getSimilar` is artist-deduplicated -- only 2.2% of the labels are",
+        f"`track.getSimilar` is artist-deduplicated -- only {label_same:.1%} of the labels are",
         "same-artist -- so those slots are almost always scored as misses whatever they",
         "actually contain. The artist-blind column drops the seed's artist from the",
         "ranking and the labels together, which is the only way to compare policies on",
@@ -348,6 +349,10 @@ def report(df: pd.DataFrame, head: pd.DataFrame, blind: pd.DataFrame, k: int,
 
     g = df.groupby(["policy", "quintile"], observed=True)[f"ndcg@{k}"].mean().unstack()
     cov = df.groupby(["policy", "quintile"], observed=True)["served"].mean().unstack()
+    # The share of each library quintile that has labels at all: the tracks the
+    # tables above silently leave out.
+    seeds = df["seed_index"].unique()
+    reach = [np.isin(np.flatnonzero(lib.quintile == q), seeds).mean() for q in (0, 1)]
     md.append("| Policy | " + " | ".join(str(c) for c in g.columns) + " |")
     md.append("|---" * (len(g.columns) + 1) + "|")
     for policy in POLICIES:
@@ -361,7 +366,7 @@ def report(df: pd.DataFrame, head: pd.DataFrame, blind: pd.DataFrame, k: int,
     md += [
         "\n> Quintiles are cut over the whole library, so Q1 is the coldest fifth of",
         "> the catalogue rather than the coldest fifth of the tracks that have labels.",
-        "> The two differ: ground truth reaches 43% of Q1 and 64% of Q2, and the",
+        f"> The two differ: ground truth reaches {reach[0]:.0%} of Q1 and {reach[1]:.0%} of Q2, and the",
         "> seeds it misses never appear in the table above at all. So the cold end is",
         "> not merely measured with few labels -- it is measured on the most popular",
         "> part of itself. Read it as indicative, not decisive. That limit belongs to",
@@ -418,7 +423,7 @@ def main() -> None:
         [f"{m}@{args.k}" for m in METRIC_NAMES] + ["served"]
     ].mean().round(4).to_csv(args.outdir / "eval_by_quintile.csv")
 
-    md = report(df, head, headline(df, args.k, prefix="blind_"), args.k, len(songs), args.figdir)
+    md = report(df, head, headline(df, args.k, prefix="blind_"), args.k, lib, args.figdir)
     (args.outdir / "eval_summary.md").write_text("\n".join(md) + "\n")
 
     print(f"\n[done] -> {args.outdir / 'eval_summary.md'}")
