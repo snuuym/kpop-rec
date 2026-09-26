@@ -242,6 +242,41 @@ learned model is trained.
 | Cold-tail behaviour under human judgement | **Not established** — pooled task built, unjudged |
 | Only acoustic signal stays above the random floor in the cold tail | Measured |
 
+## Recomputed in SQL
+
+Every number in this README and in `reports/` comes out of pandas and numpy.
+`make sqlcheck-full` computes all of them a second way — in SQLite, from the
+raw library and labels — and fails if any of them disagrees with what was
+printed. `make sqlcheck` does the same for the bundled sample, with no
+credentials.
+
+- `sql/schema.sql` holds the library, its labels and the benchmark's rankings
+  as normalized tables — losslessly: a test rebuilds `songs.json` from them —
+  and defines each derived quantity once, in SQL: effective tags, popularity
+  quintiles, which policy can serve which seed, and per-seed
+  Recall/Precision/HitRate/NDCG@K.
+- `sql/checks/` has one query per published result: medians and percentiles
+  written with window functions, the novelty-vs-obscurity regression solved in
+  closed form from three correlations, NDCG from the stored rankings joined
+  against the labels.
+- The rankings themselves still come from `recommend.score`. Whether a seed is
+  evaluable, whether a policy can serve it, and every metric are SQL's own.
+
+**197 numbers are checked on the full corpus, and all of them match** — the
+benchmark CSVs to 1e-16, everything else to the last printed digit. Getting
+there turned up four problems in the pandas side, all fixed in the same change:
+
+| Found | Fix |
+|---|---|
+| `gt_diagnostics.md` predated the last listener-count refresh (library median 92,948 against 93,286 now) | regenerated |
+| Three definitions of "popularity quintile": `quintile_of` in the benchmark, `pd.qcut` in the sparsity figures, equal chunks of unique join keys in the label diagnostics. The diagnostics reported 64% / 100% / 100% label coverage for Q2 / Q4 / Q5 where the benchmark's own strata give 63% / 99% / 98% | all three use `quintile_of`; the SQL view reproduces it exactly, which `NTILE(5)` does not — it moves one track |
+| Two numbers typed into the benchmark report's prose (Q2's 64%, the 2.2% same-artist share), so the sample report printed the full corpus's figures | computed from the data |
+| `tag_vocabulary.csv` reordered its ties on every run, because set iteration follows the hash seed | ties broken by name |
+
+None of them moves a headline result. The point of the check is the next
+change to the data: a stale report or a drifted definition now fails a `make`
+target instead of reaching the README.
+
 ## Limitations
 
 These are load-bearing, not boilerplate.
@@ -289,9 +324,10 @@ Full diagnostics: [`reports/gt_diagnostics.md`](reports/gt_diagnostics.md) ·
 git clone https://github.com/snuuym/kpop-rec.git
 cd kpop-rec
 make install
-make test      # 113 tests, no network or credentials needed
+make test      # 128 tests, no network or credentials needed
 make eval      # runs the full analysis on the bundled sample
 make bench     # ranks the sample and scores it against the sample labels
+make sqlcheck  # recomputes every number in the sample reports in SQLite
 ```
 
 `make eval` runs against `data/songs.sample.json` (200 tracks, stratified across
@@ -331,6 +367,7 @@ stopped rather than starting over.
 | 5 | `build_ground_truth.py` | pseudo-relevance labels + bias diagnostics |
 | 6 | `analyze_tag_sparsity.py` | the EDA and figures 1-5 |
 | 7 | `evaluate.py` | the ranking benchmark and figure 6 |
+| — | `build_db.py`, `sql_crosscheck.py` | the SQLite database; every published number recomputed in SQL |
 
 Stage 2 exists because of stage 1's failure mode, and stage 5's diagnostics
 exist because pseudo ground truth is easy to build and easy to over-trust. The
@@ -345,9 +382,11 @@ src/kpoprec/  shared library: taxonomy, normalization, Last.fm client, safe I/O,
               ranking policies (recommend.py) and metrics (metrics.py)
 scripts/      the six pipeline stages, each a thin CLI
 data/         sample dataset (full library is gitignored — see data/README.md)
+sql/          SQLite schema and views, and one query per published number
 reports/      generated analysis, committed so results are reviewable
 figures/      generated charts
-tests/        89 tests over taxonomy, joins, I/O, ranking policies and metrics
+tests/        128 tests over taxonomy, joins, I/O, ranking policies, metrics
+              and the SQL layer
 ```
 
 Two design notes worth the words:
@@ -395,7 +434,9 @@ except playback and export works without it.
 Python (requests, pandas, numpy, matplotlib, Flask) · vanilla JS front end, no
 framework or bundler · [Last.fm](https://www.last.fm/api) for tags and
 popularity · [ReccoBeats](https://reccobeats.com/) for acoustic features ·
-[MusicBrainz](https://musicbrainz.org/) for release years. No database.
+[MusicBrainz](https://musicbrainz.org/) for release years · SQLite
+(standard-library `sqlite3`) as a derived store for cross-checking the results;
+the pipeline itself reads and writes JSON.
 
 ## License
 

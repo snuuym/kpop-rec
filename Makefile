@@ -1,4 +1,4 @@
-.PHONY: help install test lint app library backfill enrich features gt probe eval eval-full bench bench-full pool pool-full all clean
+.PHONY: help install test lint app library backfill enrich features gt probe eval eval-full bench bench-full pool pool-full db db-full sqlcheck sqlcheck-full all clean
 
 PY := python3
 SONGS ?= data/songs.json
@@ -17,6 +17,8 @@ help:
 	@echo "  make bench-full regenerate the committed benchmark from the full library"
 	@echo "  make pool       build a cold-end annotation task to judge by hand"
 	@echo "  make pool-full  the same, over the full library"
+	@echo "  make sqlcheck   recompute the sample's reported numbers in SQLite"
+	@echo "  make sqlcheck-full  the same for the committed reports and README"
 	@echo ""
 	@echo "  Full pipeline (needs LASTFM_API_KEY; see .env.example):"
 	@echo "  make library    1. pull tracks + sub-genre tags from Last.fm"
@@ -93,6 +95,25 @@ pool-full:
 		--songs $(SONGS) --ground-truth data/ground_truth.json \
 		--out data/annotation_pool.json --key data/annotation_pool_key.json \
 		--sheet reports/annotation_pool.md
+
+# SQLite, derived from the JSON: the library, labels and benchmark rankings,
+# with every derived quantity defined as SQL (sql/schema.sql). Gitignored.
+db:
+	$(PY) scripts/build_db.py
+
+db-full:
+	$(PY) scripts/build_db.py \
+		--songs $(SONGS) --ground-truth data/ground_truth.json --out data/kpoprec.db
+
+# Recompute every published number in SQL and diff it against the report that
+# printed it. Fails on any mismatch. The sample variant regenerates the sample
+# reports first, since they are gitignored and may be stale or absent.
+sqlcheck: eval bench db
+	$(PY) scripts/sql_crosscheck.py
+
+sqlcheck-full: db-full
+	$(PY) scripts/sql_crosscheck.py \
+		--db data/kpoprec.db --reports reports --readme README.md
 
 # The committed benchmark, over the full library and ground truth.
 bench-full:

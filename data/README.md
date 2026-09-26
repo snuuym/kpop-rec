@@ -10,6 +10,8 @@
 | `ground_truth.json` | no | pseudo relevance labels, seed -> positive keys |
 | `ground_truth_no_same_artist.json` | no | same, with same-artist positives removed |
 | `*_cache.json` | no | resumable-run caches |
+| `kpoprec.sample.db` | no | the sample, its labels and benchmark rankings in SQLite (`make db`) |
+| `kpoprec.db` | no | the same for the full library (`make db-full`) |
 
 ## Why only a sample
 

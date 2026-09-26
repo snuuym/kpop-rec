@@ -14,6 +14,10 @@ data/songs.json.*
 data/ground_truth.json
 data/ground_truth_no_same_artist.json
 
+# SQLite databases: derived from the JSON above by `make db` / `make db-full`
+data/*.db
+data/*.db.tmp
+
 # Resumable-run caches — purely derived, tens of MB
 data/*_cache.json
 data/*.bak
