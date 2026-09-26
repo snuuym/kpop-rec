@@ -33,7 +33,8 @@ Outputs
     figures/fig5_signal_coverage.png       (needs listeners)
     reports/tag_sparsity_summary.md
     reports/tag_vocabulary.csv
-    reports/song_buckets.csv               (stratification for evaluation)
+    reports/song_buckets.csv               (stratification for evaluation; playlist
+                                           tracks are listed without a name)
 """
 
 from __future__ import annotations
@@ -57,7 +58,7 @@ from kpoprec import config  # noqa: E402
 from kpoprec.io import load_songs  # noqa: E402
 from kpoprec.normalize import normalize_tag  # noqa: E402
 from kpoprec.playlist import SOURCE_LASTFM, source_of  # noqa: E402
-from kpoprec.recommend import quintile_of  # noqa: E402
+from kpoprec.recommend import QUINTILE_LABELS, quintile_of  # noqa: E402
 from kpoprec.taxonomy import NON_DISCRIMINATIVE_TAGS, is_effective  # noqa: E402
 
 # Last.fm tagging turns out to be near-binary: a track has either zero
@@ -402,14 +403,40 @@ def fig3_popularity(df: pd.DataFrame, figdir: Path, md: list) -> bool:
     return True
 
 
-def disentangle(df: pd.DataFrame, md: list) -> None:
-    """Controlling for popularity, does release year still explain sparsity?
-
-    Standardized OLS via ``numpy.linalg.lstsq`` — no extra dependency, and at
-    two predictors there is nothing a heavier library would add.
-    """
+def regression_sample(df: pd.DataFrame) -> pd.DataFrame:
+    """The tracks the novelty-vs-obscurity regression can use: a plausible
+    release year and a positive listener count."""
     d = df.dropna(subset=["year", "listeners"])
-    d = d[(d["year"].between(1990, 2026)) & (d["listeners"] > 0)]
+    return d[(d["year"].between(1990, 2026)) & (d["listeners"] > 0)]
+
+
+def standardized_ols(d: pd.DataFrame) -> dict:
+    """Effective tag count on release year and log10(listeners), all standardized.
+
+    ``numpy.linalg.lstsq`` -- no extra dependency, and at two predictors there
+    is nothing a heavier library would add.
+    """
+    def z(x):
+        x = np.asarray(x, float)
+        return (x - x.mean()) / (x.std() or 1)
+
+    yr, pop, y = z(d["year"]), z(np.log10(d["listeners"])), z(d["n_eff"])
+    X = np.column_stack([np.ones(len(d)), yr, pop])
+    beta, *_ = np.linalg.lstsq(X, y, rcond=None)
+    resid = y - X @ beta
+    return {
+        "n": len(d),
+        "beta_year": beta[1],
+        "beta_pop": beta[2],
+        "r2": 1 - resid.var() / y.var(),
+        "r_year": np.corrcoef(yr, y)[0, 1],
+        "r_pop": np.corrcoef(pop, y)[0, 1],
+    }
+
+
+def disentangle(df: pd.DataFrame, md: list) -> None:
+    """Controlling for popularity, does release year still explain sparsity?"""
+    d = regression_sample(df)
     if len(d) < 100:
         md += [
             "## Q2c - Is it novelty, or is it obscurity?\n",
@@ -419,18 +446,9 @@ def disentangle(df: pd.DataFrame, md: list) -> None:
         print("[disentangle] skipped: insufficient sample")
         return
 
-    def z(x):
-        x = np.asarray(x, float)
-        return (x - x.mean()) / (x.std() or 1)
-
-    yr, pop, y = z(d["year"]), z(np.log10(d["listeners"])), z(d["n_eff"])
-    X = np.column_stack([np.ones(len(d)), yr, pop])
-    beta, *_ = np.linalg.lstsq(X, y, rcond=None)
-    resid = y - X @ beta
-    r2 = 1 - resid.var() / y.var()
-
-    b_yr_only = np.corrcoef(yr, y)[0, 1]
-    b_pop_only = np.corrcoef(pop, y)[0, 1]
+    fit = standardized_ols(d)
+    beta = [None, fit["beta_year"], fit["beta_pop"]]
+    r2, b_yr_only, b_pop_only = fit["r2"], fit["r_year"], fit["r_pop"]
 
     verdict = (
         "**Popularity dominates.** Once popularity is controlled for, the "
@@ -462,6 +480,85 @@ def disentangle(df: pd.DataFrame, md: list) -> None:
         "directly.\n",
     ]
     print(f"[disentangle] beta_year={beta[1]:+.3f}  beta_pop={beta[2]:+.3f}  R2={r2:.3f}")
+
+
+# ── By source ───────────────────────────────────────────────────────────────
+
+def source_breakdown(df: pd.DataFrame, md: list) -> None:
+    """Does the finding hold in each way the library was sampled?
+
+    The library is two samples, not one. Last.fm's tag pages built the original
+    1,267 tracks, which makes them the tracks that were tagged as K-pop by
+    someone. The owner's Spotify playlists are the other: what one listener
+    chose, tagged or not. Everything above pools them, as the headline should.
+    This asks whether the pooled numbers hide a disagreement -- and it is a
+    real test of the central claim, because the two samples differ sharply in
+    how new their tracks are, which is exactly what popularity and release year
+    would otherwise be confounded on.
+    """
+    sources = sorted(df["source"].unique())
+    if len(sources) < 2:
+        return
+
+    d = df.copy()
+    known = d["listeners"].notna().to_numpy()
+    d["q"] = quintile_of(d["listeners"].fillna(0).to_numpy(float), known)
+
+    md += [
+        "## Q4 - Do the two ways of sampling agree?\n",
+        "The library is two samples: tracks from Last.fm's K-pop tag pages "
+        "(`lastfm_tag`) and tracks from the owner's own Spotify playlists "
+        "(`spotify_playlist`). Every table above pools them.\n",
+        "| Source | Tracks | No effective tag | Audio features | Listener count known "
+        "| Median listeners | Year resolved | Median year |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for src in sources:
+        g = d[d["source"] == src]
+        listeners, years = g["listeners"].dropna(), g["year"].dropna()
+        med_l = f"{listeners.median():,.0f}" if len(listeners) else "n/a"
+        med_y = f"{years.median():.0f}" if len(years) else "n/a"
+        md.append(
+            f"| {src} | {len(g)} | {(g['n_eff'] == 0).mean() * 100:.1f}% "
+            f"| {g['has_feats'].mean() * 100:.1f}% | {g['listeners'].notna().mean() * 100:.1f}% "
+            f"| {med_l} | {g['year'].notna().mean() * 100:.1f}% | {med_y} |"
+        )
+
+    md += [
+        "\nThe central table again, by source: how much of each popularity quintile "
+        "each signal reaches. Quintiles are the whole library's, so a cell says "
+        "how that source's tracks fare *within the same strata*.\n",
+        "| Quintile | " + " | ".join(
+            f"{s}: tracks | {s}: tag coverage | {s}: audio coverage" for s in sources
+        ) + " |",
+        "|---|" + "---:|" * (3 * len(sources)),
+    ]
+    for qi, label in enumerate(QUINTILE_LABELS):
+        cells = []
+        for src in sources:
+            g = d[(d["source"] == src) & (d["q"] == qi)]
+            if len(g):
+                cells += [str(len(g)), f"{(g['n_eff'] > 0).mean() * 100:.0f}%",
+                          f"{g['has_feats'].mean() * 100:.0f}%"]
+            else:
+                cells += ["0", "n/a", "n/a"]
+        md.append(f"| {label} | " + " | ".join(cells) + " |")
+
+    md += [
+        "\nThe novelty-vs-obscurity regression, pooled and within each source:\n",
+        "| Sample | Tracks | Year (partial) | log10(listeners) (partial) | R^2 |",
+        "|---|---:|---:|---:|---:|",
+    ]
+    for name, g in [("all", d)] + [(src, d[d["source"] == src]) for src in sources]:
+        rs = regression_sample(g)
+        if len(rs) < 100:
+            md.append(f"| {name} | {len(rs)} | n/a | n/a | n/a |")
+            continue
+        fit = standardized_ols(rs)
+        md.append(f"| {name} | {fit['n']} | {fit['beta_year']:+.3f} | "
+                  f"{fit['beta_pop']:+.3f} | {fit['r2']:.3f} |")
+    md.append("")
+    print("[source] " + ", ".join(f"{s}: {(d['source'] == s).sum()}" for s in sources))
 
 
 # ── Q3 ──────────────────────────────────────────────────────────────────────
@@ -622,6 +719,7 @@ def main() -> None:
 
     fig4_coverage(df, args.figdir, md)
     fig5_signal_comparison(df, args.figdir, md)
+    source_breakdown(df, md)
 
     missing = [c for c in ("year", "listeners") if df[c].notna().sum() < 50]
     if missing:
@@ -634,10 +732,13 @@ def main() -> None:
         ]
 
     (args.outdir / "tag_sparsity_summary.md").write_text("\n".join(md), encoding="utf-8")
-    df[["key", "artist", "title", "n_raw", "n_eff", "bucket",
-        "has_feats", "year", "listeners"]].to_csv(
-        args.outdir / "song_buckets.csv", index=False
-    )
+    # One row per track. Tracks from the owner's playlists carry their statistics
+    # and no name: the report is committed, and a list of what one person
+    # listens to is theirs to publish, not this script's.
+    out = df[["key", "artist", "title", "source", "n_raw", "n_eff", "bucket",
+              "has_feats", "year", "listeners"]].copy()
+    out.loc[out["source"] != SOURCE_LASTFM, ["key", "artist", "title"]] = ""
+    out.to_csv(args.outdir / "song_buckets.csv", index=False)
 
     print(f"\n[done] -> {args.outdir / 'tag_sparsity_summary.md'}")
     print(f"[done] -> {args.outdir / 'song_buckets.csv'}")

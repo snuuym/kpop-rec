@@ -6,7 +6,8 @@
 |---|---|---|
 | `songs.sample.json` | yes | 200-track sample of the library, stratified across popularity quintiles |
 | `ground_truth.sample.json` | yes | labels for the sample, restricted to sample-internal positives |
-| `songs.json` | no | full library (~1,270 tracks) |
+| `songs.json` | no | full library: the Last.fm tag pull plus the owner's Spotify playlists (see `source`) |
+| `playlist_tracks.json` | no | what the playlist import read, kept so a merge can be repeated without authorizing again; one person's listening |
 | `ground_truth.json` | no | pseudo relevance labels, seed -> positive keys |
 | `ground_truth_no_same_artist.json` | no | same, with same-artist positives removed |
 | `*_cache.json` | no | resumable-run caches |
@@ -64,7 +65,9 @@ carries over.
   "playcount": 8842190,
   "mbid":      "...",
   "year":      2018,                    // MusicBrainz first release
-  "tag_source": "backfill"              // set when tags came from the second pass
+  "tag_source": "backfill",             // set when tags came from the second pass
+  "source":    "spotify_playlist",      // how the track entered; absent = "lastfm_tag"
+  "year_spotify": 2022                  // year of the album this copy sits on (playlist tracks)
 }
 ```
 
@@ -73,6 +76,16 @@ Two fields carry more weight than their size suggests:
 - **`listeners`** is the axis every stratified result is computed against.
   Without it there is no way to distinguish "tags are sparse" from "tags are
   sparse *in the tail*", which is the actual finding.
+- **`source`** says how a track entered the library: `lastfm_tag` (the original
+  pull from Last.fm's K-pop tag pages; the field is simply absent on those
+  records, so the committed sample needs no rewriting) or `spotify_playlist`
+  (added by `scripts/import_playlists.py`). The two are different samples, not
+  one: the first is what someone tagged as K-pop, the second is what one
+  listener chose. The analysis reports both pooled and split by this field.
+- **`year_spotify`** is the release year of the album a playlist track sits on.
+  It is not the same thing as `year`, which is MusicBrainz's *earliest* release
+  of the recording: a reissue or compilation reads later on Spotify. They are
+  kept apart rather than one overwriting the other.
 - **`tag_source`** marks records filled by `backfill_tags.py`. It exists so the
   selection bias introduced by an interrupted first pass can be measured rather
   than assumed away.

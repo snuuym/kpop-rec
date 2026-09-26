@@ -56,6 +56,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from kpoprec import config  # noqa: E402
 from kpoprec.io import load_songs  # noqa: E402
 from kpoprec.metrics import METRIC_NAMES, evaluate_ranking, zero_metrics  # noqa: E402
+from kpoprec.playlist import source_of  # noqa: E402
 from kpoprec.pooling import evaluable_seeds  # noqa: E402
 from kpoprec.recommend import (  # noqa: E402
     POLICIES,
@@ -174,6 +175,7 @@ def run(lib: Library, songs: list[dict], gt: dict[str, list[str]], seed: int,
                 "n_same_artist_positives": len(pos) - len(pos_blind),
                 "same_artist_in_top": same_in_top,
                 "listeners": songs[i].get("listeners") or 0,
+                "source": source_of(songs[i]),
             }
             for k, m in per_k.items():
                 for name, v in m.items():
@@ -277,6 +279,34 @@ def figure(df: pd.DataFrame, head: pd.DataFrame, figdir: Path, k: int) -> Path:
 
 # ── Report ──────────────────────────────────────────────────────────────────
 
+def _by_source(df: pd.DataFrame, per_seed: pd.DataFrame, sources: list[str], k: int) -> list[str]:
+    """The headline table again, split by where the seed came from.
+
+    The library is two samples: Last.fm's K-pop tag pages, and the owner's own
+    playlists. The candidate pool is the whole library either way; what differs
+    is the seed. A policy that wins on one and loses on the other is answering
+    a question about the sampling, not about the policy.
+    """
+    n = per_seed.groupby("source").size()
+    ndcg = df.groupby(["policy", "source"])[f"ndcg@{k}"].mean().unstack()
+    served = df.groupby(["policy", "source"])["served"].mean().unstack()
+    head = " | ".join(f"{s} (n={n[s]})" for s in sources)
+    md = [
+        "\n## By source of the seed\n",
+        f"NDCG@{k}, every seed counted, blind spots charged zero. The candidate pool is "
+        "the whole library in both columns; only the seed differs.\n",
+        f"| Policy | {head} |",
+        "|---" * (len(sources) + 1) + "|",
+    ]
+    for policy in POLICIES:
+        md.append(f"| `{policy}` | " + " | ".join(f"{ndcg.loc[policy, s]:.3f}" for s in sources) + " |")
+    md += ["\nShare of seeds each policy can rank at all:\n",
+           f"| Policy | {head} |", "|---" * (len(sources) + 1) + "|"]
+    for policy in POLICIES:
+        md.append(f"| `{policy}` | " + " | ".join(f"{served.loc[policy, s]:.0%}" for s in sources) + " |")
+    return md
+
+
 def report(df: pd.DataFrame, head: pd.DataFrame, blind: pd.DataFrame, k: int,
            lib: Library, figdir: Path) -> list[str]:
     n_seeds = int(head["n_seeds"].iloc[0])
@@ -371,6 +401,10 @@ def report(df: pd.DataFrame, head: pd.DataFrame, blind: pd.DataFrame, k: int,
     md.append("|---" * (len(cov.columns) + 1) + "|")
     for policy in POLICIES:
         md.append(f"| `{policy}` | " + " | ".join(f"{v:.0%}" for v in cov.loc[policy]) + " |")
+
+    sources = sorted(per_seed["source"].unique())
+    if len(sources) > 1:
+        md += _by_source(df, per_seed, sources, k)
 
     md += [
         "\n> Quintiles are cut over the whole library, so Q1 is the coldest fifth of",

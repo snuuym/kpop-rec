@@ -250,3 +250,128 @@ def test_the_sample_reports_survive_the_cross_check(tmp_path):
     res = run("scripts/sql_crosscheck.py", "--db", tmp_path / "sample.db", "--reports", tmp_path)
     assert res.returncode == 0, res.stdout
     assert "0 mismatched" in res.stdout
+
+
+# ── Two sources, end to end ─────────────────────────────────────────────────
+
+def two_source_library(n=320):
+    """A library shaped like the real one: the Last.fm pull spans the years and
+    the popularity range, the playlist tracks are recent, and tags exist only
+    where listeners do -- so every by-source table has something to say."""
+    rng = np.random.default_rng(3)
+    songs = []
+    for i in range(n):
+        playlist_track = i % 2 == 1
+        listeners = int(10 ** rng.uniform(2, 6.3))
+        n_tags = 0 if listeners < 10 ** 4.2 else int(rng.integers(1, 6))
+        s = {
+            "title": f"t{i}", "artist": f"a{i % 29}",
+            "tags": ["K-pop"], "all_tags": [f"tag{j}" for j in range(n_tags)] or [],
+            "dur": 200, "durStr": "3:20", "listeners": listeners, "playcount": listeners * 3,
+            "year": int(rng.integers(2022, 2026) if playlist_track else rng.integers(2004, 2026)),
+        }
+        # The first tagging pass reached the popular Last.fm tracks; the backfill
+        # got the rest. Playlist tracks were only ever seen by the backfill, and
+        # the selection-bias check must leave them out.
+        if playlist_track or listeners < 10 ** 4.5:
+            s["tag_source"] = "backfill"
+        if rng.random() < 0.85:
+            s["spotify_id"] = f"{i:022d}"
+            s["features"] = {k: float(v) for k, v in zip(
+                ("danceability", "energy", "valence", "tempo", "acousticness",
+                 "instrumentalness", "loudness", "speechiness", "liveness"),
+                rng.uniform(0.05, 0.95, 9))}
+            s["features"]["tempo"], s["features"]["loudness"] = float(rng.uniform(80, 170)), float(rng.uniform(-14, -3))
+        if playlist_track:
+            s["source"] = "spotify_playlist"
+            s["year_spotify"] = s["year"]
+        songs.append(s)
+    from kpoprec.normalize import song_key
+    keys = [song_key(s) for s in songs]
+    gt = {k: [keys[j] for j in rng.choice(n, 9, replace=False) if keys[j] != k] for k in keys}
+    return songs, gt
+
+
+def run_pipeline(tmp_path, songs, gt):
+    import subprocess
+    py = sys.executable
+    (tmp_path / "songs.json").write_text(json.dumps(songs), encoding="utf-8")
+    (tmp_path / "gt.json").write_text(json.dumps(gt), encoding="utf-8")
+    run = lambda *a: subprocess.run([py, *map(str, a)], cwd=ROOT, capture_output=True, text=True)  # noqa: E731
+    for step in (
+        ("scripts/analyze_tag_sparsity.py", "--songs", tmp_path / "songs.json", "--outdir", tmp_path, "--figdir", tmp_path),
+        ("scripts/evaluate.py", "--songs", tmp_path / "songs.json", "--ground-truth", tmp_path / "gt.json",
+         "--outdir", tmp_path, "--figdir", tmp_path),
+        ("scripts/build_db.py", "--songs", tmp_path / "songs.json", "--ground-truth", tmp_path / "gt.json",
+         "--out", tmp_path / "x.db"),
+    ):
+        res = run(*step)
+        assert res.returncode == 0, res.stderr[-600:]
+    return lambda: run("scripts/sql_crosscheck.py", "--db", tmp_path / "x.db", "--reports", tmp_path)
+
+
+def test_every_by_source_number_is_recomputed_and_matches(tmp_path):
+    """The by-source tables in the sparsity report and the benchmark report,
+    checked cell by cell against SQL -- both samples, every quintile, and the
+    regression fitted within each."""
+    songs, gt = two_source_library()
+    check = run_pipeline(tmp_path, songs, gt)
+    assert "## Q4 - Do the two ways of sampling agree?" in (tmp_path / "tag_sparsity_summary.md").read_text()
+    assert "## By source of the seed" in (tmp_path / "eval_summary.md").read_text()
+
+    res = check()
+    assert res.returncode == 0, res.stdout
+    md = (tmp_path / "sql_crosscheck.md").read_text()
+    for needle in ("spotify_playlist: tracks", "Q3, lastfm_tag: tag coverage",
+                   "regression, spotify_playlist: year (partial)", "`hybrid`, spotify_playlist: NDCG@10"):
+        assert needle in md, needle
+    assert "✗" not in md
+
+
+def test_a_report_without_the_by_source_section_fails_when_the_database_has_two_sources(tmp_path):
+    """A stale report -- generated before the playlists were added -- is exactly
+    what the cross-check exists to catch. Finding nothing to compare must not
+    read as a pass."""
+    songs, gt = two_source_library()
+    check = run_pipeline(tmp_path, songs, gt)
+    for name, heading in (("tag_sparsity_summary.md", "## Q4 - Do the two ways of sampling agree?"),
+                          ("eval_summary.md", "## By source of the seed")):
+        path = tmp_path / name
+        text = path.read_text()
+        path.write_text(text[:text.index(heading)])
+    res = check()
+    assert res.returncode == 1
+    assert "by-source section" in res.stdout
+
+
+def test_playlist_tracks_stay_out_of_the_selection_bias_check():
+    """The check compares the first tagging pass with the backfill that finished
+    an interrupted run. Every playlist track is tagged by the backfill, because
+    the first pass never saw it, so letting them in would fill that group with
+    tracks nobody interrupted and make the bias look larger."""
+    songs, _ = two_source_library()
+    conn = db.connect()
+    db.build(conn, songs, {}, repeats=1)
+    got = db.check(conn, "selection_bias")[0]
+    lastfm = [s for s in songs if s.get("source") is None]
+    assert got["first_pass_n"] + got["backfill_n"] == len(lastfm)
+    assert got["backfill_n"] == sum(1 for s in lastfm if s.get("tag_source") == "backfill")
+
+
+def test_the_committed_track_listing_never_names_a_playlist_track(tmp_path):
+    """reports/song_buckets.csv is committed to a public repository. The
+    statistics of the owner's playlist tracks belong in it; their titles and
+    artists are one person's listening, and do not."""
+    import csv
+    songs, gt = two_source_library()
+    run_pipeline(tmp_path, songs, gt)
+    rows = list(csv.DictReader((tmp_path / "song_buckets.csv").open(encoding="utf-8")))
+    assert len(rows) == len(songs)
+    playlist_titles = {s["title"] for s in songs if s.get("source") == "spotify_playlist"}
+    lastfm_titles = {s["title"] for s in songs if s.get("source") is None}
+    named = {r["title"] for r in rows if r["title"]}
+    assert not named & playlist_titles
+    assert lastfm_titles <= named                      # the Last.fm pull is still listed
+    blank = [r for r in rows if r["source"] == "spotify_playlist"]
+    assert blank and all(not (r["key"] or r["artist"] or r["title"]) for r in blank)
+    assert all(r["listeners"] for r in blank)          # ...with its statistics intact

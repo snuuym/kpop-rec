@@ -7,16 +7,16 @@
 
 ## Density
 
-- Seeds: **1258**
-- With at least one positive: **1021** (81.2%)
-- Positives per seed: mean **36.2** / median **37** / p75 59
-- Relative to library size, 2.9% of the corpus is labelled relevant for an average seed
-  -> **a random recommender's expected Precision@10 is ~2.9%**. Any method must clear this floor before it means anything.
+- Seeds: **1883**
+- With at least one positive: **1587** (84.3%)
+- Positives per seed: mean **38.5** / median **40** / p75 62
+- Relative to library size, 2.0% of the corpus is labelled relevant for an average seed
+  -> **a random recommender's expected Precision@10 is ~2.0%**. Any method must clear this floor before it means anything.
 
 ## Diagnostic 1 — same-artist contamination
 
-- Share of positives by the seed's own artist: **2.2%** (1012/45601)
-- Median per-seed share: **2.0%**
+- Share of positives by the seed's own artist: **2.5%** (1821/72588)
+- Median per-seed share: **2.5%**
 
 > Acceptable — same-artist positives are not driving the labels.
 
@@ -24,20 +24,20 @@
 
 | | median listeners |
 |---|---:|
-| Whole library | 93,286 |
-| Positive samples | 225,243 |
+| Whole library | 70,551 |
+| Positive samples | 197,698 |
 
-Positives are about **2.4x** as popular as the corpus median. The CF labels lean heavily toward the head, so a popularity baseline will be strong and must be reported. If a content-based method cannot beat it, that is the finding.
+Positives are about **2.8x** as popular as the corpus median. The CF labels lean heavily toward the head, so a popularity baseline will be strong and must be reported. If a content-based method cannot beat it, that is the finding.
 
 ## Diagnostic 3 — evaluation reliability by popularity quintile
 
 | Quintile | Tracks | With positives | Mean positives | Reliability |
 |---|---:|---:|---:|---|
-| Q1 | 254 | 43% | 11.1 | **Not reliable** |
-| Q2 | 253 | 63% | 19.8 | Treat with caution |
-| Q3 | 254 | 100% | 49.4 | Reliable |
-| Q4 | 253 | 99% | 52.6 | Reliable |
-| Q5 | 253 | 98% | 47.1 | Reliable |
+| Q1 | 379 | 47% | 10.9 | **Not reliable** |
+| Q2 | 378 | 76% | 22.5 | Treat with caution |
+| Q3 | 378 | 98% | 46.4 | Reliable |
+| Q4 | 378 | 99% | 56.3 | Reliable |
+| Q5 | 378 | 98% | 55.9 | Reliable |
 
 > Quintiles with low coverage are blind spots of the offline benchmark and must be labelled as such wherever results are reported. Closing them requires human relevance judgements, not more CF labels.
 
@@ -45,5 +45,5 @@ Positives are about **2.4x** as popular as the corpus median. The CF labels lean
 ---
 ## Density after removing same-artist positives
 
-- With at least one positive: 1018/1258 (80.9%)
-- Positives per seed: mean 35.4 / median 36
+- With at least one positive: 1576/1883 (83.7%)
+- Positives per seed: mean 37.6 / median 39
