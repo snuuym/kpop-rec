@@ -181,7 +181,48 @@ def sparsity(conn: sqlite3.Connection, md: str | None) -> list[Row]:
         p("Tag coverage spread (pp)", r"varies by \*\*(\d+) percentage points", q[0]["tag_spread"], 100),
         p("Feature coverage spread (pp)", r"varies by only \*\*(\d+) points", q[0]["feature_spread"], 100),
     ]
-    return rows + sparsity_by_source(conn, md)
+    return rows + d9_lower_bound(conn, md) + sparsity_by_source(conn, md)
+
+
+def d9_lower_bound(conn: sqlite3.Connection, md: str | None) -> list[Row]:
+    """analyze_tag_sparsity.d9_lower_bound: track vs album vs neither, overall
+    and by quintile -- the corrected (still lower-bound) coverage estimate."""
+    has = md is not None
+    lvl = one(conn, "tag_level_coverage")
+    ql = db.check(conn, "tag_level_coverage_by_quintile")
+
+    # Scoped to this section alone: its by-quintile table has the same shape
+    # ("| Q1 coldest | NN% | NN% |") as fig5's central-result table earlier in
+    # the same document, and an unscoped search would silently grab that one.
+    heading = "## Tag coverage, by level (D9 lower bound)"
+    if has and heading in md:
+        section_md = md[md.index(heading):]
+    else:
+        section_md = "" if has else None
+
+    def p(label, pattern, sql, scale=1.0, group=1):
+        return printed(label, grab(section_md, pattern, group), sql, scale, has)
+
+    rows = [
+        p("D9: has a track-level effective tag", r"Has a track-level effective tag \| (\d+)", lvl["track"]),
+        p("D9: no track tag, has an album tag", r"has an album-level one \| (\d+)", lvl["album"]),
+        p("D9: neither level", r"Neither \(lower bound[^|]*\| (\d+)", lvl["none"]),
+        p("D9: track-only zero-tag share (%)", r"Track-level-only zero-tag share: \*\*([\d.]+)%",
+          (lvl["n_tracks"] - lvl["track"]) / lvl["n_tracks"], 100),
+        p("D9: track-or-album zero-tag share (%)", r"Track-or-album zero-tag share: \*\*([\d.]+)%",
+          lvl["none"] / lvl["n_tracks"], 100),
+    ]
+    if ql:
+        for x in ql:
+            label = QUINTILE_LABELS[x["quintile"]]
+            pat = rf"\| {label} \| (\d+)% \| (\d+)% \|"
+            rows += [
+                p(f"D9 {label}: track coverage (%)", pat, x["track_coverage"], 100, group=1),
+                p(f"D9 {label}: track-or-album coverage (%)", pat, x["combined_coverage"], 100, group=2),
+            ]
+        rows.append(p("D9: track-or-album coverage spread (pp)",
+                       r"Track-or-album coverage spread: \*\*(\d+) ", ql[0]["combined_spread"], 100))
+    return rows
 
 
 def vocabulary(conn: sqlite3.Connection, path: Path) -> list[Row]:

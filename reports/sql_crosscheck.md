@@ -5,7 +5,7 @@
 > compared with the report that published it. A printed number matches
 > when the SQL value rounds to it; the benchmark CSVs are held to 1e-9.
 
-**396 numbers checked: all match.**
+**412 numbers checked: all match.**
 
 ## tag_sparsity_summary.md
 
@@ -57,6 +57,22 @@
 | Q5 hottest: audio-feature coverage (%) | 87 | 87 | ✓ |
 | Tag coverage spread (pp) | 82 | 82 | ✓ |
 | Feature coverage spread (pp) | 15 | 15 | ✓ |
+| D9: has a track-level effective tag | 428 | 428 | ✓ |
+| D9: no track tag, has an album tag | 962 | 962 | ✓ |
+| D9: neither level | 502 | 502 | ✓ |
+| D9: track-only zero-tag share (%) | 77.4 | 77.4 | ✓ |
+| D9: track-or-album zero-tag share (%) | 26.5 | 26.5 | ✓ |
+| D9 Q1 coldest: track coverage (%) | 0 | 0 | ✓ |
+| D9 Q1 coldest: track-or-album coverage (%) | 49 | 49 | ✓ |
+| D9 Q2: track coverage (%) | 2 | 2 | ✓ |
+| D9 Q2: track-or-album coverage (%) | 69 | 69 | ✓ |
+| D9 Q3: track coverage (%) | 8 | 8 | ✓ |
+| D9 Q3: track-or-album coverage (%) | 80 | 80 | ✓ |
+| D9 Q4: track coverage (%) | 21 | 21 | ✓ |
+| D9 Q4: track-or-album coverage (%) | 76 | 76 | ✓ |
+| D9 Q5 hottest: track coverage (%) | 82 | 82 | ✓ |
+| D9 Q5 hottest: track-or-album coverage (%) | 93 | 93 | ✓ |
+| D9: track-or-album coverage spread (pp) | 44 | 44 | ✓ |
 | lastfm_tag: tracks | 1267 | 1267 | ✓ |
 | lastfm_tag: no effective tag (%) | 72.7 | 72.7 | ✓ |
 | lastfm_tag: audio-feature coverage (%) | 87.4 | 87.4 | ✓ |

@@ -88,6 +88,12 @@ def to_frame(path: Path) -> pd.DataFrame:
     for s in songs:
         raw = [t for t in (normalize_tag(t) for t in (s.get("all_tags") or [])) if t]
         eff = [t for t in raw if is_effective(t)]
+        # Album-level tags (D9's fallback layer, backfill_album_tags.py): a
+        # coarser, separate signal, filtered the same way. Never unioned into
+        # `eff` -- a track's own absence of tags is the finding this report
+        # exists to measure, not something to paper over.
+        album_raw = [t for t in (normalize_tag(t) for t in (s.get("album_tags") or [])) if t]
+        album_eff = [t for t in album_raw if is_effective(t)]
         feats = s.get("features") or {}
         rows.append({
             "title": s.get("title", ""),
@@ -96,6 +102,8 @@ def to_frame(path: Path) -> pd.DataFrame:
             "raw_tags": raw,
             "n_raw": len(raw),
             "n_eff": len(eff),
+            "n_album_eff": len(album_eff),
+            "tag_level": "track" if eff else ("album" if album_eff else "none"),
             "n_classified": len(s.get("tags") or []),
             "has_feats": bool(feats) and feats.get("danceability") is not None,
             "year": s.get("year") or s.get("release_year"),
@@ -160,8 +168,14 @@ def integrity_check(df: pd.DataFrame, md: list) -> None:
         print(f"[integrity] {unverified}/{n} unverified — run backfill_tags.py first")
     else:
         md += [
-            "\n> Empty tags were confirmed track by track against the Last.fm API: "
-            "**this is genuine absence of UGC, not a gap in collection.**\n"
+            "\n> Empty tags were confirmed track by track against the Last.fm API, "
+            "in the sense that the API itself reports nothing for them.",
+            "> **This is weaker than it sounds (D9): the API that did the confirming "
+            "has an unresolved, officially-unaddressed bug that returns empty results "
+            "for most tracks regardless of whether the track actually carries tags on "
+            "Last.fm's own pages.** \"API-confirmed empty\" is not the same claim as "
+            "\"genuinely untagged\" — see the lower-bound section below for the "
+            "corrected estimate.\n",
         ]
         print(
             f"[integrity] verified-untagged {verified}/{n}, "
@@ -260,6 +274,13 @@ def fig1_distribution(df: pd.DataFrame, figdir: Path, md: list) -> None:
         f"- Carrying a classified sub-genre label: {int((df['n_classified'] > 0).sum())} "
         f"({(df['n_classified'] > 0).mean() * 100:.1f}%)\n",
         f"![]({FIG_PREFIX}/fig1_tag_count_distribution.png)\n",
+        "> **These numbers measure `track.getTopTags`, not the catalogue (D9).** "
+        "The endpoint fails for most tracks regardless of whether Last.fm's own "
+        "pages show tags, and the failure rate itself varies by popularity — so "
+        "the zero-tag share above is better read as *this endpoint's observed "
+        "coverage* than as *how many tracks genuinely lack tags*. See \"Tag "
+        "coverage, by level\" below for the corrected (still lower-bound) "
+        "estimate.\n",
     ]
     print(f"[fig1] zero effective tags: {zero}/{n} ({zero / n * 100:.1f}%)")
 
@@ -478,6 +499,12 @@ def disentangle(df: pd.DataFrame, md: list) -> None:
         "ceiling, and the effort belongs on signals that do not depend on UGC "
         "at all — acoustic features, or features derived from the audio "
         "directly.\n",
+        "> **D9 caveat**: `n_eff` here is partly the API's own success rate, "
+        "which is itself popularity-dependent — so this regression's `listeners` "
+        "coefficient is confounded with endpoint reliability, not just with "
+        "actual tagging behavior. The qualitative direction (popularity over "
+        "year) still held up under a separate live-sampling check; the "
+        "magnitude above should not be read as more than a rough estimate.\n",
     ]
     print(f"[disentangle] beta_year={beta[1]:+.3f}  beta_pop={beta[2]:+.3f}  R2={r2:.3f}")
 
@@ -676,13 +703,77 @@ def fig5_signal_comparison(df: pd.DataFrame, figdir: Path, md: list) -> None:
         f"- Acoustic feature coverage varies by only **{spread_f:.0f} points** — "
         "effectively popularity-independent\n",
         f"![]({FIG_PREFIX}/fig5_signal_coverage.png)\n",
-        "> **This is the argument.** UGC signal serves the head; acoustic signal "
-        "covers the whole distribution. A recommender built only on the former "
-        "cannot reach the long tail — not because its ranking is weak, but "
-        "because the input features do not exist there. That is an architectural "
-        "limit, not an algorithmic one.\n",
+        "> **This is the argument, qualified by D9.** UGC signal serves the head "
+        "more than the tail in what the API hands back; acoustic signal covers "
+        "the whole distribution regardless. But the UGC line above is `track."
+        "getTopTags`'s success rate as much as it is the catalogue's true tag "
+        "coverage — see \"Tag coverage, by level\" below before treating its "
+        "shape as architectural rather than partly an artifact of a broken "
+        "endpoint.\n",
     ]
     print(f"[fig5] tag coverage spread {spread_t:.0f}pp vs feature spread {spread_f:.0f}pp")
+
+
+def d9_lower_bound(df: pd.DataFrame, md: list) -> None:
+    """Combined track+album tag coverage: still a lower bound, but a tighter
+    one than track-level alone.
+
+    D9 found `track.getTopTags` empty for most tracks that do carry tags on
+    Last.fm's own pages, and the failure rate rises with obscurity -- so the
+    zero-tag numbers above measure the endpoint more than the catalogue.
+    `album.getTopTags` recovers a large share of that gap, but a follow-up spot
+    check found it fails the same way on a minority of albums (5/8 sampled
+    "untagged" albums had visible tags on their pages). So neither number is
+    exact: track-level is a floor on badness, track+album is a tighter floor,
+    and the true coverage is somewhere above both.
+    """
+    n = len(df)
+    track = int((df["tag_level"] == "track").sum())
+    album = int((df["tag_level"] == "album").sum())
+    none = int((df["tag_level"] == "none").sum())
+
+    md += [
+        "## Tag coverage, by level (D9 lower bound)\n",
+        "Every number in this section is a **lower bound on true coverage**, "
+        "not an exact figure -- both `track.getTopTags` and `album.getTopTags` "
+        "are known to fail on tracks/albums that do carry visible tags "
+        "(see the D9 case study). Reported separately by level so the known "
+        "gap stays visible rather than being absorbed into one number.\n",
+        "| Level | Tracks | Share |",
+        "|---|---:|---:|",
+        f"| Has a track-level effective tag | {track} | {track / n * 100:.1f}% |",
+        f"| No track tag, but has an album-level one | {album} | {album / n * 100:.1f}% |",
+        f"| Neither (lower bound on \"no usable tag\") | {none} | {none / n * 100:.1f}% |",
+        "",
+        f"- Track-level-only zero-tag share: **{(n - track) / n * 100:.1f}%** "
+        "(the Q1 number above, i.e. the API's observed failure rate)",
+        f"- Track-or-album zero-tag share: **{none / n * 100:.1f}%** "
+        "(tighter lower bound; still not exact, see the album-level spot "
+        "check above)\n",
+    ]
+
+    if df["listeners"].notna().sum() >= 50:
+        d = df.dropna(subset=["listeners"]).copy()
+        d["q"] = pd.Categorical.from_codes(
+            quintile_of(d["listeners"].to_numpy(float)),
+            QUINTILE_LABELS,
+        )
+        g = d.groupby("q", observed=True)
+        track_cov = g["tag_level"].apply(lambda x: (x == "track").mean() * 100)
+        combined_cov = g["tag_level"].apply(lambda x: (x != "none").mean() * 100)
+        md += [
+            "| Quintile | Track-level coverage | Track-or-album coverage (lower bound) |",
+            "|---|---:|---:|",
+            *[
+                f"| {q} | {t:.0f}% | {c:.0f}% |"
+                for q, t, c in zip(track_cov.index, track_cov.values, combined_cov.values)
+            ],
+            f"\n- Track-or-album coverage spread: **{combined_cov.max() - combined_cov.min():.0f} "
+            "points** across quintiles, vs the track-only spread quoted above -- "
+            "adding album tags narrows but does not eliminate the popularity "
+            "gradient.\n",
+        ]
+    print(f"[d9] track {track}/{n}, album-only {album}/{n}, neither {none}/{n}")
 
 
 # ── Entry point ─────────────────────────────────────────────────────────────
@@ -719,6 +810,7 @@ def main() -> None:
 
     fig4_coverage(df, args.figdir, md)
     fig5_signal_comparison(df, args.figdir, md)
+    d9_lower_bound(df, md)
     source_breakdown(df, md)
 
     missing = [c for c in ("year", "listeners") if df[c].notna().sum() < 50]
@@ -736,7 +828,7 @@ def main() -> None:
     # and no name: the report is committed, and a list of what one person
     # listens to is theirs to publish, not this script's.
     out = df[["key", "artist", "title", "source", "n_raw", "n_eff", "bucket",
-              "has_feats", "year", "listeners"]].copy()
+              "tag_level", "has_feats", "year", "listeners"]].copy()
     out.loc[out["source"] != SOURCE_LASTFM, ["key", "artist", "title"]] = ""
     out.to_csv(args.outdir / "song_buckets.csv", index=False)
 

@@ -14,7 +14,8 @@
 | Has effective tags | 428 | 22.6% | usable |
 
 
-> Empty tags were confirmed track by track against the Last.fm API: **this is genuine absence of UGC, not a gap in collection.**
+> Empty tags were confirmed track by track against the Last.fm API, in the sense that the API itself reports nothing for them.
+> **This is weaker than it sounds (D9): the API that did the confirming has an unresolved, officially-unaddressed bug that returns empty results for most tracks regardless of whether the track actually carries tags on Last.fm's own pages.** "API-confirmed empty" is not the same claim as "genuinely untagged" — see the lower-bound section below for the corrected estimate.
 
 
 ## Q1 - How much signal survives removing root tags?
@@ -26,6 +27,8 @@
 - Carrying a classified sub-genre label: 1892 (100.0%)
 
 ![](../figures/fig1_tag_count_distribution.png)
+
+> **These numbers measure `track.getTopTags`, not the catalogue (D9).** The endpoint fails for most tracks regardless of whether Last.fm's own pages show tags, and the failure rate itself varies by popularity — so the zero-tag share above is better read as *this endpoint's observed coverage* than as *how many tracks genuinely lack tags*. See "Tag coverage, by level" below for the corrected (still lower-bound) estimate.
 
 ### Tag vocabulary
 
@@ -100,6 +103,8 @@ Model R^2 = 0.334
 
 > This determines where further effort is worth spending. If sparsity is driven by popularity, scraping additional tag sources has a low ceiling, and the effort belongs on signals that do not depend on UGC at all — acoustic features, or features derived from the audio directly.
 
+> **D9 caveat**: `n_eff` here is partly the API's own success rate, which is itself popularity-dependent — so this regression's `listeners` coefficient is confounded with endpoint reliability, not just with actual tagging behavior. The qualitative direction (popularity over year) still held up under a separate live-sampling check; the magnitude above should not be read as more than a rough estimate.
+
 ---
 
 ## Q3 - Does the fallback path hold up?
@@ -132,7 +137,30 @@ Model R^2 = 0.334
 
 ![](../figures/fig5_signal_coverage.png)
 
-> **This is the argument.** UGC signal serves the head; acoustic signal covers the whole distribution. A recommender built only on the former cannot reach the long tail — not because its ranking is weak, but because the input features do not exist there. That is an architectural limit, not an algorithmic one.
+> **This is the argument, qualified by D9.** UGC signal serves the head more than the tail in what the API hands back; acoustic signal covers the whole distribution regardless. But the UGC line above is `track.getTopTags`'s success rate as much as it is the catalogue's true tag coverage — see "Tag coverage, by level" below before treating its shape as architectural rather than partly an artifact of a broken endpoint.
+
+## Tag coverage, by level (D9 lower bound)
+
+Every number in this section is a **lower bound on true coverage**, not an exact figure -- both `track.getTopTags` and `album.getTopTags` are known to fail on tracks/albums that do carry visible tags (see the D9 case study). Reported separately by level so the known gap stays visible rather than being absorbed into one number.
+
+| Level | Tracks | Share |
+|---|---:|---:|
+| Has a track-level effective tag | 428 | 22.6% |
+| No track tag, but has an album-level one | 962 | 50.8% |
+| Neither (lower bound on "no usable tag") | 502 | 26.5% |
+
+- Track-level-only zero-tag share: **77.4%** (the Q1 number above, i.e. the API's observed failure rate)
+- Track-or-album zero-tag share: **26.5%** (tighter lower bound; still not exact, see the album-level spot check above)
+
+| Quintile | Track-level coverage | Track-or-album coverage (lower bound) |
+|---|---:|---:|
+| Q1 coldest | 0% | 49% |
+| Q2 | 2% | 69% |
+| Q3 | 8% | 80% |
+| Q4 | 21% | 76% |
+| Q5 hottest | 82% | 93% |
+
+- Track-or-album coverage spread: **44 points** across quintiles, vs the track-only spread quoted above -- adding album tags narrows but does not eliminate the popularity gradient.
 
 ## Q4 - Do the two ways of sampling agree?
 
