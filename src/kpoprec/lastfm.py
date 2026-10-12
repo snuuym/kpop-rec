@@ -1,6 +1,6 @@
 """Minimal Last.fm client.
 
-Only the four endpoints this project uses, with one behaviour worth calling
+Only the endpoints this project uses, with one behaviour worth calling
 out: rate limiting is reported to the caller as the sentinel ``RATE_LIMITED``
 rather than raised or slept through. Every pipeline stage caches incrementally,
 so the correct response to a 429 is to persist progress and exit — not to block
@@ -103,6 +103,54 @@ class LastFM:
             "playcount": int(t.get("playcount") or 0),
             "mbid": t.get("mbid") or None,
         }
+
+    def track_album(self, artist: str, title: str):
+        """The album Last.fm files this track under, or ``None``.
+
+        Needed only because tags have to be fetched at album level: see
+        ``album_top_tags``.
+        """
+        data = self._get("track.getInfo", artist=artist, track=title)
+        if data is RATE_LIMITED:
+            return RATE_LIMITED
+        if data is None or "error" in data:
+            return None
+        return ((data.get("track") or {}).get("album") or {}).get("title")
+
+    def album_top_tags(self, artist: str, album: str, min_count: int = 0):
+        """Tags applied to an *album*, as ``(all_tags, confident_tags)``.
+
+        This exists because ``track.getTopTags`` stopped returning data. Since
+        at least 2025 it answers most tracks with an empty list while the same
+        tags are still visible on the site, and the failure rate rises as a
+        track gets more obscure -- so the track-level numbers it produces
+        measure the endpoint's reliability, not the catalogue. See the D9
+        investigation. ``album.getTopTags`` is a different endpoint and is not
+        affected.
+
+        Album tags are **coarser than track tags, and must stay labelled as
+        such**: every track on a record inherits one tag set, so they cannot
+        distinguish two songs on the same album. They are a fallback layer,
+        never a substitute that silently fills the gap -- the gap is the
+        finding.
+        """
+        data = self._get("album.getTopTags", artist=artist, album=album)
+        if data is RATE_LIMITED:
+            return RATE_LIMITED
+        if data is None:
+            return None
+        if "error" in data:
+            return NOT_FOUND
+
+        all_tags, confident = [], []
+        for t in _as_list(data.get("toptags", {}).get("tag")):
+            name = str(t.get("name", "")).lower().strip()
+            if not name:
+                continue
+            all_tags.append(name)
+            if int(t.get("count") or 0) >= min_count:
+                confident.append(name)
+        return all_tags, confident
 
     def similar_tracks(self, artist: str, title: str, limit: int = 100):
         """Last.fm's similar-track list — the basis of the pseudo ground truth.

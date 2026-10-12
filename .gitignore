@@ -68,6 +68,10 @@ KpopPlayer.app/
 # Output of `make eval` on the bundled sample — the committed reports/ and
 # figures/ are the full-corpus results and must not be overwritten by a demo run.
 reports/sample/
+
+# Ad hoc local queries against data/kpoprec*.db (e.g. per-track gap listings
+# that would name playlist tracks -- one person's listening, never committed).
+reports/local/
 figures/sample/
 
 # ── Local-only working notes ────────────────────────────────────────────────

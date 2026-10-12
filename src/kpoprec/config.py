@@ -34,6 +34,7 @@ TAGS_CACHE = DATA_DIR / "tags_cache.json"
 ENRICH_CACHE = DATA_DIR / "enrich_cache.json"
 GT_CACHE = DATA_DIR / "gt_cache.json"
 FEATURES_CACHE = DATA_DIR / "features_cache.json"
+ALBUM_TAGS_CACHE = DATA_DIR / "album_tags_cache.json"
 
 # ── API endpoints ───────────────────────────────────────────────────────────
 LASTFM_BASE = "https://ws.audioscrobbler.com/2.0/"
