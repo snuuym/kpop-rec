@@ -80,6 +80,27 @@ def test_the_playlist_fields_survive_a_round_trip():
     assert got == {0: "lastfm_tag", 1: "spotify_playlist"}
 
 
+def test_the_album_fields_survive_a_round_trip():
+    """`album` and `album_tags` (D9's fallback layer, backfill_album_tags.py)
+    are present on a track only when the lookup resolved one. A track with an
+    album but no album tags must keep that distinction -- not gain an empty
+    list it never had."""
+    songs = [
+        dict(song("untouched"), listeners=10),
+        dict(song("no_tags"), album="Some Record"),
+        dict(song("tagged"), album="Another Record", album_tags=["k-pop", "dance"]),
+    ]
+    songs = [dict(s, dur=200, durStr="3:20") for s in songs]
+    songs = [{k: v for k, v in s.items() if k != "features"} for s in songs]
+    conn = db.connect()
+    db.build(conn, songs, {}, repeats=1)
+    assert db.export_songs(conn) == songs
+    got: dict[int, list[str]] = {}
+    for r in conn.execute("SELECT track_id, tag FROM track_album_tags ORDER BY track_id, ord"):
+        got.setdefault(r["track_id"], []).append(r["tag"])
+    assert got == {2: ["k-pop", "dance"]}
+
+
 # ── Definitions ─────────────────────────────────────────────────────────────
 
 @pytest.mark.parametrize("n", [7, 12, 13, 1267])

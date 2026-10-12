@@ -51,10 +51,10 @@ CHECKS_DIR = SQL_DIR / "checks"
 SONG_FIELDS = {
     "title", "artist", "tags", "all_tags", "dur", "durStr", "url",
     "spotify_id", "features", "listeners", "playcount", "mbid", "year",
-    "tag_source", "source", "year_spotify",
+    "tag_source", "source", "year_spotify", "album", "album_tags",
 }
 _SCALARS = ("url", "spotify_id", "mbid", "year", "year_spotify", "listeners",
-            "playcount", "tag_source", "source")
+            "playcount", "tag_source", "source", "album")
 
 
 def connect(path: str | Path = ":memory:") -> sqlite3.Connection:
@@ -130,6 +130,14 @@ def load_library(conn: sqlite3.Connection, songs: list[dict]) -> None:
         ],
     )
     conn.executemany(
+        "INSERT INTO track_album_tags (track_id, ord, tag, tag_norm) VALUES (?, ?, ?, ?)",
+        [
+            (i, j, t, normalize_tag(t))
+            for i, s in enumerate(songs)
+            for j, t in enumerate(s.get("album_tags") or [])
+        ],
+    )
+    conn.executemany(
         "INSERT INTO track_genres (track_id, ord, genre) VALUES (?, ?, ?)",
         [(i, j, g) for i, s in enumerate(songs) for j, g in enumerate(s.get("tags") or [])],
     )
@@ -157,6 +165,9 @@ def export_songs(conn: sqlite3.Connection) -> list[dict]:
     tags: dict[int, list[str]] = {}
     for r in conn.execute("SELECT track_id, tag FROM track_tags ORDER BY track_id, ord"):
         tags.setdefault(r["track_id"], []).append(r["tag"])
+    album_tags: dict[int, list[str]] = {}
+    for r in conn.execute("SELECT track_id, tag FROM track_album_tags ORDER BY track_id, ord"):
+        album_tags.setdefault(r["track_id"], []).append(r["tag"])
     genres: dict[int, list[str]] = {}
     for r in conn.execute("SELECT track_id, genre FROM track_genres ORDER BY track_id, ord"):
         genres.setdefault(r["track_id"], []).append(r["genre"])
@@ -179,6 +190,8 @@ def export_songs(conn: sqlite3.Connection) -> list[dict]:
         for c in _SCALARS:
             if r[c] is not None:
                 s[c] = r[c]
+        if i in album_tags:
+            s["album_tags"] = album_tags[i]
         if i in feats:
             s["features"] = feats[i]
         songs.append(s)

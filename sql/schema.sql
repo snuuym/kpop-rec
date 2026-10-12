@@ -39,6 +39,8 @@ CREATE TABLE tracks (
     year       INTEGER,           -- MusicBrainz: the earliest known release
     year_spotify INTEGER,         -- Spotify: the album this copy sits on; a
                                   -- reissue or compilation reads later
+    album      TEXT,             -- Last.fm's album title for this track (D9,
+                                  -- backfill_album_tags.py); NULL if unresolved
     listeners  INTEGER,
     playcount  INTEGER,
     tag_source TEXT CHECK (tag_source IN ('backfill')),
@@ -53,6 +55,21 @@ CREATE INDEX tracks_artist ON tracks (artist_id);
 -- of the raw text: SQLite's lower() folds ASCII only, so normalization stays
 -- in the one Python module that defines it.
 CREATE TABLE track_tags (
+    track_id INTEGER NOT NULL REFERENCES tracks,
+    ord      INTEGER NOT NULL,
+    tag      TEXT    NOT NULL,
+    tag_norm TEXT    NOT NULL,
+    PRIMARY KEY (track_id, ord)
+) WITHOUT ROWID;
+
+-- Tags applied to the *album* (D9): track.getTopTags fails for most tracks
+-- (see effective_tags' companion view effective_album_tags and the D9 writeup
+-- in kpop-rec-private), so album.getTopTags is pulled as a coarser fallback.
+-- Every track on the same record shares one row set here -- this table
+-- cannot distinguish two songs on an album, by construction. It is never
+-- merged into track_tags: that table stays the untouched record of what the
+-- track-level API actually returned, which is the D9 finding's evidence.
+CREATE TABLE track_album_tags (
     track_id INTEGER NOT NULL REFERENCES tracks,
     ord      INTEGER NOT NULL,
     tag      TEXT    NOT NULL,
@@ -178,6 +195,16 @@ FROM track_tags
 WHERE tag_norm <> ''
   AND tag_norm NOT IN (SELECT tag FROM non_discriminative_tags);
 
+-- Same filter, over the coarser album-level fallback (D9). Kept as a
+-- separate view rather than UNIONed into effective_tags: reports must be
+-- able to say which granularity a number came from, and a track-level and
+-- an album-level effective tag are not the same kind of evidence.
+CREATE VIEW effective_album_tags AS
+SELECT track_id, ord, tag_norm AS tag
+FROM track_album_tags
+WHERE tag_norm <> ''
+  AND tag_norm NOT IN (SELECT tag FROM non_discriminative_tags);
+
 -- Per-track signal counts. Counts are of list entries, duplicates included,
 -- matching analyze_tag_sparsity.to_frame; only "is it zero" matters to the
 -- benchmark, and duplicates cannot change that.
@@ -185,6 +212,7 @@ CREATE VIEW track_signals AS
 SELECT t.track_id,
        COALESCE(r.n, 0)            AS n_raw,
        COALESCE(e.n, 0)            AS n_eff,
+       COALESCE(a.n, 0)            AS n_album_eff,
        COALESCE(g.n, 0)            AS n_classified,
        f.track_id IS NOT NULL      AS has_features
 FROM tracks t
@@ -192,6 +220,8 @@ LEFT JOIN (SELECT track_id, COUNT(*) AS n FROM track_tags
            WHERE tag_norm <> '' GROUP BY track_id) r USING (track_id)
 LEFT JOIN (SELECT track_id, COUNT(*) AS n FROM effective_tags
            GROUP BY track_id) e USING (track_id)
+LEFT JOIN (SELECT track_id, COUNT(*) AS n FROM effective_album_tags
+           GROUP BY track_id) a USING (track_id)
 LEFT JOIN (SELECT track_id, COUNT(*) AS n FROM track_genres
            GROUP BY track_id) g USING (track_id)
 LEFT JOIN audio_features f
