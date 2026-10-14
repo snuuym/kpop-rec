@@ -623,7 +623,7 @@ def readme_samples(conn: sqlite3.Connection, md: str) -> list[Row]:
         p("Playlist share released 2023 or later (%)", r"\((\d+)% of it is from 2023 or later\)", pl["recent_share"], 100),
         p("Feature coverage, 2025 (%), limitation", r"2025-26 releases\s+is (\d+)% and", fy["2025"]["feature_coverage"], 100),
         p("Feature coverage, 2026 (%), limitation", r"2025-26 releases\s+is \d+% and (\d+)% as of", fy["2026"]["feature_coverage"], 100),
-        p("Zero-tag share, summary table (%)", r"\| ([\d.]+)% of tracks have zero effective tags", sig["zero_eff_share"], 100),
+        p("Zero-tag share, summary table (%)", r"returns no effective tag for ([\d.]+)% of tracks", sig["zero_eff_share"], 100),
         p("Tag spread, summary table (pp)", r"popularity-dependent \((\d+)pp spread\)", one(conn, "coverage_by_quintile")["tag_spread"], 100),
         p("Feature coverage through 2024, summary (%)", r"— (\d+)% for releases through 2024", fy["<=2024"]["feature_coverage"], 100),
         p("Feature coverage 2026, summary (%)", r"through 2024, (\d+)% for 2026", fy["2026"]["feature_coverage"], 100),
@@ -644,24 +644,27 @@ def readme(conn: sqlite3.Connection, md: str) -> list[Row]:
     by_k = {(x["k"], x["policy"]): x for x in db.check(conn, "benchmark_by_k")}
     by_q = {(x["policy"], x["quintile"]): x for x in db.check(conn, "benchmark_by_quintile")}
     fb = {x["bucket"]: x for x in db.check(conn, "fallback_coverage")}
+    ql = {x["quintile"]: x for x in db.check(conn, "tag_level_coverage_by_quintile")}
 
     def p(label, pattern, sql, scale=1.0, group=1):
         return printed(label, grab(md, pattern, group), sql, scale)
 
     rows = [
-        p("Corpus with no usable tag (%)", r"\*\*([\d.]+)% of the corpus has no\s+usable tag", s["zero_eff_share"], 100),
+        p("Corpus with no usable tag (%)", r"\*\*no usable tag for ([\d.]+)% of\s+the\s+corpus", s["zero_eff_share"], 100),
         p("Unreachable by any content signal (%)", r"\| ([\d.]+)% of tracks are unreachable",
           fb["no tags"]["no_feature"] / fb["no tags"]["n_tracks"], 100),
     ]
     for x in q:
         n = x["quintile"] + 1
-        pat = rf"^\| Q{n}[^|]*\| \**(\d+)%\** \| (\d+)% \|"
+        pat = rf"^\| Q{n}[^|]*\| \**(\d+)%\** \| (\d+)% \| (\d+)% \|"
         rows += [
-            p(f"Q{n}: tag coverage (%)", pat, x["tag_coverage"], 100, group=1),
-            p(f"Q{n}: acoustic coverage (%)", pat, x["feature_coverage"], 100, group=2),
+            p(f"Q{n}: track-level tag coverage (%)", pat, x["tag_coverage"], 100, group=1),
+            p(f"Q{n}: track-or-album tag coverage (%)", pat, ql[x["quintile"]]["combined_coverage"], 100, group=2),
+            p(f"Q{n}: acoustic coverage (%)", pat, x["feature_coverage"], 100, group=3),
         ]
     rows += [
-        p("Tag coverage swing (pp)", r"Tag coverage swings \*\*(\d+) percentage points", q[0]["tag_spread"], 100),
+        p("Track-level coverage swing (pp)", r"Track-level coverage swings \*\*(\d+) percentage points", q[0]["tag_spread"], 100),
+        p("Track-or-album coverage spread (pp)", r"narrows to \*\*(\d+) points", ql[0]["combined_spread"], 100),
         p("Acoustic coverage swing (pp)", r"acoustic\s+coverage swings \*\*(\d+)\*\*", q[0]["feature_spread"], 100),
         p("Regression sample", r"over the ([\d,]+) tracks carrying both", r["n_tracks"]),
         p("Year: univariate", r"\| Release year \| ([+-][\d.]+)", r["r_year"]),

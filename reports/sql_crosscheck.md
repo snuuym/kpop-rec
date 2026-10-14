@@ -5,7 +5,7 @@
 > compared with the report that published it. A printed number matches
 > when the SQL value rounds to it; the benchmark CSVs are held to 1e-9.
 
-**412 numbers checked: all match.**
+**418 numbers checked: all match.**
 
 ## tag_sparsity_summary.md
 
@@ -231,17 +231,23 @@
 |---|---:|---:|:---:|
 | Corpus with no usable tag (%) | 77.4 | 77.4 | ✓ |
 | Unreachable by any content signal (%) | 15.9 | 15.9 | ✓ |
-| Q1: tag coverage (%) | 0 | 0 | ✓ |
+| Q1: track-level tag coverage (%) | 0 | 0 | ✓ |
+| Q1: track-or-album tag coverage (%) | 49 | 49 | ✓ |
 | Q1: acoustic coverage (%) | 72 | 72 | ✓ |
-| Q2: tag coverage (%) | 2 | 2 | ✓ |
+| Q2: track-level tag coverage (%) | 2 | 2 | ✓ |
+| Q2: track-or-album tag coverage (%) | 69 | 69 | ✓ |
 | Q2: acoustic coverage (%) | 75 | 75 | ✓ |
-| Q3: tag coverage (%) | 8 | 8 | ✓ |
+| Q3: track-level tag coverage (%) | 8 | 8 | ✓ |
+| Q3: track-or-album tag coverage (%) | 80 | 80 | ✓ |
 | Q3: acoustic coverage (%) | 78 | 78 | ✓ |
-| Q4: tag coverage (%) | 21 | 21 | ✓ |
+| Q4: track-level tag coverage (%) | 21 | 21 | ✓ |
+| Q4: track-or-album tag coverage (%) | 76 | 76 | ✓ |
 | Q4: acoustic coverage (%) | 84 | 84 | ✓ |
-| Q5: tag coverage (%) | 82 | 82 | ✓ |
+| Q5: track-level tag coverage (%) | 82 | 82 | ✓ |
+| Q5: track-or-album tag coverage (%) | 93 | 93 | ✓ |
 | Q5: acoustic coverage (%) | 87 | 87 | ✓ |
-| Tag coverage swing (pp) | 82 | 82 | ✓ |
+| Track-level coverage swing (pp) | 82 | 82 | ✓ |
+| Track-or-album coverage spread (pp) | 44 | 44 | ✓ |
 | Acoustic coverage swing (pp) | 15 | 15 | ✓ |
 | Regression sample | 1,657 | 1,657 | ✓ |
 | Year: univariate | +0.194 | 0.194 | ✓ |
