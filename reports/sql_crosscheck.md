@@ -225,7 +225,7 @@
 | `hybrid`, lastfm_tag: can rank (%) | 92 | 92 | ✓ |
 | `hybrid`, spotify_playlist: can rank (%) | 70 | 70 | ✓ |
 
-## README.md
+## ANALYSIS.md
 
 | Number | Published | SQL | |
 |---|---:|---:|:---:|

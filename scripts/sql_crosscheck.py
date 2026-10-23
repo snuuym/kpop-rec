@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Recompute every published number in SQL and compare it with the report.
 
-The reports in ``reports/`` and the numbers in the README were produced by
+The reports in ``reports/`` and the numbers in ``docs/ANALYSIS.md`` were produced by
 pandas and numpy. This recomputes each of them from the SQLite database --
 the queries in ``sql/checks/``, over the views in ``sql/schema.sql``, with no
 pandas or numpy involved -- and compares the two.
@@ -19,7 +19,7 @@ Usage
 -----
     python3 scripts/sql_crosscheck.py                    # the sample
     python3 scripts/sql_crosscheck.py --db data/kpoprec.db --reports reports \\
-        --readme README.md
+        --readme docs/ANALYSIS.md
 """
 
 from __future__ import annotations
@@ -471,7 +471,7 @@ def benchmark_md(conn: sqlite3.Connection, md: str | None) -> list[Row]:
     return rows + benchmark_by_source(conn, md)
 
 
-# ── README ──────────────────────────────────────────────────────────────────
+# ── docs/ANALYSIS.md (the --readme document) ────────────────────────────────
 
 def readme_samples(conn: sqlite3.Connection, md: str) -> list[Row]:
     """What the README says about the two samples, and the numbers it quotes in
@@ -719,7 +719,7 @@ def main() -> None:
     ap.add_argument("--db", type=Path, default=config.DATA_DIR / "kpoprec.sample.db")
     ap.add_argument("--reports", type=Path, default=config.REPORTS_DIR / "sample")
     ap.add_argument("--readme", type=Path, default=None,
-                    help="also check the README; its numbers are the full corpus's")
+                    help="also check the analysis write-up (docs/ANALYSIS.md); its numbers are the full corpus's")
     ap.add_argument("--out", type=Path, default=None,
                     help="default: <reports>/sql_crosscheck.md")
     args = ap.parse_args()
