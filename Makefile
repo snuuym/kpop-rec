@@ -1,6 +1,9 @@
-.PHONY: help install test lint app library backfill enrich features gt probe eval eval-full bench bench-full pool pool-full import-playlists db db-full sqlcheck sqlcheck-full all clean
+.PHONY: help install test lint app demo demo-serve library backfill enrich features gt probe eval eval-full bench bench-full pool pool-full import-playlists db db-full sqlcheck sqlcheck-full all clean
 
-PY := python3
+# The project's virtualenv when there is one (`make install` creates it), so
+# `make app` / `make test` find Flask and pytest without activating anything.
+# Override with `make PY=...`.
+PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 SONGS ?= data/songs.json
 
 help:
@@ -15,10 +18,11 @@ help:
 	@echo "  make bench      rank-quality benchmark on the bundled sample"
 	@echo "  make eval-full  regenerate the committed reports from the full library"
 	@echo "  make bench-full regenerate the committed benchmark from the full library"
+	@echo "  make demo       build the static demo in docs/ (make demo-serve to preview)"
 	@echo "  make pool       build a cold-end annotation task to judge by hand"
 	@echo "  make pool-full  the same, over the full library"
 	@echo "  make sqlcheck   recompute the sample's reported numbers in SQLite"
-	@echo "  make sqlcheck-full  the same for the committed reports and README"
+	@echo "  make sqlcheck-full  the same for the committed reports and docs/ANALYSIS.md"
 	@echo ""
 	@echo "  Full pipeline (needs LASTFM_API_KEY; see .env.example):"
 	@echo "  make library    1. pull tracks + sub-genre tags from Last.fm"
@@ -31,13 +35,22 @@ help:
 	@echo "  make all        run 1-5 end to end (~40 min, rate-limited)"
 
 install:
-	$(PY) -m pip install -r requirements.txt
+	test -x .venv/bin/python || python3 -m venv .venv
+	.venv/bin/python -m pip install -r requirements.txt
 
 test:
 	$(PY) -m pytest tests/ -q
 
 app:
 	$(PY) app/server.py
+
+# The static, credential-free demo GitHub Pages serves from docs/: the app page
+# unchanged, plus the playable part of the bundled sample.
+demo:
+	$(PY) scripts/build_demo.py
+
+demo-serve: demo
+	$(PY) -m http.server -d docs 8000
 
 # ── Pipeline ────────────────────────────────────────────────────────────────
 
@@ -120,7 +133,7 @@ sqlcheck: eval bench db
 
 sqlcheck-full: db-full
 	$(PY) scripts/sql_crosscheck.py \
-		--db data/kpoprec.db --reports reports --readme README.md
+		--db data/kpoprec.db --reports reports --readme docs/ANALYSIS.md
 
 # The committed benchmark, over the full library and ground truth.
 bench-full:

@@ -77,3 +77,13 @@ def test_whitespace_is_stripped():
     song = clean_song({"title": "  Hype Boy  ", "artist": "  NewJeans  "})
     assert song["title"] == "Hype Boy"
     assert song["artist"] == "NewJeans"
+
+
+def test_root_redirects_to_the_registered_page():
+    """The page's URL is its Spotify redirect URI, so it must be the one
+    registered in the dashboard, never the bare root."""
+    from server import APP_HTML, app
+
+    r = app.test_client().get("/")
+    assert r.status_code in (301, 302, 308)
+    assert r.headers["Location"].endswith("/" + APP_HTML)

@@ -36,7 +36,7 @@ import os
 import sys
 from pathlib import Path
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, redirect, request, send_from_directory
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -65,7 +65,14 @@ app = Flask(__name__, static_folder=str(APP_DIR), static_url_path="")
 
 @app.route("/")
 def index():
-    return send_from_directory(APP_DIR, APP_HTML)
+    """Send the root to the page's own path.
+
+    The page uses its own URL as the Spotify redirect URI, and Spotify accepts
+    only the exact string registered in the dashboard. Served at ``/`` it would
+    send ``http://127.0.0.1:5000/`` and login would fail with "Invalid redirect
+    URI"; redirecting makes every visit use the one registered address.
+    """
+    return redirect("/" + APP_HTML)
 
 
 @app.route("/songs.json")
