@@ -242,9 +242,31 @@
   }
   .confirm-bar .yes { background: #F9C86C; color: #3D1040; font-weight: 600; }
   .confirm-bar .no  { background: transparent; color: var(--screen-bright); }
+
+  /* Spotify embed: plays the current track when the app runs without Spotify
+     credentials (the static demo, or a local run with no client ID). */
+  .embed-wrap { display: none; border-radius: 12px; overflow: hidden; height: 80px; background: var(--screen-bg); }
+  .embed-wrap.on { display: block; }
+  .embed-wrap iframe { display: block; border: 0; }
+
+  .dice-btn { font-size: 13px; padding: 0 7px; }
+
+  .demo-note {
+    font-family: 'Share Tech Mono', monospace; font-size: 10.5px; color: #A06A6A;
+    text-align: center; line-height: 1.6; padding: 0 16px 24px; max-width: 600px;
+  }
+  .demo-note a { color: #8B3030; }
+  .page { display: flex; flex-direction: column; align-items: center; }
+
+  @media (max-width: 620px) {
+    .player-body { flex-direction: column; width: calc(100vw - 24px); max-width: 420px; padding: 16px; }
+    .screen-section { width: 100%; }
+    .wheel-section { width: 100%; max-width: 260px; }
+  }
 </style>
 </head>
 <body>
+<div class="page">
 <div class="player-wrap">
   <div class="player-body">
     <div class="screen-section">
@@ -277,8 +299,10 @@
       </div>
 
       <div class="search-row">
-        <input class="search-input" type="text" id="search-input" placeholder="Search a K-pop song..." />
+        <input class="search-input" type="text" id="search-input" placeholder="Search a K-pop song..." list="library-list" />
+        <datalist id="library-list"></datalist>
         <button class="search-btn" id="search-btn" onclick="handleSearch()">Generate</button>
+        <button class="search-btn dice-btn" id="dice-btn" onclick="randomSeed()" title="Random seed from the library">🎲</button>
       </div>
 
       <div class="playlist-mini" id="playlist-mini">
@@ -288,6 +312,8 @@
           then place songs.json here.
         </div>
       </div>
+
+      <div class="embed-wrap" id="embed-wrap"><div id="embed"></div></div>
 
       <div class="saved-panel" id="saved-panel">
         <div class="saved-panel-header">
@@ -327,9 +353,7 @@
           <svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
         </div>
         <div class="wheel-center-btn" onclick="togglePlay()" title="Play / Pause">
-          <div class="pause-icon" id="center-icon">
-            <div class="pause-bar"></div><div class="pause-bar"></div>
-          </div>
+          <div class="play-icon" id="center-icon" style="margin-left:3px"></div>
         </div>
       </div>
 
@@ -350,6 +374,8 @@
     </div>
   </div>
 </div>
+<div class="demo-note" id="demo-note" hidden></div>
+</div>
 <div class="toast" id="toast"></div>
 <div class="confirm-bar" id="confirm-bar"></div>
 
@@ -362,12 +388,18 @@
    *secret* here — the PKCE flow below does not need one. */
 let LASTFM_KEY = "";
 let SPOTIFY_CLIENT_ID = "";
+/* No config.json at all means the page is served statically (the GitHub Pages
+   demo). Each missing credential degrades one feature rather than the app:
+   no Last.fm key -> search the bundled library instead of Last.fm; no Spotify
+   client ID -> play through the Spotify embed instead of the Web Playback SDK. */
+let STATIC_DEMO = false;
+const REPO_URL = "https://github.com/snuuym/kpop-rec";
 const LASTFM_BASE = "https://ws.audioscrobbler.com/2.0/";
 // Queue length. Measured trade-off (see reports/eval_summary.md): the ranking
 // is identical either way -- a shorter queue is the same list, truncated -- but
 // the recommender's edge over random decays with depth. Per-slot precision runs
-// 1.8x random at 5 and only 1.3x by 50, while the chance of hitting anything the
-// listener likes climbs from 24% to 76%. 20 keeps 56% hit rate at 1.48x random.
+// 1.91x random at 5 and only 1.42x by 50, while the chance of hitting anything
+// the listener likes climbs from 18% to 63%. 20 keeps 43% hit rate at 1.61x random.
 const PLAYLIST_SIZE = 20;
 // The diversity cap is suspended for the opening stretch so it cannot starve a
 // short queue. Kept proportional to PLAYLIST_SIZE rather than a bare 10, which
@@ -377,14 +409,15 @@ const DIVERSITY_GRACE = Math.ceil(PLAYLIST_SIZE / 5);
 async function loadConfig() {
   try {
     const r = await fetch('config.json');
-    if (!r.ok) return;
+    if (!r.ok) { STATIC_DEMO = true; return; }
     const cfg = await r.json();
     LASTFM_KEY = cfg.lastfm_api_key || "";
     SPOTIFY_CLIENT_ID = cfg.spotify_client_id || "";
   } catch (e) {
-    /* served without the local server: search and playback stay disabled */
+    STATIC_DEMO = true;   /* served without the local server */
   }
 }
+const useEmbed = () => !SPOTIFY_CLIENT_ID;
 
 /* Match wherever the app is actually served, so the Spotify redirect lines up
    with whatever is registered in the dashboard. Register this exact string:
@@ -446,10 +479,14 @@ async function loadLibrary() {
     if (!r.ok) throw new Error('not found');
     /* served by server.py from data/songs.json */
     LIBRARY = await r.json();
+    const hint = LASTFM_KEY ? 'Search a song to generate a playlist.'
+                            : 'Pick a song from the list, or press 🎲.';
     document.getElementById('playlist-mini').innerHTML =
       `<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#9B5A98;padding:4px 2px;">
-        Library loaded: ${LIBRARY.length} tracks.<br>Search a song to generate a playlist.
+        Library loaded: ${LIBRARY.length} tracks.<br>${hint}
        </div>`;
+    if (!LASTFM_KEY) fillLibraryList();
+    if (STATIC_DEMO) showDemoNote();
     showToast(`Library: ${LIBRARY.length} tracks ready`);
   } catch (e) {
     /* songs.json not present — keep the placeholder message */
@@ -530,6 +567,70 @@ async function searchTrack(query) {
   } catch (e) {
     return null;
   }
+}
+
+/* ── Library-only search (no Last.fm key: the static demo) ──
+   Same scorer as the Last.fm path, run over the local library. The datalist
+   offers "Title — Artist" for every track, so a picked suggestion resolves
+   exactly; free text falls back to the best fuzzy match above a floor. */
+const LIST_SEP = ' — ';
+function fillLibraryList() {
+  const opts = LIBRARY
+    .map(s => `${s.title}${LIST_SEP}${s.artist}`)
+    .sort((a, b) => a.localeCompare(b));
+  const dl = document.getElementById('library-list');
+  dl.innerHTML = '';
+  for (const v of opts) {
+    const o = document.createElement('option');
+    o.value = v;
+    dl.appendChild(o);
+  }
+}
+
+function searchLibrary(query) {
+  const exact = LIBRARY.find(s => `${s.title}${LIST_SEP}${s.artist}` === query);
+  if (exact) return exact;
+  let best = null, bestScore = 0.3, bestListeners = -1;   // floor: no random near-misses
+  for (const s of LIBRARY) {
+    const score = matchScore(query, { name: s.title, artist: s.artist });
+    const listeners = s.listeners || 0;
+    if (score > bestScore || (best && score === bestScore && listeners > bestListeners)) {
+      best = s; bestScore = score; bestListeners = listeners;
+    }
+  }
+  return best;
+}
+
+function randomSeed() {
+  const pool = LIBRARY.filter(s => s.features && (s.spotify_id || !useEmbed()));
+  if (pool.length === 0) { showToast('Library not loaded yet'); return; }
+  const song = pool[Math.floor(Math.random() * pool.length)];
+  document.getElementById('search-input').value = `${song.title}${LIST_SEP}${song.artist}`;
+  startFromLibrarySong(song);
+}
+
+/* Generate from a seed that is already in the library: no network needed. */
+function startFromLibrarySong(song) {
+  clearConfirm();
+  lastSearchQuery = song.title;
+  const tags = (song.all_tags || []).map(t => t.toLowerCase());
+  const { tracks, modeMsg } = rankFor(tags, song);
+  showToast(modeMsg);
+  showPlaylist({
+    title: song.title, artist: song.artist, tag: 'SEED', tags: [],
+    dur: song.dur || 0, durStr: song.durStr || '--:--', isSeed: true,
+    spotify_id: song.spotify_id,
+  }, tracks);
+}
+
+function showDemoNote() {
+  const playable = LIBRARY.filter(s => s.spotify_id).length;
+  const el = document.getElementById('demo-note');
+  el.innerHTML =
+    `Live demo · ${playable}-track sample library · playback through the Spotify embed.<br>` +
+    `The full app searches any song on Last.fm, plays whole tracks and exports to Spotify — ` +
+    `<a href="${REPO_URL}" target="_blank" rel="noopener">run it locally</a>.`;
+  el.hidden = false;
 }
 
 /* ── Recommendation: tag → playlist ── */
@@ -791,12 +892,25 @@ async function handleSearch() {
   try {
     if (LIBRARY.length === 0) {
       showToast('songs.json not loaded — run `make library` first', 3500);
+      restoreScreen();
+      return;
+    }
+
+    // No Last.fm key: the seed has to come from the library itself.
+    if (!LASTFM_KEY) {
+      const song = searchLibrary(query);
+      if (!song) {
+        showToast('Not in this library — pick from the list or press 🎲', 3000);
+        restoreScreen();
+        return;
+      }
+      startFromLibrarySong(song);
       return;
     }
 
     // 1. Find the track on Last.fm
     const track = await searchTrack(query);
-    if (!track) { showToast('Track not found on Last.fm'); return; }
+    if (!track) { showToast('Track not found on Last.fm'); restoreScreen(); return; }
 
     // 2. Get its tags + try to locate the seed in our library (for baked features)
     const tags     = await getTrackTags(track.artist, track.name);
@@ -805,23 +919,8 @@ async function handleSearch() {
     lastSeedAddedTotal = null;
     lastSeedNeedsConfirm = null;
     if (!seedSong) seedSong = await addSeedToLibrary(track, tags);
-    lastSearchTags  = tags;
-    seedLibrarySong = seedSong;
-
-    // 3. Build playlist. Feature mode if the seed is in-library with features;
-    //    otherwise tag mode; last resort random. Pass the seed so it never
-    //    recommends itself (it's already shown at index 0).
-    let tracks, modeMsg;
-    if (seedSong && seedSong.features) {
-      modeMsg = 'Matching by audio features ♪';
-      tracks = buildPlaylist(tags, seedSong).slice(0, PLAYLIST_SIZE - 1);
-    } else if (tags.length > 0) {
-      modeMsg = `Tags: ${tags.slice(0,3).join(' · ')}`;
-      tracks = buildPlaylist(tags, seedSong).slice(0, PLAYLIST_SIZE - 1);
-    } else {
-      modeMsg = 'No tags found — random playlist';
-      tracks = randomSample(LIBRARY.filter(s => s !== seedSong), PLAYLIST_SIZE - 1);
-    }
+    // 3. Build playlist (see rankFor).
+    const { tracks, modeMsg } = rankFor(tags, seedSong);
     // One status toast.  Three cases:
     //  • tag-less new seed → let the user decide via an "Add to library ✓" prompt
     //  • seed just auto-persisted (had tags) → fold "added to library (N)" in
@@ -836,22 +935,53 @@ async function handleSearch() {
     }
 
     // 4. Prepend seed track at index 0
-    seedTrackData = { title: track.name, artist: track.artist, tag: 'SEED', tags: [], dur: 0, durStr: '--:--', isSeed: true, spotify_id: seedSong && seedSong.spotify_id };
-    playlist   = [seedTrackData, ...tracks];
-    currentIdx = 0;
-    elapsedSec = 0;
-
-    setPlayState(true);
-    updateScreen();
-    renderPlaylist();
-    if (spotifyReady) playCurrent();
-    // (No "Playlist: N tracks" toast — it clobbered the status/confirm feedback,
-    //  and the playlist is already visible in the UI.)
+    showPlaylist({ title: track.name, artist: track.artist, tag: 'SEED', tags: [], dur: 0, durStr: '--:--', isSeed: true, spotify_id: seedSong && seedSong.spotify_id }, tracks);
 
   } finally {
     btn.textContent = 'Generate';
     btn.disabled = false;
   }
+}
+
+/* Rank the library for a seed. Feature mode if the seed is in-library with
+   features; otherwise tag mode; last resort random. The seed is passed so it
+   never recommends itself (it's already shown at index 0). */
+function rankFor(tags, seedSong) {
+  lastSearchTags  = tags;
+  seedLibrarySong = seedSong;
+  if (seedSong && seedSong.features) {
+    return { modeMsg: 'Matching by audio features ♪',
+             tracks: buildPlaylist(tags, seedSong).slice(0, PLAYLIST_SIZE - 1) };
+  }
+  if (tags.length > 0) {
+    return { modeMsg: `Tags: ${tags.slice(0,3).join(' · ')}`,
+             tracks: buildPlaylist(tags, seedSong).slice(0, PLAYLIST_SIZE - 1) };
+  }
+  return { modeMsg: 'No tags found — random playlist',
+           tracks: randomSample(LIBRARY.filter(s => s !== seedSong), PLAYLIST_SIZE - 1) };
+}
+
+function showPlaylist(seed, tracks) {
+  seedTrackData = seed;
+  playlist   = [seed, ...tracks];
+  currentIdx = 0;
+  elapsedSec = 0;
+  setPlayState(true);
+  updateScreen();
+  renderPlaylist();
+  playActive();
+  // (No "Playlist: N tracks" toast — it clobbered the status/confirm feedback,
+  //  and the playlist is already visible in the UI.)
+}
+
+/* Put the idle screen back after a search that produced nothing. */
+function restoreScreen() {
+  if (playlist.length > 0) { setPlayState(isPlaying); updateScreen(); return; }
+  document.getElementById('track-title').textContent = 'K-Pop Player';
+  document.getElementById('track-tag').textContent   = 'K-pop';
+  document.getElementById('status-label').textContent = 'READY';
+  document.getElementById('status-dot').classList.add('paused-dot');
+  updateAuthUI();
 }
 
 /* ── Player UI ── */
@@ -908,28 +1038,41 @@ function setPlayState(playing) {
 function togglePlay() {
   if (playlist.length === 0) return;
   if (spotifyReady) { player.togglePlay(); return; }   // state listener updates UI
+  if (useEmbed()) {
+    const id = playlist[currentIdx].spotify_id;
+    if (embedController && id && embedUri === 'spotify:track:' + id) embedController.togglePlay();
+    else playActive();
+    return;
+  }
   setPlayState(!isPlaying);
+}
+
+/* Play the current track on whichever player this run has. */
+function playActive() {
+  if (spotifyReady) playCurrent();
+  else if (useEmbed()) playEmbed(playlist[currentIdx]);
 }
 
 function jumpTo(idx) {
   currentIdx = idx; elapsedSec = 0;
   setPlayState(true); updateScreen(); renderPlaylist();
-  if (spotifyReady) playCurrent();
+  playActive();
 }
 function prevTrack() {
   if (playlist.length === 0) return;
   currentIdx = (currentIdx - 1 + playlist.length) % playlist.length;
   elapsedSec = 0; setPlayState(true); updateScreen(); renderPlaylist();
-  if (spotifyReady) playCurrent();
+  playActive();
 }
 function nextTrack() {
   if (playlist.length === 0) return;
   currentIdx = (currentIdx + 1) % playlist.length;
   elapsedSec = 0; setPlayState(true); updateScreen(); renderPlaylist();
-  if (spotifyReady) playCurrent();
+  playActive();
 }
-function volUp()   { volume = Math.min(100, volume + 10); if (spotifyReady) player.setVolume(volume / 100); showToast('Volume: ' + volume + '%'); }
-function volDown() { volume = Math.max(0,   volume - 10); if (spotifyReady) player.setVolume(volume / 100); showToast('Volume: ' + volume + '%'); }
+/* The embed exposes no volume control; the device's own volume applies. */
+function volUp()   { if (!spotifyReady && useEmbed()) { showToast('Use your device volume'); return; } volume = Math.min(100, volume + 10); if (spotifyReady) player.setVolume(volume / 100); showToast('Volume: ' + volume + '%'); }
+function volDown() { if (!spotifyReady && useEmbed()) { showToast('Use your device volume'); return; } volume = Math.max(0,   volume - 10); if (spotifyReady) player.setVolume(volume / 100); showToast('Volume: ' + volume + '%'); }
 
 /* ── Save playlist (localStorage) ── */
 function savePlaylist() {
@@ -986,6 +1129,10 @@ document.getElementById('prog-wrap').addEventListener('click', async function(e)
     if (state) player.seek(Math.floor(frac * state.duration));
     return;
   }
+  if (useEmbed()) {
+    if (embedController && embedState.duration) embedController.seek(Math.floor(frac * embedState.duration / 1000));
+    return;
+  }
   elapsedSec = Math.floor(frac * playlist[currentIdx].dur);
   updateProgress();
 });
@@ -997,7 +1144,7 @@ document.getElementById('search-input').addEventListener('keydown', e => {
 
 /* ── Playback tick (simulation only — Spotify drives its own progress) ── */
 setInterval(() => {
-  if (spotifyReady || !isPlaying || playlist.length === 0) return;
+  if (spotifyReady || useEmbed() || !isPlaying || playlist.length === 0) return;
   elapsedSec++;
   if (elapsedSec >= playlist[currentIdx].dur) { nextTrack(); } else { updateProgress(); }
 }, 1000);
@@ -1100,7 +1247,11 @@ function showToastLink(msg, url) {
 }
 
 async function exportToSpotify() {
-  if (!spotifyReady) { showToast('Connect Spotify first'); return; }
+  if (!spotifyReady) {
+    showToast(SPOTIFY_CLIENT_ID ? 'Connect Spotify first'
+                                : 'Export needs a Spotify login — run the app locally', 3200);
+    return;
+  }
   if (playlist.length === 0) { showToast('Nothing to export'); return; }
 
   showToast('Resolving tracks…', 8000);
@@ -1122,6 +1273,10 @@ async function exportToSpotify() {
 
   // 3. Create playlist
   const plName = lastSearchQuery ? `K-Pop: ${lastSearchQuery}` : 'K-Pop Mix';
+  // Without a description Spotify shows the literal text "null" under the title.
+  const seed = playlist[0] && playlist[0].isSeed ? playlist[0] : null;
+  const plDesc = seed ? `Made by K-pop Cold-Start Player from ${seed.title} — ${seed.artist}.`
+                      : 'Made by K-pop Cold-Start Player.';
   let plId;
   try {
     // Use POST /v1/me/playlists. The older POST /v1/users/{id}/playlists was
@@ -1131,7 +1286,7 @@ async function exportToSpotify() {
     const r  = await spotifyFetch('https://api.spotify.com/v1/me/playlists', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ name: plName, public: false }),
+      body:    JSON.stringify({ name: plName, description: plDesc, public: false }),
     });
     // A lingering 403 here almost certainly means a missing playlist-modify-*
     // scope (token granted before the scopes were added) — a fresh consent fixes
@@ -1429,6 +1584,14 @@ async function playCurrent() {
 
 /* ── Show/hide the Connect button based on auth state ── */
 function updateAuthUI() {
+  if (useEmbed()) {
+    document.getElementById('connect-spotify-btn').style.display = 'none';
+    if (playlist.length === 0) {
+      document.getElementById('track-artist').textContent =
+        LASTFM_KEY ? 'Search a song to start' : 'Pick a song or press 🎲';
+    }
+    return;
+  }
   const authed = !!(accessToken || sessionStorage.getItem('spotify_token'));
   document.getElementById('connect-spotify-btn').style.display = authed ? 'none' : '';
   if (!authed) {
@@ -1449,9 +1612,76 @@ setInterval(async () => {
   updateProgressSpotify(state.position, state.duration);
 }, 500);
 
+/* ─────────────────────────────────────────────
+   Spotify embed playback (no credentials)
+   The iFrame API needs no API key, app registration or Premium, which is what
+   lets the static demo play anything. Created lazily on the first track, since
+   the controller has to be built around a URI.
+   ───────────────────────────────────────────── */
+let embedApi = null;
+let embedController = null;
+let embedUri = null;
+let embedPending = null;
+let embedState = { isPaused: true, position: 0, duration: 0 };
+let embedAdvanced = false;   // one auto-advance per track
+
+function loadEmbedApi() {
+  window.onSpotifyIframeApiReady = api => {
+    embedApi = api;
+    if (embedPending) { const t = embedPending; embedPending = null; playEmbed(t); }
+  };
+  const s = document.createElement('script');
+  s.src = 'https://open.spotify.com/embed/iframe-api/v1';
+  s.async = true;
+  document.body.appendChild(s);
+}
+
+function playEmbed(track) {
+  if (!track) return;
+  if (!track.spotify_id) { showToast('Not on Spotify: ' + track.title); setPlayState(false); return; }
+  if (!embedApi) { embedPending = track; return; }
+  const uri = 'spotify:track:' + track.spotify_id;
+  embedUri = uri;
+  embedAdvanced = false;
+  document.getElementById('embed-wrap').classList.add('on');
+  if (embedController) {
+    embedController.loadUri(uri);
+    embedController.play();
+    return;
+  }
+  embedApi.createController(document.getElementById('embed'),
+    { uri, width: '100%', height: 80 },
+    controller => {
+      embedController = controller;
+      controller.addListener('ready', () => controller.play());
+      controller.addListener('playback_update', onEmbedUpdate);
+    });
+}
+
+function onEmbedUpdate(e) {
+  const d = e.data;
+  if (!d || !d.duration) return;
+  const prev = embedState;
+  embedState = d;
+  setPlayState(!d.isPaused);
+  updateProgressSpotify(d.position, d.duration);
+  // End of track. Observed: the embed parks at position == duration and still
+  // reports isPaused: false, so the end is read from position alone; a rewind
+  // to 0 after playing is handled too. Only within one URI -- loading the next
+  // track also reports position 0.
+  const sameTrack = d.playingURI === embedUri && prev.playingURI === embedUri;
+  const atEnd = d.position >= d.duration - 500;
+  const rewound = d.isPaused && d.position === 0 && !prev.isPaused && prev.position > 0;
+  if (sameTrack && !d.isBuffering && (atEnd || rewound) && !embedAdvanced) {
+    embedAdvanced = true;
+    nextTrack();
+  }
+}
+
 /* ── Boot ── */
 async function boot() {
   await loadConfig();           // credentials first: search/auth both need them
+  if (useEmbed()) loadEmbedApi();
   loadLibrary();
   accessToken = sessionStorage.getItem('spotify_token');
   await handleAuthCallback();   // exchange ?code= if returning from Spotify
